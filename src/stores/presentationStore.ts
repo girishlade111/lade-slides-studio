@@ -412,11 +412,13 @@ export const usePresentationStore = create<PresentationStore>((set, get) => ({
       animation: 'none',
       shapeProps: {
         shapeType,
-        fill: '#20B2AA',
+        fill: '#60A5FA',
         fillOpacity: 100,
-        stroke: 'transparent',
-        strokeWidth: 0,
-        borderRadius: shapeType === 'rectangle' ? 8 : 0,
+        stroke: '#1E40AF',
+        strokeWidth: 2,
+        strokeStyle: 'solid',
+        borderRadius: shapeType === 'rectangle' ? 8 : shapeType === 'rounded-rectangle' ? 20 : 0,
+        shadow: { enabled: false, color: 'rgba(0,0,0,0.3)', blur: 4, offsetX: 2, offsetY: 2 },
       },
     };
     get().addObject(obj);
