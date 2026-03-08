@@ -1,20 +1,31 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { usePresentationStore } from '@/stores/presentationStore';
 import { ShapeRenderer } from './ShapeRenderer';
-import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
 
 export const PresentationMode: React.FC = () => {
   const { presentation, currentSlideIndex, setCurrentSlide, setPresentationMode } = usePresentationStore();
   const [elapsed, setElapsed] = useState(0);
+  const [paused, setPaused] = useState(false);
   const [laserPos, setLaserPos] = useState<{ x: number; y: number } | null>(null);
   const [ctrlHeld, setCtrlHeld] = useState(false);
+  const [transitionClass, setTransitionClass] = useState('');
   const startTime = useRef(Date.now());
+  const pausedTime = useRef(0);
 
   const slide = presentation.slides[currentSlideIndex];
+  const prevSlideRef = useRef(currentSlideIndex);
 
   const goNext = useCallback(() => {
-    if (currentSlideIndex < presentation.slides.length - 1) setCurrentSlide(currentSlideIndex + 1);
-  }, [currentSlideIndex, presentation.slides.length, setCurrentSlide]);
+    if (currentSlideIndex < presentation.slides.length - 1) {
+      const nextSlide = presentation.slides[currentSlideIndex + 1];
+      if (nextSlide.transition.type !== 'none') {
+        setTransitionClass(`slide-transition-${nextSlide.transition.type}`);
+        setTimeout(() => setTransitionClass(''), (nextSlide.transition.duration || 0.5) * 1000);
+      }
+      setCurrentSlide(currentSlideIndex + 1);
+    }
+  }, [currentSlideIndex, presentation.slides, setCurrentSlide]);
 
   const goPrev = useCallback(() => {
     if (currentSlideIndex > 0) setCurrentSlide(currentSlideIndex - 1);
@@ -29,9 +40,10 @@ export const PresentationMode: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const timer = setInterval(() => setElapsed(Math.floor((Date.now() - startTime.current) / 1000)), 1000);
+    if (paused) return;
+    const timer = setInterval(() => setElapsed(Math.floor((Date.now() - startTime.current - pausedTime.current) / 1000)), 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [paused]);
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
@@ -39,6 +51,7 @@ export const PresentationMode: React.FC = () => {
       if (e.key === 'ArrowRight' || e.key === ' ') goNext();
       if (e.key === 'ArrowLeft') goPrev();
       if (e.key === 'Control') setCtrlHeld(true);
+      if (e.key === 'p' || e.key === 'P') setPaused(p => !p);
     };
     const handleKeyUp = (e: KeyboardEvent) => {
       if (e.key === 'Control') { setCtrlHeld(false); setLaserPos(null); }
@@ -63,11 +76,14 @@ export const PresentationMode: React.FC = () => {
   if (slide.background.type === 'color') bgStyle.backgroundColor = slide.background.value;
   else if (slide.background.type === 'gradient') {
     bgStyle.background = `linear-gradient(${slide.background.gradientDirection || '135deg'}, ${slide.background.value}, ${slide.background.secondaryValue || '#fff'})`;
+  } else if (slide.background.type === 'image') {
+    bgStyle.backgroundImage = `url(${slide.background.value})`;
+    bgStyle.backgroundSize = 'cover';
+    bgStyle.backgroundPosition = 'center';
   }
 
   const formatTime = (s: number) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
 
-  // Scale to fit viewport
   const vw = window.innerWidth;
   const vh = window.innerHeight;
   const scale = Math.min(vw / presentation.slideWidth, vh / presentation.slideHeight);
@@ -80,12 +96,13 @@ export const PresentationMode: React.FC = () => {
       onClick={handleClick}
     >
       <div
-        className="relative"
+        className={`relative ${transitionClass}`}
         style={{
           width: presentation.slideWidth,
           height: presentation.slideHeight,
           transform: `scale(${scale})`,
           transformOrigin: 'center center',
+          transition: transitionClass ? `all ${slide.transition.duration || 0.5}s ease` : undefined,
           ...bgStyle,
         }}
       >
@@ -113,6 +130,7 @@ export const PresentationMode: React.FC = () => {
                   color: obj.textProps.color,
                   textAlign: obj.textProps.textAlign,
                   lineHeight: obj.textProps.lineHeight,
+                  backgroundColor: obj.textProps.backgroundColor !== 'transparent' ? obj.textProps.backgroundColor : undefined,
                 }}
               >
                 {obj.textProps.content}
@@ -120,16 +138,21 @@ export const PresentationMode: React.FC = () => {
             )}
             {obj.type === 'shape' && <ShapeRenderer obj={obj} />}
             {obj.type === 'image' && obj.imageProps && (
-              <img src={obj.imageProps.src} alt="" className="w-full h-full" style={{ objectFit: obj.imageProps.objectFit, opacity: obj.imageProps.opacity / 100 }} draggable={false} />
+              <img src={obj.imageProps.src} alt="" className="w-full h-full" style={{ objectFit: obj.imageProps.objectFit, opacity: obj.imageProps.opacity / 100, filter: obj.imageProps.filter !== 'none' ? obj.imageProps.filter : undefined }} draggable={false} />
             )}
           </div>
         ))}
       </div>
 
-      {/* Laser */}
       {laserPos && <div className="laser-dot" style={{ left: laserPos.x - 6, top: laserPos.y - 6 }} />}
 
-      {/* Controls overlay */}
+      {/* Presenter notes overlay (bottom) */}
+      {slide.notes && (
+        <div className="fixed bottom-16 left-1/2 -translate-x-1/2 max-w-xl bg-foreground/70 backdrop-blur rounded-lg px-4 py-2 opacity-0 hover:opacity-100 transition-opacity">
+          <p className="text-background text-xs">{slide.notes}</p>
+        </div>
+      )}
+
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-foreground/80 backdrop-blur rounded-full px-4 py-2 opacity-0 hover:opacity-100 transition-opacity">
         <button onClick={(e) => { e.stopPropagation(); goPrev(); }} className="text-background p-1">
           <ChevronLeft className="w-5 h-5" />
@@ -140,7 +163,10 @@ export const PresentationMode: React.FC = () => {
         <button onClick={(e) => { e.stopPropagation(); goNext(); }} className="text-background p-1">
           <ChevronRight className="w-5 h-5" />
         </button>
-        <span className="text-background/60 text-xs">{formatTime(elapsed)}</span>
+        <button onClick={(e) => { e.stopPropagation(); setPaused(p => !p); }} className="text-background p-1">
+          {paused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
+        </button>
+        <span className="text-background/60 text-xs">{formatTime(elapsed)}{paused && ' ⏸'}</span>
         <button onClick={(e) => { e.stopPropagation(); exit(); }} className="text-background p-1">
           <X className="w-5 h-5" />
         </button>
