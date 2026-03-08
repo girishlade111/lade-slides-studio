@@ -3,7 +3,7 @@ import { usePresentationStore } from '@/stores/presentationStore';
 import type { ShapeType } from '@/types/presentation';
 import {
   Type, Square, Circle, Triangle, Star, Hexagon, Pentagon, ArrowRight,
-  Minus, Image, MousePointer, Grid3X3,
+  Minus, Image, MousePointer, Grid3X3, Trash2, Copy, ZoomIn, ZoomOut,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -26,7 +26,10 @@ const shapeOptions: { type: ShapeType; icon: React.ReactNode; label: string }[] 
 const zoomLevels = [50, 75, 100, 150, 200];
 
 export const SlideToolbar: React.FC = () => {
-  const { tool, setTool, setActiveShapeType, zoom, setZoom, showGrid, setShowGrid } = usePresentationStore();
+  const {
+    tool, setTool, setActiveShapeType, zoom, setZoom, showGrid, setShowGrid,
+    selectedObjectIds, deleteObjects, duplicateSlide, currentSlideIndex,
+  } = usePresentationStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,6 +52,8 @@ export const SlideToolbar: React.FC = () => {
     reader.readAsDataURL(file);
     e.target.value = '';
   };
+
+  const zoomIdx = zoomLevels.indexOf(zoom);
 
   return (
     <div className="h-12 bg-toolbar border-t border-border flex items-center px-4 gap-1">
@@ -92,6 +97,23 @@ export const SlideToolbar: React.FC = () => {
       </ToolbarBtn>
       <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
 
+      <div className="w-px h-6 bg-muted-foreground/20 mx-2" />
+
+      {selectedObjectIds.length > 0 && (
+        <>
+          <ToolbarBtn onClick={() => deleteObjects(selectedObjectIds)} title="Delete">
+            <Trash2 className="w-4 h-4" />
+          </ToolbarBtn>
+          <ToolbarBtn onClick={() => {
+            usePresentationStore.getState().copyObjects();
+            usePresentationStore.getState().pasteObjects();
+          }} title="Duplicate">
+            <Copy className="w-4 h-4" />
+          </ToolbarBtn>
+          <div className="w-px h-6 bg-muted-foreground/20 mx-2" />
+        </>
+      )}
+
       <div className="flex-1" />
 
       <ToolbarBtn active={showGrid} onClick={() => setShowGrid(!showGrid)} title="Toggle Grid">
@@ -99,19 +121,13 @@ export const SlideToolbar: React.FC = () => {
       </ToolbarBtn>
 
       <div className="flex items-center gap-1 ml-2">
-        {zoomLevels.map((z) => (
-          <button
-            key={z}
-            onClick={() => setZoom(z)}
-            className={`px-2 py-1 text-xs rounded transition-colors ${
-              zoom === z
-                ? 'bg-primary text-primary-foreground'
-                : 'text-toolbar-foreground hover:bg-muted-foreground/20'
-            }`}
-          >
-            {z}%
-          </button>
-        ))}
+        <ToolbarBtn onClick={() => { if (zoomIdx > 0) setZoom(zoomLevels[zoomIdx - 1]); }} title="Zoom Out">
+          <ZoomOut className="w-4 h-4" />
+        </ToolbarBtn>
+        <span className="text-xs text-toolbar-foreground min-w-[3rem] text-center">{zoom}%</span>
+        <ToolbarBtn onClick={() => { if (zoomIdx < zoomLevels.length - 1) setZoom(zoomLevels[zoomIdx + 1]); }} title="Zoom In">
+          <ZoomIn className="w-4 h-4" />
+        </ToolbarBtn>
       </div>
     </div>
   );

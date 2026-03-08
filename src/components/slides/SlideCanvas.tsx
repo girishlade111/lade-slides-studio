@@ -86,6 +86,7 @@ export const SlideCanvas: React.FC = () => {
       >
         <div
           ref={canvasRef}
+          data-slide-export
           className="relative shadow-2xl"
           style={{
             width: presentation.slideWidth,

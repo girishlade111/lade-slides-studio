@@ -1,12 +1,25 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { usePresentationStore } from '@/stores/presentationStore';
-import { Plus, Trash2, Copy } from 'lucide-react';
+import { Plus, Trash2, Copy, GripVertical } from 'lucide-react';
 
 export const SlideSidebar: React.FC = () => {
   const {
     presentation, currentSlideIndex, setCurrentSlide,
-    addSlide, deleteSlide, duplicateSlide,
+    addSlide, deleteSlide, duplicateSlide, reorderSlides,
   } = usePresentationStore();
+
+  const handleDragStart = useCallback((e: React.DragEvent, index: number) => {
+    e.dataTransfer.setData('slide-index', index.toString());
+    e.dataTransfer.effectAllowed = 'move';
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    const fromIndex = parseInt(e.dataTransfer.getData('slide-index'));
+    if (!isNaN(fromIndex) && fromIndex !== targetIndex) {
+      reorderSlides(fromIndex, targetIndex);
+    }
+  }, [reorderSlides]);
 
   return (
     <div className="w-52 bg-card border-r border-border flex flex-col h-full">
@@ -24,6 +37,10 @@ export const SlideSidebar: React.FC = () => {
         {presentation.slides.map((slide, index) => (
           <div
             key={slide.id}
+            draggable
+            onDragStart={(e) => handleDragStart(e, index)}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => handleDrop(e, index)}
             className={`group relative cursor-pointer rounded-lg border-2 transition-all ${
               index === currentSlideIndex
                 ? 'border-primary shadow-md'
@@ -32,6 +49,7 @@ export const SlideSidebar: React.FC = () => {
             onClick={() => setCurrentSlide(index)}
           >
             <div className="flex items-center gap-1 px-1 pt-1">
+              <GripVertical className="w-3 h-3 text-muted-foreground/50 opacity-0 group-hover:opacity-100 cursor-grab" />
               <span className="text-[10px] font-medium text-muted-foreground">{index + 1}</span>
               <div className="flex-1" />
               <button
@@ -69,6 +87,9 @@ const SlideThumb: React.FC<{ slide: any; width: number; height: number }> = ({ s
   if (slide.background.type === 'color') bgStyle.backgroundColor = slide.background.value;
   else if (slide.background.type === 'gradient') {
     bgStyle.background = `linear-gradient(${slide.background.gradientDirection || '135deg'}, ${slide.background.value}, ${slide.background.secondaryValue || '#fff'})`;
+  } else if (slide.background.type === 'image') {
+    bgStyle.backgroundImage = `url(${slide.background.value})`;
+    bgStyle.backgroundSize = 'cover';
   }
 
   const scale = 180 / width;
@@ -110,6 +131,9 @@ const SlideThumb: React.FC<{ slide: any; width: number; height: number }> = ({ s
                   opacity: obj.shapeProps.fillOpacity / 100,
                 }}
               />
+            )}
+            {obj.type === 'image' && obj.imageProps && (
+              <img src={obj.imageProps.src} alt="" className="w-full h-full" style={{ objectFit: obj.imageProps.objectFit, opacity: obj.imageProps.opacity / 100 }} draggable={false} />
             )}
           </div>
         ))}
