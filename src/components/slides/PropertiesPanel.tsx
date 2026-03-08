@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { usePresentationStore } from '@/stores/presentationStore';
 import { PRESET_COLORS, THEMES } from '@/types/presentation';
-import type { AnimationType, SlideBackground, GradientStop } from '@/types/presentation';
+import type { AnimationType } from '@/types/presentation';
 import { Trash2, RotateCw, Lock, Unlock } from 'lucide-react';
 
 const ANIMATION_TYPES: { value: AnimationType; label: string }[] = [
