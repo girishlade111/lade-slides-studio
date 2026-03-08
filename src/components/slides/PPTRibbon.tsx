@@ -4,7 +4,7 @@ import { FONTS, THEMES, SHAPE_CATEGORIES } from '@/types/presentation';
 import type { ShapeType } from '@/types/presentation';
 import {
   Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify,
-  Type, Square, Circle, Triangle, Star, Hexagon, Pentagon, ArrowRight, Minus,
+  Type, Square, Circle, Triangle, Star,
   Image, Trash2, Copy, Clipboard, Scissors,
   ArrowUpToLine, ArrowDownToLine,
   Plus, Play, ChevronDown, MousePointer,
