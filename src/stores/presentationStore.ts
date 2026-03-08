@@ -29,6 +29,7 @@ interface PresentationStore {
   activeShapeType: ShapeType;
   savedPresentations: SavedPresentationMeta[];
   autoSaveIndicator: boolean;
+  slideClipboard: Slide | null;
 
   // Actions
   setPresentation: (p: Presentation) => void;
@@ -48,6 +49,8 @@ interface PresentationStore {
   reorderSlides: (fromIndex: number, toIndex: number) => void;
   updateSlideBackground: (index: number, bg: SlideBackground) => void;
   updateSlideNotes: (index: number, notes: string) => void;
+  copySlide: (index: number) => void;
+  pasteSlide: (afterIndex: number) => void;
 
   // Object actions
   addObject: (obj: SlideObject) => void;
@@ -173,6 +176,7 @@ export const usePresentationStore = create<PresentationStore>((set, get) => ({
   activeShapeType: 'rectangle',
   savedPresentations: [],
   autoSaveIndicator: false,
+  slideClipboard: null,
 
   setPresentation: (p) => set({ presentation: p }),
   setCurrentSlide: (index) => set({ currentSlideIndex: index, selectedObjectIds: [] }),
@@ -287,6 +291,28 @@ export const usePresentationStore = create<PresentationStore>((set, get) => ({
     const slides = [...presentation.slides];
     slides[index] = { ...slides[index], notes };
     set({ presentation: { ...presentation, slides, updatedAt: Date.now() } });
+  },
+
+  copySlide: (index) => {
+    const { presentation } = get();
+    const slide = presentation.slides[index];
+    if (slide) set({ slideClipboard: JSON.parse(JSON.stringify(slide)) });
+  },
+
+  pasteSlide: (afterIndex) => {
+    const { slideClipboard, presentation, pushHistory } = get();
+    if (!slideClipboard) return;
+    pushHistory();
+    const dup: Slide = JSON.parse(JSON.stringify(slideClipboard));
+    dup.id = uuidv4();
+    dup.objects.forEach((o) => (o.id = uuidv4()));
+    const slides = [...presentation.slides];
+    slides.splice(afterIndex + 1, 0, dup);
+    slides.forEach((s, i) => (s.order = i));
+    set({
+      presentation: { ...presentation, slides, updatedAt: Date.now() },
+      currentSlideIndex: afterIndex + 1,
+    });
   },
 
   addObject: (obj) => {
