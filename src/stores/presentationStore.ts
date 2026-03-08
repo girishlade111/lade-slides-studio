@@ -48,6 +48,7 @@ interface PresentationStore {
   duplicateSlide: (index: number) => void;
   reorderSlides: (fromIndex: number, toIndex: number) => void;
   updateSlideBackground: (index: number, bg: SlideBackground) => void;
+  applyBackgroundToAll: (bg: SlideBackground) => void;
   updateSlideNotes: (index: number, notes: string) => void;
   copySlide: (index: number) => void;
   pasteSlide: (afterIndex: number) => void;
