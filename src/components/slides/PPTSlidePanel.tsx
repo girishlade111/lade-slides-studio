@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useRef } from 'react';
+import React, { useCallback } from 'react';
 import { usePresentationStore } from '@/stores/presentationStore';
 import { ShapeRenderer } from './ShapeRenderer';
 import {

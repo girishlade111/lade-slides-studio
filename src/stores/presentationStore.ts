@@ -315,6 +315,7 @@ export const usePresentationStore = create<PresentationStore>((set, get) => ({
     });
   },
 
+  addObject: (obj) => {
     const { presentation, currentSlideIndex, pushHistory } = get();
     pushHistory();
     const slides = [...presentation.slides];
