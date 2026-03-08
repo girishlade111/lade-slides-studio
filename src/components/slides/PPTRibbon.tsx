@@ -94,7 +94,7 @@ export const PPTRibbon: React.FC = () => {
   const [imageUrl, setImageUrl] = useState('');
   const [urlLoading, setUrlLoading] = useState(false);
   const [urlError, setUrlError] = useState('');
-  const [showRecentDialog, setShowRecentDialog] = useState(false);
+  
 
   const store = usePresentationStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
