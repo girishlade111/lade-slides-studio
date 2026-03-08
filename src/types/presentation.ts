@@ -1,17 +1,16 @@
 export type ObjectType = 'text' | 'shape' | 'image';
-export type ShapeType = 'rectangle' | 'circle' | 'triangle' | 'arrow' | 'star' | 'pentagon' | 'hexagon' | 'line';
+export type ShapeType =
+  | 'rectangle' | 'rounded-rectangle' | 'circle' | 'triangle' | 'diamond'
+  | 'pentagon' | 'hexagon' | 'octagon' | 'star' | 'heart' | 'cloud'
+  | 'arrow' | 'arrow-left' | 'arrow-up' | 'arrow-down' | 'double-arrow' | 'curved-arrow'
+  | 'line' | 'connector' | 'elbow-connector'
+  | 'process' | 'decision' | 'start-end' | 'document' | 'database' | 'manual-input'
+  | 'speech-bubble' | 'thought-bubble' | 'rect-callout' | 'banner' | 'ribbon';
 export type TransitionType = 'none' | 'fade' | 'slide-left' | 'slide-right' | 'slide-up' | 'slide-down' | 'zoom' | 'flip';
 export type AnimationType = 'none' | 'fade-in' | 'fly-in' | 'zoom-in' | 'fade-out' | 'fly-out' | 'pulse' | 'shake';
 
-export interface Position {
-  x: number;
-  y: number;
-}
-
-export interface Size {
-  width: number;
-  height: number;
-}
+export interface Position { x: number; y: number; }
+export interface Size { width: number; height: number; }
 
 export interface TextProperties {
   content: string;
@@ -26,13 +25,23 @@ export interface TextProperties {
   backgroundColor: string;
 }
 
+export interface ShapeShadow {
+  enabled: boolean;
+  color: string;
+  blur: number;
+  offsetX: number;
+  offsetY: number;
+}
+
 export interface ShapeProperties {
   shapeType: ShapeType;
   fill: string;
   fillOpacity: number;
   stroke: string;
   strokeWidth: number;
+  strokeStyle: 'solid' | 'dashed' | 'dotted';
   borderRadius: number;
+  shadow: ShapeShadow;
 }
 
 export interface ImageProperties {
@@ -63,10 +72,7 @@ export interface SlideBackground {
   gradientDirection?: string;
 }
 
-export interface SlideTransition {
-  type: TransitionType;
-  duration: number;
-}
+export interface SlideTransition { type: TransitionType; duration: number; }
 
 export interface Slide {
   id: string;
@@ -77,20 +83,8 @@ export interface Slide {
   notes: string;
 }
 
-export interface ThemeColors {
-  primary: string;
-  secondary: string;
-  background: string;
-  text: string;
-  accent: string;
-}
-
-export interface Theme {
-  id: string;
-  name: string;
-  colors: ThemeColors;
-  fontFamily: string;
-}
+export interface ThemeColors { primary: string; secondary: string; background: string; text: string; accent: string; }
+export interface Theme { id: string; name: string; colors: ThemeColors; fontFamily: string; }
 
 export interface Presentation {
   id: string;
@@ -108,7 +102,7 @@ export const FONTS = [
   'Trebuchet MS', 'Palatino Linotype', 'Garamond', 'Comic Sans MS',
   'Impact', 'Lucida Console', 'Tahoma', 'Century Gothic',
   'Bookman Old Style', 'Calibri', 'Cambria', 'Candara',
-  'Franklin Gothic Medium', 'Gill Sans',
+  'Franklin Gothic Medium', 'Gill Sans', 'Segoe UI', 'Lucida Sans',
 ];
 
 export const THEMES: Theme[] = [
@@ -129,4 +123,58 @@ export const PRESET_COLORS = [
   '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899', '#6b7280', '#1e293b',
   '#fef2f2', '#fff7ed', '#fefce8', '#f0fdf4', '#ecfeff', '#eff6ff',
   '#f5f3ff', '#fdf2f8', '#f9fafb', '#f1f5f9',
+];
+
+/** All shape categories for the shape picker */
+export const SHAPE_CATEGORIES = [
+  {
+    label: 'Basic Shapes',
+    shapes: [
+      { type: 'rectangle' as ShapeType, label: 'Rectangle' },
+      { type: 'rounded-rectangle' as ShapeType, label: 'Rounded Rectangle' },
+      { type: 'circle' as ShapeType, label: 'Ellipse' },
+      { type: 'triangle' as ShapeType, label: 'Triangle' },
+      { type: 'diamond' as ShapeType, label: 'Diamond' },
+      { type: 'pentagon' as ShapeType, label: 'Pentagon' },
+      { type: 'hexagon' as ShapeType, label: 'Hexagon' },
+      { type: 'octagon' as ShapeType, label: 'Octagon' },
+      { type: 'star' as ShapeType, label: 'Star' },
+      { type: 'heart' as ShapeType, label: 'Heart' },
+      { type: 'cloud' as ShapeType, label: 'Cloud' },
+    ],
+  },
+  {
+    label: 'Arrows & Lines',
+    shapes: [
+      { type: 'arrow' as ShapeType, label: 'Arrow Right' },
+      { type: 'arrow-left' as ShapeType, label: 'Arrow Left' },
+      { type: 'arrow-up' as ShapeType, label: 'Arrow Up' },
+      { type: 'arrow-down' as ShapeType, label: 'Arrow Down' },
+      { type: 'double-arrow' as ShapeType, label: 'Double Arrow' },
+      { type: 'curved-arrow' as ShapeType, label: 'Curved Arrow' },
+      { type: 'line' as ShapeType, label: 'Line' },
+      { type: 'connector' as ShapeType, label: 'Connector' },
+    ],
+  },
+  {
+    label: 'Flowchart',
+    shapes: [
+      { type: 'process' as ShapeType, label: 'Process' },
+      { type: 'decision' as ShapeType, label: 'Decision' },
+      { type: 'start-end' as ShapeType, label: 'Start/End' },
+      { type: 'document' as ShapeType, label: 'Document' },
+      { type: 'database' as ShapeType, label: 'Database' },
+      { type: 'manual-input' as ShapeType, label: 'Manual Input' },
+    ],
+  },
+  {
+    label: 'Callouts & Banners',
+    shapes: [
+      { type: 'speech-bubble' as ShapeType, label: 'Speech Bubble' },
+      { type: 'thought-bubble' as ShapeType, label: 'Thought Bubble' },
+      { type: 'rect-callout' as ShapeType, label: 'Callout' },
+      { type: 'banner' as ShapeType, label: 'Banner' },
+      { type: 'ribbon' as ShapeType, label: 'Ribbon' },
+    ],
+  },
 ];

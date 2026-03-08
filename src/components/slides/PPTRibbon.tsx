@@ -1,10 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { usePresentationStore } from '@/stores/presentationStore';
-import { FONTS, THEMES } from '@/types/presentation';
+import { FONTS, THEMES, SHAPE_CATEGORIES } from '@/types/presentation';
 import type { ShapeType } from '@/types/presentation';
 import {
   Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify,
-  Type, Square, Circle, Triangle, Star, Hexagon, Pentagon, ArrowRight, Minus,
+  Type, Square, Circle, Triangle, Star,
   Image, Trash2, Copy, Clipboard, Scissors,
   ArrowUpToLine, ArrowDownToLine,
   Plus, Play, ChevronDown, MousePointer,
@@ -29,16 +29,38 @@ import { SaveAsDialog } from './SaveAsDialog';
 
 type RibbonTab = 'Home' | 'Insert' | 'Design' | 'Transitions' | 'Slide Show';
 
-const SHAPE_OPTIONS: { type: ShapeType; icon: React.ReactNode; label: string }[] = [
+const QUICK_SHAPES: { type: ShapeType; icon: React.ReactNode; label: string }[] = [
   { type: 'rectangle', icon: <Square className="w-4 h-4" />, label: 'Rectangle' },
   { type: 'circle', icon: <Circle className="w-4 h-4" />, label: 'Ellipse' },
   { type: 'triangle', icon: <Triangle className="w-4 h-4" />, label: 'Triangle' },
   { type: 'star', icon: <Star className="w-4 h-4" />, label: 'Star' },
-  { type: 'pentagon', icon: <Pentagon className="w-4 h-4" />, label: 'Pentagon' },
-  { type: 'hexagon', icon: <Hexagon className="w-4 h-4" />, label: 'Hexagon' },
-  { type: 'arrow', icon: <ArrowRight className="w-4 h-4" />, label: 'Arrow' },
-  { type: 'line', icon: <Minus className="w-4 h-4" />, label: 'Line' },
 ];
+
+/** Tiny SVG icon for shape picker grid */
+const ShapeMiniIcon: React.FC<{ type: string }> = ({ type }) => {
+  const s = { width: 16, height: 16 };
+  const f = '#555';
+  switch (type) {
+    case 'rectangle': case 'process': return <svg {...s}><rect x="1" y="3" width="14" height="10" fill={f} rx="1" /></svg>;
+    case 'rounded-rectangle': case 'start-end': return <svg {...s}><rect x="1" y="3" width="14" height="10" fill={f} rx="4" /></svg>;
+    case 'circle': return <svg {...s}><ellipse cx="8" cy="8" rx="7" ry="6" fill={f} /></svg>;
+    case 'triangle': return <svg {...s}><polygon points="8,1 15,15 1,15" fill={f} /></svg>;
+    case 'diamond': case 'decision': return <svg {...s}><polygon points="8,1 15,8 8,15 1,8" fill={f} /></svg>;
+    case 'pentagon': return <svg {...s}><polygon points="8,1 15,6 13,15 3,15 1,6" fill={f} /></svg>;
+    case 'hexagon': return <svg {...s}><polygon points="4,1 12,1 15,8 12,15 4,15 1,8" fill={f} /></svg>;
+    case 'octagon': return <svg {...s}><polygon points="5,1 11,1 15,5 15,11 11,15 5,15 1,11 1,5" fill={f} /></svg>;
+    case 'star': return <svg {...s}><polygon points="8,1 10,6 15,6 11,9 13,15 8,11 3,15 5,9 1,6 6,6" fill={f} /></svg>;
+    case 'heart': return <svg {...s}><path d="M8,14 C4,10 1,7 1,4.5A3,3,0,0,1,8,3.5 A3,3,0,0,1,15,4.5C15,7 12,10 8,14Z" fill={f} /></svg>;
+    case 'cloud': return <svg {...s}><path d="M4,12A3,3,0,0,1,3,6 A4,4,0,0,1,7,3 A5,5,0,0,1,13,6 A3,3,0,0,1,12,12Z" fill={f} /></svg>;
+    case 'arrow': return <svg {...s}><polygon points="1,5 10,5 10,1 15,8 10,15 10,11 1,11" fill={f} /></svg>;
+    case 'arrow-left': return <svg {...s}><polygon points="15,5 6,5 6,1 1,8 6,15 6,11 15,11" fill={f} /></svg>;
+    case 'arrow-up': return <svg {...s}><polygon points="5,15 5,6 1,6 8,1 15,6 11,6 11,15" fill={f} /></svg>;
+    case 'arrow-down': return <svg {...s}><polygon points="5,1 5,10 1,10 8,15 15,10 11,10 11,1" fill={f} /></svg>;
+    case 'double-arrow': return <svg {...s}><polygon points="1,8 4,3 4,6 12,6 12,3 15,8 12,13 12,10 4,10 4,13" fill={f} /></svg>;
+    case 'line': case 'connector': return <svg {...s}><line x1="1" y1="8" x2="15" y2="8" stroke={f} strokeWidth="2" /></svg>;
+    default: return <svg {...s}><rect x="2" y="2" width="12" height="12" fill={f} rx="2" /></svg>;
+  }
+};
 
 const TRANSITION_OPTIONS = [
   { value: 'none', label: 'None' },
@@ -456,7 +478,7 @@ export const PPTRibbon: React.FC = () => {
                   >
                     <Type className="w-3.5 h-3.5" />
                   </button>
-                  {SHAPE_OPTIONS.slice(0, 4).map(s => (
+                  {QUICK_SHAPES.map(s => (
                     <button
                       key={s.type}
                       className={`ppt-ribbon-btn ppt-ribbon-btn-icon ${store.tool === 'shape' && store.activeShapeType === s.type ? 'active' : ''}`}
@@ -472,11 +494,25 @@ export const PPTRibbon: React.FC = () => {
                         <ChevronDown className="w-3 h-3" />
                       </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      {SHAPE_OPTIONS.map(s => (
-                        <DropdownMenuItem key={s.type} onClick={() => { store.setTool('shape'); store.setActiveShapeType(s.type); }}>
-                          {s.icon} <span className="ml-2">{s.label}</span>
-                        </DropdownMenuItem>
+                    <DropdownMenuContent className="w-64 p-2">
+                      {SHAPE_CATEGORIES.map(cat => (
+                        <div key={cat.label} className="mb-2">
+                          <p className="text-[10px] font-semibold text-[hsl(var(--muted-foreground))] mb-1 px-1">{cat.label}</p>
+                          <div className="grid grid-cols-6 gap-0.5">
+                            {cat.shapes.map(s => (
+                              <button
+                                key={s.type}
+                                onClick={() => { store.setTool('shape'); store.setActiveShapeType(s.type); }}
+                                className={`p-1.5 rounded hover:bg-[hsl(var(--ppt-hover))] transition-colors ${
+                                  store.tool === 'shape' && store.activeShapeType === s.type ? 'bg-[hsl(var(--ppt-active))]' : ''
+                                }`}
+                                title={s.label}
+                              >
+                                <ShapeMiniIcon type={s.type} />
+                              </button>
+                            ))}
+                          </div>
+                        </div>
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -519,16 +555,16 @@ export const PPTRibbon: React.FC = () => {
                 <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
               </div>
 
-              <div className="ppt-ribbon-group" style={{ minWidth: 200 }}>
+              <div className="ppt-ribbon-group" style={{ minWidth: 240 }}>
                 <div className="ppt-ribbon-group-content flex-wrap gap-0.5">
-                  {SHAPE_OPTIONS.map(s => (
+                  {SHAPE_CATEGORIES.flatMap(c => c.shapes).slice(0, 12).map(s => (
                     <button
                       key={s.type}
                       className={`ppt-ribbon-btn ppt-ribbon-btn-icon ${store.tool === 'shape' && store.activeShapeType === s.type ? 'active' : ''}`}
                       onClick={() => { store.setTool('shape'); store.setActiveShapeType(s.type); }}
                       title={s.label}
                     >
-                      {s.icon}
+                      <ShapeMiniIcon type={s.type} />
                     </button>
                   ))}
                 </div>

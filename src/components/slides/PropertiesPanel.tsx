@@ -143,6 +143,9 @@ const TextPropsEditor: React.FC<{ obj: any; update: (u: any) => void }> = ({ obj
 const ShapePropsEditor: React.FC<{ obj: any; update: (u: any) => void }> = ({ obj, update }) => {
   const sp = obj.shapeProps;
   const up = (changes: any) => update({ shapeProps: { ...sp, ...changes } });
+  const shadow = sp.shadow || { enabled: false, color: 'rgba(0,0,0,0.3)', blur: 4, offsetX: 2, offsetY: 2 };
+  const upShadow = (changes: any) => up({ shadow: { ...shadow, ...changes } });
+
   return (
     <>
       <Section title="Fill">
@@ -151,19 +154,62 @@ const ShapePropsEditor: React.FC<{ obj: any; update: (u: any) => void }> = ({ ob
           <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Opacity: {sp.fillOpacity}%</span>
           <input type="range" min="0" max="100" value={sp.fillOpacity} onChange={(e) => up({ fillOpacity: Number(e.target.value) })} className="w-full" style={{ accentColor: 'hsl(var(--accent))' }} />
         </div>
+        <button className="text-[10px] text-[hsl(var(--accent))] mt-1 hover:underline" onClick={() => up({ fill: 'transparent', fillOpacity: 0 })}>
+          No Fill
+        </button>
       </Section>
-      <Section title="Line">
+
+      <Section title="Border">
         <ColorPicker value={sp.stroke === 'transparent' ? '#000000' : sp.stroke} onChange={(v) => up({ stroke: v })} label="Color" />
-        <div className="mt-1">
-          <PptInput label="W" value={sp.strokeWidth} onChange={(v) => up({ strokeWidth: Math.max(0, Math.min(10, v)) })} />
+        <div className="mt-1.5 grid grid-cols-2 gap-1.5">
+          <div>
+            <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Width</span>
+            <input type="range" min="0" max="10" value={sp.strokeWidth} onChange={(e) => up({ strokeWidth: Number(e.target.value) })} className="w-full" style={{ accentColor: 'hsl(var(--accent))' }} />
+            <span className="text-[10px] text-[hsl(var(--muted-foreground))]">{sp.strokeWidth}px</span>
+          </div>
+          <div>
+            <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Style</span>
+            <select className="ppt-select w-full mt-0.5" value={sp.strokeStyle || 'solid'} onChange={(e) => up({ strokeStyle: e.target.value })}>
+              <option value="solid">Solid</option>
+              <option value="dashed">Dashed</option>
+              <option value="dotted">Dotted</option>
+            </select>
+          </div>
         </div>
+        <button className="text-[10px] text-[hsl(var(--accent))] mt-1 hover:underline" onClick={() => up({ stroke: 'transparent', strokeWidth: 0 })}>
+          No Border
+        </button>
       </Section>
-      {sp.shapeType === 'rectangle' && (
+
+      {(sp.shapeType === 'rectangle' || sp.shapeType === 'rounded-rectangle') && (
         <Section title="Corner Radius">
           <input type="range" min="0" max="50" value={sp.borderRadius} onChange={(e) => up({ borderRadius: Number(e.target.value) })} className="w-full" style={{ accentColor: 'hsl(var(--accent))' }} />
           <span className="text-[10px] text-[hsl(var(--muted-foreground))]">{sp.borderRadius}px</span>
         </Section>
       )}
+
+      <Section title="Shadow">
+        <label className="flex items-center gap-1.5 cursor-pointer">
+          <input type="checkbox" checked={shadow.enabled} onChange={(e) => upShadow({ enabled: e.target.checked })} className="accent-[hsl(var(--accent))]" />
+          <span className="text-[10px]">Drop Shadow</span>
+        </label>
+        {shadow.enabled && (
+          <div className="mt-1.5 space-y-1.5">
+            <div>
+              <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Color</span>
+              <input type="color" value={shadow.color?.startsWith('rgba') ? '#000000' : (shadow.color || '#000000')} onChange={(e) => upShadow({ color: e.target.value })} className="w-5 h-5 border border-[hsl(var(--border))] p-0 cursor-pointer rounded-sm block mt-0.5" />
+            </div>
+            <div>
+              <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Blur: {shadow.blur}px</span>
+              <input type="range" min="0" max="20" value={shadow.blur} onChange={(e) => upShadow({ blur: Number(e.target.value) })} className="w-full" style={{ accentColor: 'hsl(var(--accent))' }} />
+            </div>
+            <div className="grid grid-cols-2 gap-1">
+              <PptInput label="X" value={shadow.offsetX} onChange={(v) => upShadow({ offsetX: v })} />
+              <PptInput label="Y" value={shadow.offsetY} onChange={(v) => upShadow({ offsetY: v })} />
+            </div>
+          </div>
+        )}
+      </Section>
     </>
   );
 };
