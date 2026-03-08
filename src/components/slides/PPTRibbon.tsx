@@ -843,6 +843,41 @@ export const PPTRibbon: React.FC = () => {
         currentName={store.presentation.name}
         onSaveAs={(name) => store.saveAs(name)}
       />
+
+      {/* Insert Image from URL Dialog */}
+      <Dialog open={showUrlDialog} onOpenChange={setShowUrlDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Insert Image from URL</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <input
+              type="url"
+              placeholder="https://example.com/image.png"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleInsertFromUrl()}
+              className="ppt-input w-full text-left px-3 py-2"
+            />
+            {urlError && <p className="text-xs text-red-500">{urlError}</p>}
+            {imageUrl && (
+              <div className="border border-[hsl(var(--border))] rounded p-2 flex items-center justify-center h-32 bg-[hsl(var(--muted))]">
+                <img src={imageUrl} alt="Preview" className="max-w-full max-h-full object-contain" onError={() => setUrlError('Could not load image preview')} />
+              </div>
+            )}
+            <div className="flex justify-end gap-2">
+              <button className="ppt-ribbon-btn px-3 py-1.5 text-xs" onClick={() => { setShowUrlDialog(false); setImageUrl(''); setUrlError(''); }}>Cancel</button>
+              <button
+                className="px-3 py-1.5 text-xs rounded bg-[hsl(var(--ppt-brand))] text-white hover:opacity-90 disabled:opacity-50"
+                onClick={handleInsertFromUrl}
+                disabled={urlLoading || !imageUrl.trim()}
+              >
+                {urlLoading ? 'Loading...' : 'Insert'}
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
