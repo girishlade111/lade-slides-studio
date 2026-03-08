@@ -7,6 +7,14 @@ interface HistoryState {
   future: Presentation[];
 }
 
+interface SavedPresentationMeta {
+  id: string;
+  name: string;
+  createdAt: number;
+  updatedAt: number;
+  slideCount: number;
+}
+
 interface PresentationStore {
   presentation: Presentation;
   currentSlideIndex: number;
@@ -19,7 +27,7 @@ interface PresentationStore {
   isPresenterView: boolean;
   tool: 'select' | 'text' | 'shape' | 'image' | 'line';
   activeShapeType: ShapeType;
-  savedPresentations: { id: string; name: string; updatedAt: number }[];
+  savedPresentations: SavedPresentationMeta[];
   autoSaveIndicator: boolean;
 
   // Actions
