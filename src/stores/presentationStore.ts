@@ -176,6 +176,7 @@ export const usePresentationStore = create<PresentationStore>((set, get) => ({
   activeShapeType: 'rectangle',
   savedPresentations: [],
   autoSaveIndicator: false,
+  slideClipboard: null,
 
   setPresentation: (p) => set({ presentation: p }),
   setCurrentSlide: (index) => set({ currentSlideIndex: index, selectedObjectIds: [] }),
