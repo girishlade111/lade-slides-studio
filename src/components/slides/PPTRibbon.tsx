@@ -452,7 +452,7 @@ export const PPTRibbon: React.FC = () => {
                   >
                     <Type className="w-3.5 h-3.5" />
                   </button>
-                  {SHAPE_OPTIONS.slice(0, 4).map(s => (
+                  {QUICK_SHAPES.map(s => (
                     <button
                       key={s.type}
                       className={`ppt-ribbon-btn ppt-ribbon-btn-icon ${store.tool === 'shape' && store.activeShapeType === s.type ? 'active' : ''}`}
@@ -468,11 +468,25 @@ export const PPTRibbon: React.FC = () => {
                         <ChevronDown className="w-3 h-3" />
                       </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent>
-                      {SHAPE_OPTIONS.map(s => (
-                        <DropdownMenuItem key={s.type} onClick={() => { store.setTool('shape'); store.setActiveShapeType(s.type); }}>
-                          {s.icon} <span className="ml-2">{s.label}</span>
-                        </DropdownMenuItem>
+                    <DropdownMenuContent className="w-64 p-2">
+                      {SHAPE_CATEGORIES.map(cat => (
+                        <div key={cat.label} className="mb-2">
+                          <p className="text-[10px] font-semibold text-[hsl(var(--muted-foreground))] mb-1 px-1">{cat.label}</p>
+                          <div className="grid grid-cols-6 gap-0.5">
+                            {cat.shapes.map(s => (
+                              <button
+                                key={s.type}
+                                onClick={() => { store.setTool('shape'); store.setActiveShapeType(s.type); }}
+                                className={`p-1.5 rounded hover:bg-[hsl(var(--ppt-hover))] transition-colors ${
+                                  store.tool === 'shape' && store.activeShapeType === s.type ? 'bg-[hsl(var(--ppt-active))]' : ''
+                                }`}
+                                title={s.label}
+                              >
+                                <ShapeMiniIcon type={s.type} />
+                              </button>
+                            ))}
+                          </div>
+                        </div>
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
