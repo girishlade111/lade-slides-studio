@@ -14,7 +14,7 @@ interface SlideObjectComponentProps {
 export const SlideObjectComponent: React.FC<SlideObjectComponentProps> = ({
   obj, isSelected, scale, slideIndex
 }) => {
-  const { setSelectedObjects, updateObject, moveObject, resizeObject, pushHistory } = usePresentationStore();
+  const { setSelectedObjects, updateObject, resizeObject, pushHistory } = usePresentationStore();
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [isRotating, setIsRotating] = useState(false);
