@@ -8,7 +8,7 @@ import {
   Image, Trash2, Copy, Clipboard, Scissors,
   ArrowUpToLine, ArrowDownToLine,
   Plus, Play, ChevronDown, MousePointer,
-  Save, FileDown, FilePlus, FileText, FileType,
+  Save, FileDown, FilePlus, FileText, FileType, Camera,
 } from 'lucide-react';
 import {
   DropdownMenu,
