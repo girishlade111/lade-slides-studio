@@ -29,6 +29,7 @@ interface PresentationStore {
   activeShapeType: ShapeType;
   savedPresentations: SavedPresentationMeta[];
   autoSaveIndicator: boolean;
+  slideClipboard: Slide | null;
 
   // Actions
   setPresentation: (p: Presentation) => void;
