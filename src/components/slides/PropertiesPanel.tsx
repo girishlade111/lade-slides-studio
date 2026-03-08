@@ -1,6 +1,6 @@
 import React from 'react';
 import { usePresentationStore } from '@/stores/presentationStore';
-import { PRESET_COLORS } from '@/types/presentation';
+import { PRESET_COLORS, THEMES } from '@/types/presentation';
 import type { AnimationType } from '@/types/presentation';
 import { Trash2, RotateCw, Lock, Unlock } from 'lucide-react';
 
@@ -19,7 +19,7 @@ export const PropertiesPanel: React.FC = () => {
   const {
     presentation, currentSlideIndex, selectedObjectIds,
     updateObject, deleteObjects, pushHistory,
-    updateSlideBackground,
+    updateSlideBackground, applyBackgroundToAll,
   } = usePresentationStore();
 
   const slide = presentation.slides[currentSlideIndex];
@@ -36,6 +36,7 @@ export const PropertiesPanel: React.FC = () => {
             slide={slide}
             slideIndex={currentSlideIndex}
             updateSlideBackground={updateSlideBackground}
+            applyBackgroundToAll={applyBackgroundToAll}
             pushHistory={pushHistory}
           />
         </div>
@@ -371,52 +372,260 @@ const ImagePropsEditor: React.FC<{ obj: any; update: (u: any) => void }> = ({ ob
   );
 };
 
+const BG_TABS = ['Color', 'Gradient', 'Image', 'Pattern', 'Texture'] as const;
+type BgTab = typeof BG_TABS[number];
+
+const PATTERN_TYPES = ['dots', 'grid', 'diagonal-stripes', 'horizontal-stripes', 'vertical-stripes', 'checkerboard', 'hexagons', 'triangles'] as const;
+const TEXTURE_TYPES = ['paper', 'canvas', 'fabric', 'wood', 'marble', 'concrete', 'leather'] as const;
+const GRADIENT_TYPES = [
+  { value: 'linear', label: 'Linear' },
+  { value: 'radial', label: 'Radial' },
+  { value: 'diagonal-lr', label: 'Diagonal ↘' },
+  { value: 'diagonal-rl', label: 'Diagonal ↙' },
+] as const;
+
 const SlideBackgroundEditor: React.FC<{
   slide: any; slideIndex: number;
   updateSlideBackground: (i: number, bg: any) => void;
+  applyBackgroundToAll: (bg: any) => void;
   pushHistory: () => void;
-}> = ({ slide, slideIndex, updateSlideBackground, pushHistory }) => {
+}> = ({ slide, slideIndex, updateSlideBackground, applyBackgroundToAll, pushHistory }) => {
+  const [activeTab, setActiveTab] = React.useState<BgTab>(() => {
+    if (!slide) return 'Color';
+    const t = slide.background.type;
+    if (t === 'color') return 'Color';
+    if (t === 'gradient') return 'Gradient';
+    if (t === 'image') return 'Image';
+    if (t === 'pattern') return 'Pattern';
+    if (t === 'texture') return 'Texture';
+    return 'Color';
+  });
+  const bgImgRef = React.useRef<HTMLInputElement>(null);
+
   if (!slide) return null;
+  const bg = slide.background;
+
+  const setBg = (newBg: any) => { pushHistory(); updateSlideBackground(slideIndex, newBg); };
+  const applyAll = () => applyBackgroundToAll(bg);
+  const reset = () => setBg({ type: 'color', value: '#ffffff' });
+
+  // Gradient helpers
+  const gradient = bg.gradient || { type: 'linear' as const, stops: [{ color: bg.value || '#667eea', position: 0 }, { color: bg.secondaryValue || '#764ba2', position: 100 }], angle: 135 };
+  const setGradient = (changes: any) => setBg({ ...bg, type: 'gradient', gradient: { ...gradient, ...changes } });
+  const updateStop = (idx: number, changes: any) => {
+    const stops = [...gradient.stops];
+    stops[idx] = { ...stops[idx], ...changes };
+    setGradient({ stops });
+  };
+  const addStop = () => {
+    if (gradient.stops.length >= 5) return;
+    const stops = [...gradient.stops, { color: '#ffffff', position: 50 }].sort((a: any, b: any) => a.position - b.position);
+    setGradient({ stops });
+  };
+  const removeStop = (idx: number) => {
+    if (gradient.stops.length <= 2) return;
+    setGradient({ stops: gradient.stops.filter((_: any, i: number) => i !== idx) });
+  };
+
+  // Pattern helpers
+  const pattern = bg.pattern || { type: 'dots', color: '#6b7280', backgroundColor: '#ffffff', scale: 1 };
+  const setPattern = (changes: any) => setBg({ ...bg, type: 'pattern', pattern: { ...pattern, ...changes } });
+
+  // Texture helpers
+  const texture = bg.texture || { type: 'paper', opacity: 100, tint: '' };
+  const setTexture = (changes: any) => setBg({ ...bg, type: 'texture', texture: { ...texture, ...changes } });
+
+  // Image helpers
+  const image = bg.image || { src: '', fit: 'fill' as const, opacity: 100, blur: 0 };
+  const setImage = (changes: any) => setBg({ ...bg, type: 'image', image: { ...image, ...changes } });
+
+  const handleBgImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => setImage({ src: ev.target?.result as string });
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  // Preview gradient string
+  const gradientPreview = (() => {
+    const stops = gradient.stops.map((s: any) => `${s.color} ${s.position}%`).join(', ');
+    if (gradient.type === 'radial') return `radial-gradient(circle, ${stops})`;
+    const angle = gradient.type === 'diagonal-lr' ? '135deg' : gradient.type === 'diagonal-rl' ? '225deg' : `${gradient.angle}deg`;
+    return `linear-gradient(${angle}, ${stops})`;
+  })();
+
   return (
     <div className="space-y-2">
-      <Section title="Background">
-        <select
-          className="ppt-select w-full"
-          value={slide.background.type}
-          onChange={(e) => {
-            pushHistory();
-            const type = e.target.value;
-            if (type === 'color') updateSlideBackground(slideIndex, { type: 'color', value: '#ffffff' });
-            else if (type === 'gradient') updateSlideBackground(slideIndex, { type: 'gradient', value: '#667eea', secondaryValue: '#764ba2', gradientDirection: '135deg' });
-          }}
-        >
-          <option value="color">Solid Fill</option>
-          <option value="gradient">Gradient Fill</option>
-        </select>
-      </Section>
-      {slide.background.type === 'color' && (
-        <ColorPicker
-          value={slide.background.value}
-          onChange={(v) => { pushHistory(); updateSlideBackground(slideIndex, { ...slide.background, value: v }); }}
-          label="Color"
-        />
-      )}
-      {slide.background.type === 'gradient' && (
-        <>
-          <ColorPicker value={slide.background.value} onChange={(v) => { pushHistory(); updateSlideBackground(slideIndex, { ...slide.background, value: v }); }} label="Color 1" />
-          <ColorPicker value={slide.background.secondaryValue || '#ffffff'} onChange={(v) => { pushHistory(); updateSlideBackground(slideIndex, { ...slide.background, secondaryValue: v }); }} label="Color 2" />
+      {/* Tab selector */}
+      <div className="flex flex-wrap gap-0.5">
+        {BG_TABS.map(tab => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`text-[9px] px-1.5 py-0.5 rounded transition-colors ${
+              activeTab === tab ? 'bg-[hsl(var(--ppt-brand))] text-white' : 'bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--ppt-hover))]'
+            }`}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+
+      {/* Color Tab */}
+      {activeTab === 'Color' && (
+        <div className="space-y-2">
+          <ColorPicker value={bg.value || '#ffffff'} onChange={(v) => setBg({ type: 'color', value: v })} label="Color" />
           <div>
-            <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Direction</span>
-            <select className="ppt-select w-full mt-0.5" value={slide.background.gradientDirection || '135deg'} onChange={(e) => { pushHistory(); updateSlideBackground(slideIndex, { ...slide.background, gradientDirection: e.target.value }); }}>
-              <option value="0deg">↓ Top to Bottom</option>
-              <option value="90deg">→ Left to Right</option>
-              <option value="135deg">↘ Diagonal</option>
-              <option value="180deg">↑ Bottom to Top</option>
-              <option value="270deg">← Right to Left</option>
+            <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Theme Colors</span>
+            <div className="flex flex-wrap gap-0.5 mt-0.5">
+              {(() => {
+                const theme = THEMES.find(t => t.id === usePresentationStore.getState().presentation.theme);
+                if (!theme) return null;
+                return Object.values(theme.colors).map((c, i) => (
+                  <button key={i} onClick={() => setBg({ type: 'color', value: c })} className="w-4 h-4 rounded-sm border border-[hsl(var(--border))] hover:scale-110 transition-transform" style={{ backgroundColor: c }} />
+                ));
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Gradient Tab */}
+      {activeTab === 'Gradient' && (
+        <div className="space-y-2">
+          <div className="h-8 rounded border border-[hsl(var(--border))]" style={{ background: gradientPreview }} />
+          <div>
+            <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Type</span>
+            <select className="ppt-select w-full mt-0.5" value={gradient.type} onChange={(e) => setGradient({ type: e.target.value })}>
+              {GRADIENT_TYPES.map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
             </select>
           </div>
-        </>
+          {(gradient.type === 'linear') && (
+            <div>
+              <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Angle: {gradient.angle}°</span>
+              <input type="range" min="0" max="360" value={gradient.angle} onChange={(e) => setGradient({ angle: Number(e.target.value) })} className="w-full" style={{ accentColor: 'hsl(var(--accent))' }} />
+            </div>
+          )}
+          <div className="space-y-1.5">
+            <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Color Stops</span>
+            {gradient.stops.map((stop: any, idx: number) => (
+              <div key={idx} className="flex items-center gap-1">
+                <input type="color" value={stop.color} onChange={(e) => updateStop(idx, { color: e.target.value })} className="w-5 h-5 border border-[hsl(var(--border))] p-0 cursor-pointer rounded-sm" />
+                <input type="range" min="0" max="100" value={stop.position} onChange={(e) => updateStop(idx, { position: Number(e.target.value) })} className="flex-1" style={{ accentColor: stop.color }} />
+                <span className="text-[9px] w-6 text-right text-[hsl(var(--muted-foreground))]">{stop.position}%</span>
+                {gradient.stops.length > 2 && (
+                  <button onClick={() => removeStop(idx)} className="text-[10px] text-red-400 hover:text-red-600">×</button>
+                )}
+              </div>
+            ))}
+            {gradient.stops.length < 5 && (
+              <button onClick={addStop} className="text-[10px] text-[hsl(var(--accent))] hover:underline">+ Add Stop</button>
+            )}
+          </div>
+        </div>
       )}
+
+      {/* Image Tab */}
+      {activeTab === 'Image' && (
+        <div className="space-y-2">
+          {image.src ? (
+            <div className="h-16 rounded border border-[hsl(var(--border))] overflow-hidden">
+              <img src={image.src} alt="" className="w-full h-full object-cover" />
+            </div>
+          ) : (
+            <div className="h-16 rounded border-2 border-dashed border-[hsl(var(--border))] flex items-center justify-center">
+              <span className="text-[10px] text-[hsl(var(--muted-foreground))]">No image</span>
+            </div>
+          )}
+          <button onClick={() => bgImgRef.current?.click()} className="text-[10px] px-2 py-1 rounded border border-[hsl(var(--border))] hover:bg-[hsl(var(--ppt-hover))] w-full">
+            Upload Image
+          </button>
+          <input ref={bgImgRef} type="file" accept=".jpg,.jpeg,.png,.gif,.webp" className="hidden" onChange={handleBgImageUpload} />
+          {image.src && (
+            <>
+              <div>
+                <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Fit</span>
+                <select className="ppt-select w-full mt-0.5" value={image.fit} onChange={(e) => setImage({ fit: e.target.value })}>
+                  <option value="fill">Fill (Cover)</option>
+                  <option value="fit">Fit (Contain)</option>
+                  <option value="stretch">Stretch</option>
+                  <option value="tile">Tile</option>
+                  <option value="center">Center</option>
+                </select>
+              </div>
+              <div>
+                <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Opacity: {image.opacity}%</span>
+                <input type="range" min="0" max="100" value={image.opacity} onChange={(e) => setImage({ opacity: Number(e.target.value) })} className="w-full" style={{ accentColor: 'hsl(var(--accent))' }} />
+              </div>
+              <div>
+                <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Blur: {image.blur}px</span>
+                <input type="range" min="0" max="20" value={image.blur} onChange={(e) => setImage({ blur: Number(e.target.value) })} className="w-full" style={{ accentColor: 'hsl(var(--accent))' }} />
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Pattern Tab */}
+      {activeTab === 'Pattern' && (
+        <div className="space-y-2">
+          <div className="grid grid-cols-4 gap-1">
+            {PATTERN_TYPES.map(p => (
+              <button
+                key={p}
+                onClick={() => setPattern({ type: p })}
+                className={`text-[8px] p-1.5 rounded border transition-colors text-center leading-tight ${
+                  pattern.type === p ? 'border-[hsl(var(--ppt-selection))] bg-[hsl(var(--ppt-active))]' : 'border-[hsl(var(--border))] hover:bg-[hsl(var(--ppt-hover))]'
+                }`}
+              >
+                {p.replace(/-/g, ' ')}
+              </button>
+            ))}
+          </div>
+          <ColorPicker value={pattern.color} onChange={(v) => setPattern({ color: v })} label="Pattern Color" />
+          <ColorPicker value={pattern.backgroundColor} onChange={(v) => setPattern({ backgroundColor: v })} label="Background" />
+          <div>
+            <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Scale: {pattern.scale.toFixed(1)}x</span>
+            <input type="range" min="0.5" max="3" step="0.1" value={pattern.scale} onChange={(e) => setPattern({ scale: parseFloat(e.target.value) })} className="w-full" style={{ accentColor: 'hsl(var(--accent))' }} />
+          </div>
+        </div>
+      )}
+
+      {/* Texture Tab */}
+      {activeTab === 'Texture' && (
+        <div className="space-y-2">
+          <div className="grid grid-cols-4 gap-1">
+            {TEXTURE_TYPES.map(t => (
+              <button
+                key={t}
+                onClick={() => setTexture({ type: t })}
+                className={`text-[8px] p-1.5 rounded border transition-colors capitalize ${
+                  texture.type === t ? 'border-[hsl(var(--ppt-selection))] bg-[hsl(var(--ppt-active))]' : 'border-[hsl(var(--border))] hover:bg-[hsl(var(--ppt-hover))]'
+                }`}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+          <div>
+            <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Opacity: {texture.opacity}%</span>
+            <input type="range" min="10" max="100" value={texture.opacity} onChange={(e) => setTexture({ opacity: Number(e.target.value) })} className="w-full" style={{ accentColor: 'hsl(var(--accent))' }} />
+          </div>
+          <ColorPicker value={texture.tint || '#ffffff'} onChange={(v) => setTexture({ tint: v })} label="Tint Color" />
+        </div>
+      )}
+
+      {/* Apply buttons */}
+      <div className="pt-2 border-t border-[hsl(var(--border))] space-y-1">
+        <button onClick={applyAll} className="text-[10px] px-2 py-1 rounded border border-[hsl(var(--border))] hover:bg-[hsl(var(--ppt-hover))] w-full">
+          Apply to All Slides
+        </button>
+        <button onClick={reset} className="text-[10px] px-2 py-1 rounded border border-[hsl(var(--border))] hover:bg-[hsl(var(--ppt-hover))] w-full text-red-500">
+          Reset to Default
+        </button>
+      </div>
     </div>
   );
 };

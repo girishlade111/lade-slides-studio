@@ -48,6 +48,7 @@ interface PresentationStore {
   duplicateSlide: (index: number) => void;
   reorderSlides: (fromIndex: number, toIndex: number) => void;
   updateSlideBackground: (index: number, bg: SlideBackground) => void;
+  applyBackgroundToAll: (bg: SlideBackground) => void;
   updateSlideNotes: (index: number, notes: string) => void;
   copySlide: (index: number) => void;
   pasteSlide: (afterIndex: number) => void;
@@ -283,6 +284,13 @@ export const usePresentationStore = create<PresentationStore>((set, get) => ({
     pushHistory();
     const slides = [...presentation.slides];
     slides[index] = { ...slides[index], background: bg };
+    set({ presentation: { ...presentation, slides, updatedAt: Date.now() } });
+  },
+
+  applyBackgroundToAll: (bg) => {
+    const { presentation, pushHistory } = get();
+    pushHistory();
+    const slides = presentation.slides.map(s => ({ ...s, background: JSON.parse(JSON.stringify(bg)) }));
     set({ presentation: { ...presentation, slides, updatedAt: Date.now() } });
   },
 

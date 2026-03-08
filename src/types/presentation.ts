@@ -94,11 +94,42 @@ export interface SlideObject {
   imageProps?: ImageProperties;
 }
 
+export interface GradientStop {
+  color: string;
+  position: number; // 0-100
+}
+
 export interface SlideBackground {
-  type: 'color' | 'gradient' | 'image';
+  type: 'color' | 'gradient' | 'image' | 'pattern' | 'texture';
   value: string;
   secondaryValue?: string;
   gradientDirection?: string;
+  // Enhanced gradient
+  gradient?: {
+    type: 'linear' | 'radial' | 'diagonal-lr' | 'diagonal-rl';
+    stops: GradientStop[];
+    angle: number;
+  };
+  // Image background
+  image?: {
+    src: string;
+    fit: 'fill' | 'fit' | 'stretch' | 'tile' | 'center';
+    opacity: number;
+    blur: number;
+  };
+  // Pattern background
+  pattern?: {
+    type: 'dots' | 'grid' | 'diagonal-stripes' | 'horizontal-stripes' | 'vertical-stripes' | 'checkerboard' | 'hexagons' | 'triangles';
+    color: string;
+    backgroundColor: string;
+    scale: number;
+  };
+  // Texture background
+  texture?: {
+    type: 'paper' | 'canvas' | 'fabric' | 'wood' | 'marble' | 'concrete' | 'leather';
+    opacity: number;
+    tint: string;
+  };
 }
 
 export interface SlideTransition { type: TransitionType; duration: number; }

@@ -1,6 +1,70 @@
 import React, { useRef, useCallback } from 'react';
 import { usePresentationStore } from '@/stores/presentationStore';
+import { buildBgStyle } from '@/lib/backgroundUtils';
 import { SlideObjectComponent } from './SlideObjectComponent';
+
+const PATTERN_SVG: Record<string, (color: string, scale: number) => string> = {
+  dots: (c, s) => {
+    const sz = 20 * s;
+    return `url("data:image/svg+xml,%3Csvg width='${sz}' height='${sz}' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='${sz/2}' cy='${sz/2}' r='${sz*0.1}' fill='${encodeURIComponent(c)}'/%3E%3C/svg%3E")`;
+  },
+  grid: (c, s) => {
+    const sz = 30 * s;
+    return `url("data:image/svg+xml,%3Csvg width='${sz}' height='${sz}' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M ${sz} 0 L 0 0 0 ${sz}' fill='none' stroke='${encodeURIComponent(c)}' stroke-width='1'/%3E%3C/svg%3E")`;
+  },
+  'diagonal-stripes': (c, s) => {
+    const sz = 20 * s;
+    return `url("data:image/svg+xml,%3Csvg width='${sz}' height='${sz}' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M -${sz*0.25},${sz*0.25} l ${sz*0.5},-${sz*0.5} M 0,${sz} l ${sz},-${sz} M ${sz*0.75},${sz*1.25} l ${sz*0.5},-${sz*0.5}' stroke='${encodeURIComponent(c)}' stroke-width='2'/%3E%3C/svg%3E")`;
+  },
+  'horizontal-stripes': (c, s) => {
+    const sz = 16 * s;
+    return `url("data:image/svg+xml,%3Csvg width='${sz}' height='${sz}' xmlns='http://www.w3.org/2000/svg'%3E%3Cline x1='0' y1='${sz/2}' x2='${sz}' y2='${sz/2}' stroke='${encodeURIComponent(c)}' stroke-width='2'/%3E%3C/svg%3E")`;
+  },
+  'vertical-stripes': (c, s) => {
+    const sz = 16 * s;
+    return `url("data:image/svg+xml,%3Csvg width='${sz}' height='${sz}' xmlns='http://www.w3.org/2000/svg'%3E%3Cline x1='${sz/2}' y1='0' x2='${sz/2}' y2='${sz}' stroke='${encodeURIComponent(c)}' stroke-width='2'/%3E%3C/svg%3E")`;
+  },
+  checkerboard: (c, s) => {
+    const sz = 20 * s;
+    const h = sz / 2;
+    return `url("data:image/svg+xml,%3Csvg width='${sz}' height='${sz}' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='${h}' height='${h}' fill='${encodeURIComponent(c)}'/%3E%3Crect x='${h}' y='${h}' width='${h}' height='${h}' fill='${encodeURIComponent(c)}'/%3E%3C/svg%3E")`;
+  },
+  hexagons: (c, s) => {
+    const sz = 30 * s;
+    return `url("data:image/svg+xml,%3Csvg width='${sz}' height='${sz*0.87}' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon points='${sz*0.5},0 ${sz},${sz*0.22} ${sz},${sz*0.65} ${sz*0.5},${sz*0.87} 0,${sz*0.65} 0,${sz*0.22}' fill='none' stroke='${encodeURIComponent(c)}' stroke-width='1'/%3E%3C/svg%3E")`;
+  },
+  triangles: (c, s) => {
+    const sz = 24 * s;
+    return `url("data:image/svg+xml,%3Csvg width='${sz}' height='${sz}' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon points='${sz/2},2 ${sz-2},${sz-2} 2,${sz-2}' fill='none' stroke='${encodeURIComponent(c)}' stroke-width='1'/%3E%3C/svg%3E")`;
+  },
+};
+
+const PatternBackground: React.FC<{ pattern: { type: string; color: string; backgroundColor: string; scale: number } }> = ({ pattern }) => {
+  const gen = PATTERN_SVG[pattern.type];
+  if (!gen) return null;
+  return (
+    <div
+      className="absolute inset-0 pointer-events-none"
+      style={{ backgroundColor: pattern.backgroundColor, backgroundImage: gen(pattern.color, pattern.scale) }}
+    />
+  );
+};
+
+const TEXTURE_CSS: Record<string, (tint: string, opacity: number) => React.CSSProperties> = {
+  paper: (tint, op) => ({ backgroundColor: tint || '#faf8f5', backgroundImage: `url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E")`, opacity: op / 100 }),
+  canvas: (tint, op) => ({ backgroundColor: tint || '#f5f0e8', backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='20' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='20' height='20' fill='none'/%3E%3Cpath d='M0 10h20M10 0v20' stroke='rgba(0,0,0,0.05)' stroke-width='0.5'/%3E%3C/svg%3E")`, opacity: op / 100 }),
+  fabric: (tint, op) => ({ backgroundColor: tint || '#e8e0d4', backgroundImage: `url("data:image/svg+xml,%3Csvg width='8' height='8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h4v4H0zM4 4h4v4H4z' fill='rgba(0,0,0,0.04)'/%3E%3C/svg%3E")`, opacity: op / 100 }),
+  wood: (tint, op) => ({ backgroundColor: tint || '#8B6914', backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px)`, opacity: op / 100 }),
+  marble: (tint, op) => ({ backgroundColor: tint || '#f0ece4', backgroundImage: `url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.02' numOctaves='5'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)' opacity='0.15'/%3E%3C/svg%3E")`, opacity: op / 100 }),
+  concrete: (tint, op) => ({ backgroundColor: tint || '#c4c0b8', backgroundImage: `url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)' opacity='0.12'/%3E%3C/svg%3E")`, opacity: op / 100 }),
+  leather: (tint, op) => ({ backgroundColor: tint || '#5C3317', backgroundImage: `url("data:image/svg+xml,%3Csvg width='12' height='12' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='3' cy='3' r='1' fill='rgba(0,0,0,0.06)'/%3E%3Ccircle cx='9' cy='9' r='1' fill='rgba(0,0,0,0.06)'/%3E%3C/svg%3E")`, opacity: op / 100 }),
+};
+
+const TextureBackground: React.FC<{ texture: { type: string; opacity: number; tint: string } }> = ({ texture }) => {
+  const gen = TEXTURE_CSS[texture.type];
+  if (!gen) return null;
+  return <div className="absolute inset-0 pointer-events-none" style={gen(texture.tint, texture.opacity)} />;
+};
 
 export const SlideCanvas: React.FC = () => {
   const {
@@ -64,15 +128,11 @@ export const SlideCanvas: React.FC = () => {
 
   if (!slide) return null;
 
-  const bgStyle: React.CSSProperties = {};
-  if (slide.background.type === 'color') {
-    bgStyle.backgroundColor = slide.background.value;
-  } else if (slide.background.type === 'gradient') {
-    bgStyle.background = `linear-gradient(${slide.background.gradientDirection || '135deg'}, ${slide.background.value}, ${slide.background.secondaryValue || '#ffffff'})`;
-  } else if (slide.background.type === 'image') {
-    bgStyle.backgroundImage = `url(${slide.background.value})`;
-    bgStyle.backgroundSize = 'cover';
-    bgStyle.backgroundPosition = 'center';
+  const bgStyle: React.CSSProperties = buildBgStyle(slide.background);
+  // Image-specific overrides for blur/opacity
+  if (slide.background.type === 'image' && slide.background.image) {
+    if (slide.background.image.blur) bgStyle.filter = `blur(${slide.background.image.blur}px)`;
+    if (slide.background.image.opacity < 100) bgStyle.opacity = slide.background.image.opacity / 100;
   }
 
   const scale = zoom / 100;
@@ -101,6 +161,13 @@ export const SlideCanvas: React.FC = () => {
           onDragOver={(e) => e.preventDefault()}
           onDrop={handleImageUpload}
         >
+          {/* Pattern/Texture background overlay */}
+          {slide.background.type === 'pattern' && slide.background.pattern && (
+            <PatternBackground pattern={slide.background.pattern} />
+          )}
+          {slide.background.type === 'texture' && slide.background.texture && (
+            <TextureBackground texture={slide.background.texture} />
+          )}
           <div className="slide-bg absolute inset-0" />
           {showGrid && (
             <svg className="absolute inset-0 pointer-events-none" width="100%" height="100%" style={{ opacity: 0.15 }}>
