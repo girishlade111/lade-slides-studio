@@ -150,7 +150,26 @@ export const PPTRibbon: React.FC = () => {
     } catch { alert('PPTX export failed.'); }
   };
 
-  const selectedObj = store.getCurrentSlide()?.objects.find(o => store.selectedObjectIds.includes(o.id));
+  const handleExportAllPNG = async () => {
+    try {
+      const { toPng } = await import('html-to-image');
+      const st = usePresentationStore.getState();
+      const origIdx = st.currentSlideIndex;
+      for (let i = 0; i < st.presentation.slides.length; i++) {
+        st.setCurrentSlide(i);
+        await new Promise(r => setTimeout(r, 200));
+        const el = document.querySelector('[data-slide-export]') as HTMLElement;
+        if (!el) continue;
+        const dataUrl = await toPng(el, { width: 960, height: 540, pixelRatio: 2 });
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = `slide-${i + 1}.png`;
+        a.click();
+      }
+      st.setCurrentSlide(origIdx);
+    } catch { alert('PNG export failed.'); }
+  };
+
   const tp = selectedObj?.textProps;
   const updateTp = (changes: any) => {
     if (!selectedObj || !tp) return;
