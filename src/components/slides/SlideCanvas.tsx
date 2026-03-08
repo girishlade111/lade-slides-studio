@@ -1,5 +1,6 @@
 import React, { useRef, useCallback } from 'react';
 import { usePresentationStore } from '@/stores/presentationStore';
+import { buildBgStyle } from '@/lib/backgroundUtils';
 import { SlideObjectComponent } from './SlideObjectComponent';
 
 const PATTERN_SVG: Record<string, (color: string, scale: number) => string> = {
