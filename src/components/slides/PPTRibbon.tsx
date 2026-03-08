@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { usePresentationStore } from '@/stores/presentationStore';
-import { FONTS, THEMES } from '@/types/presentation';
+import { FONTS, THEMES, SHAPE_CATEGORIES } from '@/types/presentation';
 import type { ShapeType } from '@/types/presentation';
 import {
   Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify,
