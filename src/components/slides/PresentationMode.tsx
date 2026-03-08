@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { usePresentationStore } from '@/stores/presentationStore';
+import { buildBgStyle } from '@/lib/backgroundUtils';
 import { ShapeRenderer } from './ShapeRenderer';
 import { X, ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
 

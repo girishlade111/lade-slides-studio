@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { usePresentationStore } from '@/stores/presentationStore';
+import { buildBgStyle } from '@/lib/backgroundUtils';
 import { ShapeRenderer } from './ShapeRenderer';
 
 interface Props {
