@@ -72,37 +72,88 @@ const TRANSITION_OPTIONS = [
   { value: 'flip', label: 'Flip' },
 ];
 
+const RECENT_IMAGES_KEY = 'lade-recent-images';
+const MAX_RECENT = 10;
+
+function getRecentImages(): string[] {
+  try { return JSON.parse(localStorage.getItem(RECENT_IMAGES_KEY) || '[]'); } catch { return []; }
+}
+function addRecentImage(src: string) {
+  const list = getRecentImages().filter(s => s !== src);
+  list.unshift(src);
+  try { localStorage.setItem(RECENT_IMAGES_KEY, JSON.stringify(list.slice(0, MAX_RECENT))); } catch {}
+}
+
 export const PPTRibbon: React.FC = () => {
   const [activeTab, setActiveTab] = useState<RibbonTab>('Home');
   const [showThemePicker, setShowThemePicker] = useState(false);
   const [showOpenDialog, setShowOpenDialog] = useState(false);
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
   const [showSaveAsDialog, setShowSaveAsDialog] = useState(false);
+  const [showUrlDialog, setShowUrlDialog] = useState(false);
+  const [imageUrl, setImageUrl] = useState('');
+  const [urlLoading, setUrlLoading] = useState(false);
+  const [urlError, setUrlError] = useState('');
+  const [showRecentDialog, setShowRecentDialog] = useState(false);
 
   const store = usePresentationStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const tabs: RibbonTab[] = ['Home', 'Insert', 'Design', 'Transitions', 'Slide Show'];
 
+  const insertImageToCanvas = (src: string) => {
+    const img = new window.Image();
+    img.onload = () => {
+      const maxW = 400, maxH = 400;
+      let w = img.width, h = img.height;
+      if (w > maxW) { h = h * (maxW / w); w = maxW; }
+      if (h > maxH) { w = w * (maxH / h); h = maxH; }
+      const cx = (960 - w) / 2;
+      const cy = (540 - h) / 2;
+      usePresentationStore.getState().addImage(src, cx, cy, w, h);
+      addRecentImage(src);
+    };
+    img.src = src;
+  };
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { alert('Image must be under 5MB'); return; }
+    if (file.size > 10 * 1024 * 1024) { alert('Image must be under 10MB'); return; }
     const reader = new FileReader();
     reader.onload = (ev) => {
       const src = ev.target?.result as string;
-      const img = new window.Image();
-      img.onload = () => {
-        const maxW = 400;
-        const ratio = img.width / img.height;
-        const w = Math.min(img.width, maxW);
-        const h = w / ratio;
-        usePresentationStore.getState().addImage(src, 100, 100, w, h);
-      };
-      img.src = src;
+      insertImageToCanvas(src);
     };
     reader.readAsDataURL(file);
     e.target.value = '';
+  };
+
+  const handleInsertFromUrl = async () => {
+    if (!imageUrl.trim()) return;
+    setUrlLoading(true);
+    setUrlError('');
+    try {
+      const res = await fetch(imageUrl);
+      if (!res.ok) throw new Error('Failed to fetch');
+      const blob = await res.blob();
+      if (!blob.type.startsWith('image/')) throw new Error('Not an image');
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const src = ev.target?.result as string;
+        insertImageToCanvas(src);
+        setShowUrlDialog(false);
+        setImageUrl('');
+      };
+      reader.readAsDataURL(blob);
+    } catch {
+      // Fallback: just use URL directly
+      insertImageToCanvas(imageUrl.trim());
+      setShowUrlDialog(false);
+      setImageUrl('');
+    } finally {
+      setUrlLoading(false);
+    }
   };
 
   const handleExportPDF = async () => {
