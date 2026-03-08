@@ -124,6 +124,13 @@ export const SlideCanvas: React.FC = () => {
           onDragOver={(e) => e.preventDefault()}
           onDrop={handleImageUpload}
         >
+          {/* Pattern/Texture background overlay */}
+          {slide.background.type === 'pattern' && slide.background.pattern && (
+            <PatternBackground pattern={slide.background.pattern} />
+          )}
+          {slide.background.type === 'texture' && slide.background.texture && (
+            <TextureBackground texture={slide.background.texture} />
+          )}
           <div className="slide-bg absolute inset-0" />
           {showGrid && (
             <svg className="absolute inset-0 pointer-events-none" width="100%" height="100%" style={{ opacity: 0.15 }}>
