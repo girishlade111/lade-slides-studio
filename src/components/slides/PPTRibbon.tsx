@@ -184,31 +184,36 @@ export const PPTRibbon: React.FC = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-56">
               <DropdownMenuItem onClick={() => store.newPresentation()}>
-                <FilePlus className="w-4 h-4 mr-2" /> New
+                <FilePlus className="w-4 h-4 mr-2" /> New Presentation
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => { store.loadSavedList(); setShowOpenDialog(true); }}>
+                <FileDown className="w-4 h-4 mr-2" /> Open...
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => store.savePresentation()}>
                 <Save className="w-4 h-4 mr-2" /> Save
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setShowSaveAsDialog(true)}>
+                <Save className="w-4 h-4 mr-2" /> Save As...
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger>
-                  <FileDown className="w-4 h-4 mr-2" /> Export
-                </DropdownMenuSubTrigger>
-                <DropdownMenuSubContent>
-                  <DropdownMenuItem onClick={handleExportPDF}>
-                    <FileText className="w-4 h-4 mr-2" /> PDF
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleExportPPTX}>
-                    <FileType className="w-4 h-4 mr-2" /> PowerPoint (.pptx)
-                  </DropdownMenuItem>
-                </DropdownMenuSubContent>
-              </DropdownMenuSub>
+              <DropdownMenuItem onClick={handleExportPDF}>
+                <FileText className="w-4 h-4 mr-2" /> Download as PDF
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportPPTX}>
+                <FileType className="w-4 h-4 mr-2" /> Download as PPTX
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportAllPNG}>
+                <Camera className="w-4 h-4 mr-2" /> Download as PNG
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              {store.savedPresentations.map((p) => (
-                <DropdownMenuItem key={p.id} onClick={() => store.loadPresentation(p.id)}>
-                  📄 {p.name}
-                </DropdownMenuItem>
-              ))}
+              <DropdownMenuItem onClick={() => setShowSettingsDialog(true)}>
+                <Settings className="w-4 h-4 mr-2" /> Presentation Settings
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => store.newPresentation()}>
+                <FileText className="w-4 h-4 mr-2" /> Close Presentation
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
