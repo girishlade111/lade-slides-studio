@@ -36,6 +36,7 @@ export const PropertiesPanel: React.FC = () => {
             slide={slide}
             slideIndex={currentSlideIndex}
             updateSlideBackground={updateSlideBackground}
+            applyBackgroundToAll={applyBackgroundToAll}
             pushHistory={pushHistory}
           />
         </div>
