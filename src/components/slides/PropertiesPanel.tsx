@@ -217,28 +217,155 @@ const ShapePropsEditor: React.FC<{ obj: any; update: (u: any) => void }> = ({ ob
 const ImagePropsEditor: React.FC<{ obj: any; update: (u: any) => void }> = ({ obj, update }) => {
   const ip = obj.imageProps;
   const up = (changes: any) => update({ imageProps: { ...ip, ...changes } });
+  const filters = ip.filters || { grayscale: 0, sepia: 0, blur: 0, brightness: 100, contrast: 100, saturation: 100 };
+  const upFilter = (changes: any) => up({ filters: { ...filters, ...changes } });
+  const border = ip.border || { enabled: false, color: '#000000', width: 2 };
+  const upBorder = (changes: any) => up({ border: { ...border, ...changes } });
+  const shadow = ip.shadow || { enabled: false, color: 'rgba(0,0,0,0.3)', blur: 8, offsetX: 4, offsetY: 4 };
+  const upShadow = (changes: any) => up({ shadow: { ...shadow, ...changes } });
+
+  const replaceInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleReplace = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => up({ src: ev.target?.result as string, originalSrc: ev.target?.result as string });
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
   return (
     <>
-      <Section title="Fit">
+      <Section title="Fit & Opacity">
         <select className="ppt-select w-full" value={ip.objectFit} onChange={(e) => up({ objectFit: e.target.value })}>
           <option value="cover">Cover</option>
           <option value="contain">Contain</option>
           <option value="fill">Fill</option>
         </select>
+        <div className="mt-1.5">
+          <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Opacity: {ip.opacity}%</span>
+          <input type="range" min="0" max="100" value={ip.opacity} onChange={(e) => up({ opacity: Number(e.target.value) })} className="w-full" style={{ accentColor: 'hsl(var(--accent))' }} />
+        </div>
       </Section>
-      <Section title="Opacity">
-        <input type="range" min="0" max="100" value={ip.opacity} onChange={(e) => up({ opacity: Number(e.target.value) })} className="w-full" style={{ accentColor: 'hsl(var(--accent))' }} />
-        <span className="text-[10px] text-[hsl(var(--muted-foreground))]">{ip.opacity}%</span>
+
+      <Section title="Filters">
+        <div className="space-y-1.5">
+          <div>
+            <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Grayscale: {filters.grayscale}%</span>
+            <input type="range" min="0" max="100" value={filters.grayscale} onChange={(e) => upFilter({ grayscale: Number(e.target.value) })} className="w-full" style={{ accentColor: 'hsl(var(--accent))' }} />
+          </div>
+          <div>
+            <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Sepia: {filters.sepia}%</span>
+            <input type="range" min="0" max="100" value={filters.sepia} onChange={(e) => upFilter({ sepia: Number(e.target.value) })} className="w-full" style={{ accentColor: 'hsl(var(--accent))' }} />
+          </div>
+          <div>
+            <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Blur: {filters.blur}px</span>
+            <input type="range" min="0" max="20" value={filters.blur} onChange={(e) => upFilter({ blur: Number(e.target.value) })} className="w-full" style={{ accentColor: 'hsl(var(--accent))' }} />
+          </div>
+          <div>
+            <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Brightness: {filters.brightness}%</span>
+            <input type="range" min="50" max="150" value={filters.brightness} onChange={(e) => upFilter({ brightness: Number(e.target.value) })} className="w-full" style={{ accentColor: 'hsl(var(--accent))' }} />
+          </div>
+          <div>
+            <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Contrast: {filters.contrast}%</span>
+            <input type="range" min="50" max="150" value={filters.contrast} onChange={(e) => upFilter({ contrast: Number(e.target.value) })} className="w-full" style={{ accentColor: 'hsl(var(--accent))' }} />
+          </div>
+          <div>
+            <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Saturation: {filters.saturation}%</span>
+            <input type="range" min="0" max="200" value={filters.saturation} onChange={(e) => upFilter({ saturation: Number(e.target.value) })} className="w-full" style={{ accentColor: 'hsl(var(--accent))' }} />
+          </div>
+          <button className="text-[10px] text-[hsl(var(--accent))] hover:underline" onClick={() => up({ filters: { grayscale: 0, sepia: 0, blur: 0, brightness: 100, contrast: 100, saturation: 100 } })}>
+            Reset Filters
+          </button>
+        </div>
       </Section>
-      <Section title="Effect">
-        <select className="ppt-select w-full" value={ip.filter} onChange={(e) => up({ filter: e.target.value })}>
-          <option value="none">None</option>
-          <option value="grayscale(100%)">Grayscale</option>
-          <option value="sepia(100%)">Sepia</option>
-          <option value="blur(3px)">Blur</option>
-          <option value="brightness(1.3)">Bright</option>
-          <option value="contrast(1.5)">High Contrast</option>
-        </select>
+
+      <Section title="Filter Presets">
+        <div className="grid grid-cols-3 gap-1">
+          {[
+            { label: 'None', f: { grayscale: 0, sepia: 0, blur: 0, brightness: 100, contrast: 100, saturation: 100 } },
+            { label: 'Gray', f: { grayscale: 100, sepia: 0, blur: 0, brightness: 100, contrast: 100, saturation: 100 } },
+            { label: 'Sepia', f: { grayscale: 0, sepia: 100, blur: 0, brightness: 100, contrast: 100, saturation: 100 } },
+            { label: 'Vintage', f: { grayscale: 20, sepia: 40, blur: 0, brightness: 110, contrast: 90, saturation: 80 } },
+            { label: 'Cool', f: { grayscale: 0, sepia: 0, blur: 0, brightness: 105, contrast: 110, saturation: 80 } },
+            { label: 'Warm', f: { grayscale: 0, sepia: 30, blur: 0, brightness: 110, contrast: 100, saturation: 120 } },
+          ].map(preset => (
+            <button key={preset.label} onClick={() => up({ filters: preset.f })} className="text-[10px] px-2 py-1 rounded border border-[hsl(var(--border))] hover:bg-[hsl(var(--ppt-hover))] transition-colors">
+              {preset.label}
+            </button>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Border">
+        <label className="flex items-center gap-1.5 cursor-pointer">
+          <input type="checkbox" checked={border.enabled} onChange={(e) => upBorder({ enabled: e.target.checked })} className="accent-[hsl(var(--accent))]" />
+          <span className="text-[10px]">Show Border</span>
+        </label>
+        {border.enabled && (
+          <div className="mt-1.5 space-y-1.5">
+            <ColorPicker value={border.color} onChange={(v) => upBorder({ color: v })} label="Color" />
+            <div>
+              <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Width: {border.width}px</span>
+              <input type="range" min="1" max="10" value={border.width} onChange={(e) => upBorder({ width: Number(e.target.value) })} className="w-full" style={{ accentColor: 'hsl(var(--accent))' }} />
+            </div>
+          </div>
+        )}
+      </Section>
+
+      <Section title="Shadow">
+        <label className="flex items-center gap-1.5 cursor-pointer">
+          <input type="checkbox" checked={shadow.enabled} onChange={(e) => upShadow({ enabled: e.target.checked })} className="accent-[hsl(var(--accent))]" />
+          <span className="text-[10px]">Drop Shadow</span>
+        </label>
+        {shadow.enabled && (
+          <div className="mt-1.5 space-y-1.5">
+            <div>
+              <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Blur: {shadow.blur}px</span>
+              <input type="range" min="0" max="20" value={shadow.blur} onChange={(e) => upShadow({ blur: Number(e.target.value) })} className="w-full" style={{ accentColor: 'hsl(var(--accent))' }} />
+            </div>
+            <div className="grid grid-cols-2 gap-1">
+              <PptInput label="X" value={shadow.offsetX} onChange={(v) => upShadow({ offsetX: v })} />
+              <PptInput label="Y" value={shadow.offsetY} onChange={(v) => upShadow({ offsetY: v })} />
+            </div>
+          </div>
+        )}
+      </Section>
+
+      <Section title="Corner Radius">
+        <input type="range" min="0" max="50" value={ip.cornerRadius || 0} onChange={(e) => up({ cornerRadius: Number(e.target.value) })} className="w-full" style={{ accentColor: 'hsl(var(--accent))' }} />
+        <span className="text-[10px] text-[hsl(var(--muted-foreground))]">{ip.cornerRadius || 0}px</span>
+      </Section>
+
+      <Section title="Transform">
+        <div className="flex gap-1">
+          <button className={`text-[10px] px-2 py-1 rounded border border-[hsl(var(--border))] hover:bg-[hsl(var(--ppt-hover))] ${ip.flipH ? 'bg-[hsl(var(--ppt-active))]' : ''}`} onClick={() => up({ flipH: !ip.flipH })}>Flip H</button>
+          <button className={`text-[10px] px-2 py-1 rounded border border-[hsl(var(--border))] hover:bg-[hsl(var(--ppt-hover))] ${ip.flipV ? 'bg-[hsl(var(--ppt-active))]' : ''}`} onClick={() => up({ flipV: !ip.flipV })}>Flip V</button>
+          <button className="text-[10px] px-2 py-1 rounded border border-[hsl(var(--border))] hover:bg-[hsl(var(--ppt-hover))]" onClick={() => update({ rotation: (obj.rotation || 0) - 90 })}>↺ 90°</button>
+          <button className="text-[10px] px-2 py-1 rounded border border-[hsl(var(--border))] hover:bg-[hsl(var(--ppt-hover))]" onClick={() => update({ rotation: (obj.rotation || 0) + 90 })}>↻ 90°</button>
+        </div>
+      </Section>
+
+      <Section title="Replace Image">
+        <button className="text-[10px] px-2 py-1 rounded border border-[hsl(var(--border))] hover:bg-[hsl(var(--ppt-hover))] w-full" onClick={() => replaceInputRef.current?.click()}>
+          Choose New Image
+        </button>
+        <input ref={replaceInputRef} type="file" accept=".jpg,.jpeg,.png,.gif,.svg,.webp" className="hidden" onChange={handleReplace} />
+      </Section>
+
+      <Section title="Set as Background">
+        <div className="flex gap-1 flex-wrap">
+          {(['fill', 'cover', 'contain'] as const).map(fit => (
+            <button key={fit} className="text-[10px] px-2 py-1 rounded border border-[hsl(var(--border))] hover:bg-[hsl(var(--ppt-hover))] capitalize" onClick={() => {
+              const { presentation, currentSlideIndex, updateSlideBackground, pushHistory } = usePresentationStore.getState();
+              pushHistory();
+              updateSlideBackground(currentSlideIndex, { type: 'image', value: ip.src });
+            }}>
+              {fit}
+            </button>
+          ))}
+        </div>
       </Section>
     </>
   );
