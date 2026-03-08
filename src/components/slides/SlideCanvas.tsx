@@ -128,38 +128,11 @@ export const SlideCanvas: React.FC = () => {
 
   if (!slide) return null;
 
-  const bgStyle: React.CSSProperties = {};
-  if (slide.background.type === 'color') {
-    bgStyle.backgroundColor = slide.background.value;
-  } else if (slide.background.type === 'gradient') {
-    if (slide.background.gradient) {
-      const g = slide.background.gradient;
-      const stops = g.stops.map(s => `${s.color} ${s.position}%`).join(', ');
-      if (g.type === 'radial') {
-        bgStyle.background = `radial-gradient(circle, ${stops})`;
-      } else {
-        const angle = g.type === 'diagonal-lr' ? '135deg' : g.type === 'diagonal-rl' ? '225deg' : `${g.angle}deg`;
-        bgStyle.background = `linear-gradient(${angle}, ${stops})`;
-      }
-    } else {
-      bgStyle.background = `linear-gradient(${slide.background.gradientDirection || '135deg'}, ${slide.background.value}, ${slide.background.secondaryValue || '#ffffff'})`;
-    }
-  } else if (slide.background.type === 'image' && slide.background.image) {
-    const img = slide.background.image;
-    bgStyle.backgroundImage = `url(${img.src})`;
-    bgStyle.backgroundPosition = 'center';
-    if (img.fit === 'fill') bgStyle.backgroundSize = 'cover';
-    else if (img.fit === 'fit') bgStyle.backgroundSize = 'contain';
-    else if (img.fit === 'stretch') bgStyle.backgroundSize = '100% 100%';
-    else if (img.fit === 'tile') { bgStyle.backgroundSize = 'auto'; bgStyle.backgroundRepeat = 'repeat'; }
-    else if (img.fit === 'center') bgStyle.backgroundSize = 'auto';
-    if (img.fit !== 'tile') bgStyle.backgroundRepeat = 'no-repeat';
-    if (img.blur) bgStyle.filter = `blur(${img.blur}px)`;
-    if (img.opacity < 100) bgStyle.opacity = img.opacity / 100;
-  } else if (slide.background.type === 'image') {
-    bgStyle.backgroundImage = `url(${slide.background.value})`;
-    bgStyle.backgroundSize = 'cover';
-    bgStyle.backgroundPosition = 'center';
+  const bgStyle: React.CSSProperties = buildBgStyle(slide.background);
+  // Image-specific overrides for blur/opacity
+  if (slide.background.type === 'image' && slide.background.image) {
+    if (slide.background.image.blur) bgStyle.filter = `blur(${slide.background.image.blur}px)`;
+    if (slide.background.image.opacity < 100) bgStyle.opacity = slide.background.image.opacity / 100;
   }
 
   const scale = zoom / 100;
