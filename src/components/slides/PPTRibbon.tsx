@@ -555,16 +555,16 @@ export const PPTRibbon: React.FC = () => {
                 <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
               </div>
 
-              <div className="ppt-ribbon-group" style={{ minWidth: 200 }}>
+              <div className="ppt-ribbon-group" style={{ minWidth: 240 }}>
                 <div className="ppt-ribbon-group-content flex-wrap gap-0.5">
-                  {SHAPE_OPTIONS.map(s => (
+                  {SHAPE_CATEGORIES.flatMap(c => c.shapes).slice(0, 12).map(s => (
                     <button
                       key={s.type}
                       className={`ppt-ribbon-btn ppt-ribbon-btn-icon ${store.tool === 'shape' && store.activeShapeType === s.type ? 'active' : ''}`}
                       onClick={() => { store.setTool('shape'); store.setActiveShapeType(s.type); }}
                       title={s.label}
                     >
-                      {s.icon}
+                      <ShapeMiniIcon type={s.type} />
                     </button>
                   ))}
                 </div>
