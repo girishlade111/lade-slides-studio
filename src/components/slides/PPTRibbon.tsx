@@ -29,15 +29,11 @@ import { SaveAsDialog } from './SaveAsDialog';
 
 type RibbonTab = 'Home' | 'Insert' | 'Design' | 'Transitions' | 'Slide Show';
 
-const SHAPE_OPTIONS: { type: ShapeType; icon: React.ReactNode; label: string }[] = [
+const QUICK_SHAPES: { type: ShapeType; icon: React.ReactNode; label: string }[] = [
   { type: 'rectangle', icon: <Square className="w-4 h-4" />, label: 'Rectangle' },
   { type: 'circle', icon: <Circle className="w-4 h-4" />, label: 'Ellipse' },
   { type: 'triangle', icon: <Triangle className="w-4 h-4" />, label: 'Triangle' },
   { type: 'star', icon: <Star className="w-4 h-4" />, label: 'Star' },
-  { type: 'pentagon', icon: <Pentagon className="w-4 h-4" />, label: 'Pentagon' },
-  { type: 'hexagon', icon: <Hexagon className="w-4 h-4" />, label: 'Hexagon' },
-  { type: 'arrow', icon: <ArrowRight className="w-4 h-4" />, label: 'Arrow' },
-  { type: 'line', icon: <Minus className="w-4 h-4" />, label: 'Line' },
 ];
 
 const TRANSITION_OPTIONS = [
