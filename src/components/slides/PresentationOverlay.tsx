@@ -37,15 +37,7 @@ export const PresentationOverlay: React.FC<Props> = ({ startIndex, onExit }) => 
 
   if (!slide) return null;
 
-  const bgStyle: React.CSSProperties = {};
-  if (slide.background.type === 'color') bgStyle.backgroundColor = slide.background.value;
-  else if (slide.background.type === 'gradient') {
-    bgStyle.background = `linear-gradient(${slide.background.gradientDirection || '135deg'}, ${slide.background.value}, ${slide.background.secondaryValue || '#fff'})`;
-  } else if (slide.background.type === 'image') {
-    bgStyle.backgroundImage = `url(${slide.background.value})`;
-    bgStyle.backgroundSize = 'cover';
-    bgStyle.backgroundPosition = 'center';
-  }
+  const bgStyle: React.CSSProperties = buildBgStyle(slide.background);
 
   const vw = window.innerWidth;
   const vh = window.innerHeight;

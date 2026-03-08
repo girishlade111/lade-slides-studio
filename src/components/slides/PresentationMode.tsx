@@ -72,15 +72,7 @@ export const PresentationMode: React.FC = () => {
 
   if (!slide) return null;
 
-  const bgStyle: React.CSSProperties = { backgroundColor: '#000' };
-  if (slide.background.type === 'color') bgStyle.backgroundColor = slide.background.value;
-  else if (slide.background.type === 'gradient') {
-    bgStyle.background = `linear-gradient(${slide.background.gradientDirection || '135deg'}, ${slide.background.value}, ${slide.background.secondaryValue || '#fff'})`;
-  } else if (slide.background.type === 'image') {
-    bgStyle.backgroundImage = `url(${slide.background.value})`;
-    bgStyle.backgroundSize = 'cover';
-    bgStyle.backgroundPosition = 'center';
-  }
+  const bgStyle: React.CSSProperties = { backgroundColor: '#000', ...buildBgStyle(slide.background) };
 
   const formatTime = (s: number) => `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`;
 

@@ -160,14 +160,7 @@ export const PPTSlidePanel: React.FC = () => {
 
 /* ── Thumbnail Renderer ── */
 const SlideThumb: React.FC<{ slide: any; width: number; height: number }> = ({ slide, width, height }) => {
-  const bgStyle: React.CSSProperties = {};
-  if (slide.background.type === 'color') bgStyle.backgroundColor = slide.background.value;
-  else if (slide.background.type === 'gradient') {
-    bgStyle.background = `linear-gradient(${slide.background.gradientDirection || '135deg'}, ${slide.background.value}, ${slide.background.secondaryValue || '#fff'})`;
-  } else if (slide.background.type === 'image') {
-    bgStyle.backgroundImage = `url(${slide.background.value})`;
-    bgStyle.backgroundSize = 'cover';
-  }
+  const bgStyle: React.CSSProperties = buildBgStyle(slide.background);
 
   const scale = 160 / width;
 
