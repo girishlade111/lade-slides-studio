@@ -53,6 +53,9 @@ const TRANSITION_OPTIONS = [
 export const PPTRibbon: React.FC = () => {
   const [activeTab, setActiveTab] = useState<RibbonTab>('Home');
   const [showThemePicker, setShowThemePicker] = useState(false);
+  const [showOpenDialog, setShowOpenDialog] = useState(false);
+  const [showSettingsDialog, setShowSettingsDialog] = useState(false);
+  const [showSaveAsDialog, setShowSaveAsDialog] = useState(false);
 
   const store = usePresentationStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
