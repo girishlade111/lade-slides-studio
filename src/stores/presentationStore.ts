@@ -293,7 +293,28 @@ export const usePresentationStore = create<PresentationStore>((set, get) => ({
     set({ presentation: { ...presentation, slides, updatedAt: Date.now() } });
   },
 
-  addObject: (obj) => {
+  copySlide: (index) => {
+    const { presentation } = get();
+    const slide = presentation.slides[index];
+    if (slide) set({ slideClipboard: JSON.parse(JSON.stringify(slide)) });
+  },
+
+  pasteSlide: (afterIndex) => {
+    const { slideClipboard, presentation, pushHistory } = get();
+    if (!slideClipboard) return;
+    pushHistory();
+    const dup: Slide = JSON.parse(JSON.stringify(slideClipboard));
+    dup.id = uuidv4();
+    dup.objects.forEach((o) => (o.id = uuidv4()));
+    const slides = [...presentation.slides];
+    slides.splice(afterIndex + 1, 0, dup);
+    slides.forEach((s, i) => (s.order = i));
+    set({
+      presentation: { ...presentation, slides, updatedAt: Date.now() },
+      currentSlideIndex: afterIndex + 1,
+    });
+  },
+
     const { presentation, currentSlideIndex, pushHistory } = get();
     pushHistory();
     const slides = [...presentation.slides];
