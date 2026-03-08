@@ -596,15 +596,44 @@ export const PPTRibbon: React.FC = () => {
                 <span className="ppt-ribbon-group-label">Text</span>
               </div>
 
-              <div className="ppt-ribbon-group" style={{ minWidth: 80 }}>
+              <div className="ppt-ribbon-group" style={{ minWidth: 100 }}>
                 <div className="ppt-ribbon-group-content">
-                  <button className="ppt-ribbon-btn ppt-ribbon-btn-large" onClick={() => fileInputRef.current?.click()}>
-                    <Image className="w-6 h-6 text-green-600" />
-                    <span>Pictures</span>
-                  </button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="ppt-ribbon-btn ppt-ribbon-btn-large">
+                        <Image className="w-6 h-6 text-green-600" />
+                        <span>Pictures <ChevronDown className="w-3 h-3 inline" /></span>
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-56">
+                      <DropdownMenuItem onClick={() => fileInputRef.current?.click()}>
+                        <Upload className="w-4 h-4 mr-2" /> Upload from Device
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setShowUrlDialog(true)}>
+                        <Link className="w-4 h-4 mr-2" /> Insert from URL
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      {getRecentImages().length > 0 ? (
+                        <>
+                          <div className="px-2 py-1 text-[10px] font-semibold text-[hsl(var(--muted-foreground))]">Recent Images</div>
+                          <div className="grid grid-cols-4 gap-1 px-2 pb-2">
+                            {getRecentImages().slice(0, 8).map((src, i) => (
+                              <button key={i} onClick={() => insertImageToCanvas(src)} className="w-10 h-10 rounded border border-[hsl(var(--border))] overflow-hidden hover:border-[hsl(var(--ppt-selection))]">
+                                <img src={src} alt="" className="w-full h-full object-cover" />
+                              </button>
+                            ))}
+                          </div>
+                        </>
+                      ) : (
+                        <DropdownMenuItem disabled>
+                          <Clock className="w-4 h-4 mr-2" /> No recent images
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
                 <span className="ppt-ribbon-group-label">Images</span>
-                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                <input ref={fileInputRef} type="file" accept=".jpg,.jpeg,.png,.gif,.svg,.webp" className="hidden" onChange={handleImageUpload} />
               </div>
 
               <div className="ppt-ribbon-group" style={{ minWidth: 240 }}>
