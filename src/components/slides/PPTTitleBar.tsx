@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { usePresentationStore } from '@/stores/presentationStore';
-import { Save, Undo2, Redo2, Edit3, Check } from 'lucide-react';
+import { Save, Undo2, Redo2 } from 'lucide-react';
 
 export const PPTTitleBar: React.FC = () => {
   const { presentation, undo, redo, history, savePresentation, renamePres, autoSaveIndicator } = usePresentationStore();

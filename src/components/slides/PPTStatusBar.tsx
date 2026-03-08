@@ -1,6 +1,6 @@
 import React from 'react';
 import { usePresentationStore } from '@/stores/presentationStore';
-import { Grid3X3, Minus, Plus, Monitor, LayoutGrid, StickyNote } from 'lucide-react';
+import { Grid3X3, Minus, Plus, Monitor, LayoutGrid } from 'lucide-react';
 
 export const PPTStatusBar: React.FC = () => {
   const {

@@ -13,7 +13,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 const Index: React.FC = () => {
   const { isPresentationMode, loadSavedList, presentation, currentSlideIndex, updateSlideNotes } = usePresentationStore();
   const [showNotes, setShowNotes] = useState(false);
-  const [showProps, setShowProps] = useState(true);
+  const [showProps] = useState(true);
   useKeyboardShortcuts();
 
   useEffect(() => {

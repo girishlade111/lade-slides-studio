@@ -1,8 +1,8 @@
 import React from 'react';
 import { usePresentationStore } from '@/stores/presentationStore';
-import { FONTS, PRESET_COLORS } from '@/types/presentation';
-import type { TransitionType, AnimationType } from '@/types/presentation';
-import { Trash2, ArrowUp, ArrowDown, RotateCw, Lock, Unlock, X } from 'lucide-react';
+import { PRESET_COLORS } from '@/types/presentation';
+import type { AnimationType } from '@/types/presentation';
+import { Trash2, RotateCw, Lock, Unlock } from 'lucide-react';
 
 const ANIMATION_TYPES: { value: AnimationType; label: string }[] = [
   { value: 'none', label: 'None' },

@@ -5,9 +5,9 @@ import type { ShapeType } from '@/types/presentation';
 import {
   Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify,
   Type, Square, Circle, Triangle, Star, Hexagon, Pentagon, ArrowRight, Minus,
-  Image, Trash2, Copy, Clipboard, ClipboardPaste, Scissors,
-  RotateCcw, RotateCw, ArrowUpToLine, ArrowDownToLine,
-  Plus, Layout, Palette, Play, ChevronDown, MousePointer,
+  Image, Trash2, Copy, Clipboard, Scissors,
+  ArrowUpToLine, ArrowDownToLine,
+  Plus, Play, ChevronDown, MousePointer,
   Save, FileDown, FilePlus, FileText, FileType,
 } from 'lucide-react';
 import {
