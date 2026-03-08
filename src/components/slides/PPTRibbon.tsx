@@ -9,6 +9,7 @@ import {
   ArrowUpToLine, ArrowDownToLine,
   Plus, Play, ChevronDown, MousePointer,
   Save, FileDown, FilePlus, FileText, FileType, Camera,
+  FolderOpen, Settings, X, ImageDown,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -16,9 +17,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
   Dialog,
@@ -26,6 +24,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { OpenPresentationDialog } from './OpenPresentationDialog';
+import { PresentationSettingsDialog } from './PresentationSettingsDialog';
+import { SaveAsDialog } from './SaveAsDialog';
 
 type RibbonTab = 'Home' | 'Insert' | 'Design' | 'Transitions' | 'Slide Show';
 
