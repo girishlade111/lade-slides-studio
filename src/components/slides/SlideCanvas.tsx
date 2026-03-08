@@ -42,17 +42,19 @@ export const SlideCanvas: React.FC = () => {
     if (!files) return;
     Array.from(files).forEach((file) => {
       if (!file.type.startsWith('image/')) return;
-      if (file.size > 5 * 1024 * 1024) { alert('Image must be under 5MB'); return; }
+      if (file.size > 10 * 1024 * 1024) { alert('Image must be under 10MB'); return; }
       const reader = new FileReader();
       reader.onload = (ev) => {
         const src = ev.target?.result as string;
         const img = new Image();
         img.onload = () => {
-          const maxW = 400;
-          const ratio = img.width / img.height;
-          const w = Math.min(img.width, maxW);
-          const h = w / ratio;
-          usePresentationStore.getState().addImage(src, 100, 100, w, h);
+          const maxW = 400, maxH = 400;
+          let w = img.width, h = img.height;
+          if (w > maxW) { h = h * (maxW / w); w = maxW; }
+          if (h > maxH) { w = w * (maxH / h); h = maxH; }
+          const cx = (960 - w) / 2;
+          const cy = (540 - h) / 2;
+          usePresentationStore.getState().addImage(src, cx, cy, w, h);
         };
         img.src = src;
       };

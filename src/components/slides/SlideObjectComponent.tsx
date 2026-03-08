@@ -164,15 +164,36 @@ export const SlideObjectComponent: React.FC<SlideObjectComponentProps> = ({
       return <ShapeRenderer obj={obj} />;
     }
     if (obj.type === 'image' && obj.imageProps) {
+      const ip = obj.imageProps;
+      const f = ip.filters || { grayscale: 0, sepia: 0, blur: 0, brightness: 100, contrast: 100, saturation: 100 };
+      const filterStr = [
+        f.grayscale ? `grayscale(${f.grayscale}%)` : '',
+        f.sepia ? `sepia(${f.sepia}%)` : '',
+        f.blur ? `blur(${f.blur}px)` : '',
+        f.brightness !== 100 ? `brightness(${f.brightness}%)` : '',
+        f.contrast !== 100 ? `contrast(${f.contrast}%)` : '',
+        f.saturation !== 100 ? `saturate(${f.saturation}%)` : '',
+      ].filter(Boolean).join(' ') || undefined;
+
+      const border = ip.border?.enabled ? `${ip.border.width}px solid ${ip.border.color}` : undefined;
+      const shadow = ip.shadow?.enabled ? `${ip.shadow.offsetX}px ${ip.shadow.offsetY}px ${ip.shadow.blur}px ${ip.shadow.color}` : undefined;
+      const scaleX = ip.flipH ? -1 : 1;
+      const scaleY = ip.flipV ? -1 : 1;
+      const needsFlip = ip.flipH || ip.flipV;
+
       return (
         <img
-          src={obj.imageProps.src}
+          src={ip.src}
           alt=""
           className="w-full h-full pointer-events-none"
           style={{
-            objectFit: obj.imageProps.objectFit,
-            filter: obj.imageProps.filter !== 'none' ? obj.imageProps.filter : undefined,
-            opacity: obj.imageProps.opacity / 100,
+            objectFit: ip.objectFit,
+            filter: filterStr,
+            opacity: ip.opacity / 100,
+            borderRadius: ip.cornerRadius ? `${ip.cornerRadius}px` : undefined,
+            border,
+            boxShadow: shadow,
+            transform: needsFlip ? `scale(${scaleX}, ${scaleY})` : undefined,
           }}
           draggable={false}
         />

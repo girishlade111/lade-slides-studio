@@ -44,11 +44,40 @@ export interface ShapeProperties {
   shadow: ShapeShadow;
 }
 
+export interface ImageFilters {
+  grayscale: number;
+  sepia: number;
+  blur: number;
+  brightness: number;
+  contrast: number;
+  saturation: number;
+}
+
+export interface ImageBorder {
+  enabled: boolean;
+  color: string;
+  width: number;
+}
+
+export interface ImageShadow {
+  enabled: boolean;
+  color: string;
+  blur: number;
+  offsetX: number;
+  offsetY: number;
+}
+
 export interface ImageProperties {
   src: string;
+  originalSrc: string;
   objectFit: 'cover' | 'contain' | 'fill';
-  filter: string;
   opacity: number;
+  filters: ImageFilters;
+  border: ImageBorder;
+  shadow: ImageShadow;
+  cornerRadius: number;
+  flipH: boolean;
+  flipV: boolean;
 }
 
 export interface SlideObject {

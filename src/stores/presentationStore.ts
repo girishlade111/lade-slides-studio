@@ -436,9 +436,15 @@ export const usePresentationStore = create<PresentationStore>((set, get) => ({
       animation: 'none',
       imageProps: {
         src,
+        originalSrc: src,
         objectFit: 'cover',
-        filter: 'none',
         opacity: 100,
+        filters: { grayscale: 0, sepia: 0, blur: 0, brightness: 100, contrast: 100, saturation: 100 },
+        border: { enabled: false, color: '#000000', width: 2 },
+        shadow: { enabled: false, color: 'rgba(0,0,0,0.3)', blur: 8, offsetX: 4, offsetY: 4 },
+        cornerRadius: 0,
+        flipH: false,
+        flipV: false,
       },
     };
     get().addObject(obj);

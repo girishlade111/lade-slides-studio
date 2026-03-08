@@ -9,6 +9,7 @@ import {
   ArrowUpToLine, ArrowDownToLine,
   Plus, Play, ChevronDown, MousePointer,
   Save, FileDown, FilePlus, FileText, FileType, Camera, Settings,
+  Upload, Link, Clock,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -71,37 +72,88 @@ const TRANSITION_OPTIONS = [
   { value: 'flip', label: 'Flip' },
 ];
 
+const RECENT_IMAGES_KEY = 'lade-recent-images';
+const MAX_RECENT = 10;
+
+function getRecentImages(): string[] {
+  try { return JSON.parse(localStorage.getItem(RECENT_IMAGES_KEY) || '[]'); } catch { return []; }
+}
+function addRecentImage(src: string) {
+  const list = getRecentImages().filter(s => s !== src);
+  list.unshift(src);
+  try { localStorage.setItem(RECENT_IMAGES_KEY, JSON.stringify(list.slice(0, MAX_RECENT))); } catch {}
+}
+
 export const PPTRibbon: React.FC = () => {
   const [activeTab, setActiveTab] = useState<RibbonTab>('Home');
   const [showThemePicker, setShowThemePicker] = useState(false);
   const [showOpenDialog, setShowOpenDialog] = useState(false);
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
   const [showSaveAsDialog, setShowSaveAsDialog] = useState(false);
+  const [showUrlDialog, setShowUrlDialog] = useState(false);
+  const [imageUrl, setImageUrl] = useState('');
+  const [urlLoading, setUrlLoading] = useState(false);
+  const [urlError, setUrlError] = useState('');
+  
 
   const store = usePresentationStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const tabs: RibbonTab[] = ['Home', 'Insert', 'Design', 'Transitions', 'Slide Show'];
 
+  const insertImageToCanvas = (src: string) => {
+    const img = new window.Image();
+    img.onload = () => {
+      const maxW = 400, maxH = 400;
+      let w = img.width, h = img.height;
+      if (w > maxW) { h = h * (maxW / w); w = maxW; }
+      if (h > maxH) { w = w * (maxH / h); h = maxH; }
+      const cx = (960 - w) / 2;
+      const cy = (540 - h) / 2;
+      usePresentationStore.getState().addImage(src, cx, cy, w, h);
+      addRecentImage(src);
+    };
+    img.src = src;
+  };
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { alert('Image must be under 5MB'); return; }
+    if (file.size > 10 * 1024 * 1024) { alert('Image must be under 10MB'); return; }
     const reader = new FileReader();
     reader.onload = (ev) => {
       const src = ev.target?.result as string;
-      const img = new window.Image();
-      img.onload = () => {
-        const maxW = 400;
-        const ratio = img.width / img.height;
-        const w = Math.min(img.width, maxW);
-        const h = w / ratio;
-        usePresentationStore.getState().addImage(src, 100, 100, w, h);
-      };
-      img.src = src;
+      insertImageToCanvas(src);
     };
     reader.readAsDataURL(file);
     e.target.value = '';
+  };
+
+  const handleInsertFromUrl = async () => {
+    if (!imageUrl.trim()) return;
+    setUrlLoading(true);
+    setUrlError('');
+    try {
+      const res = await fetch(imageUrl);
+      if (!res.ok) throw new Error('Failed to fetch');
+      const blob = await res.blob();
+      if (!blob.type.startsWith('image/')) throw new Error('Not an image');
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const src = ev.target?.result as string;
+        insertImageToCanvas(src);
+        setShowUrlDialog(false);
+        setImageUrl('');
+      };
+      reader.readAsDataURL(blob);
+    } catch {
+      // Fallback: just use URL directly
+      insertImageToCanvas(imageUrl.trim());
+      setShowUrlDialog(false);
+      setImageUrl('');
+    } finally {
+      setUrlLoading(false);
+    }
   };
 
   const handleExportPDF = async () => {
@@ -544,15 +596,44 @@ export const PPTRibbon: React.FC = () => {
                 <span className="ppt-ribbon-group-label">Text</span>
               </div>
 
-              <div className="ppt-ribbon-group" style={{ minWidth: 80 }}>
+              <div className="ppt-ribbon-group" style={{ minWidth: 100 }}>
                 <div className="ppt-ribbon-group-content">
-                  <button className="ppt-ribbon-btn ppt-ribbon-btn-large" onClick={() => fileInputRef.current?.click()}>
-                    <Image className="w-6 h-6 text-green-600" />
-                    <span>Pictures</span>
-                  </button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="ppt-ribbon-btn ppt-ribbon-btn-large">
+                        <Image className="w-6 h-6 text-green-600" />
+                        <span>Pictures <ChevronDown className="w-3 h-3 inline" /></span>
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-56">
+                      <DropdownMenuItem onClick={() => fileInputRef.current?.click()}>
+                        <Upload className="w-4 h-4 mr-2" /> Upload from Device
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setShowUrlDialog(true)}>
+                        <Link className="w-4 h-4 mr-2" /> Insert from URL
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      {getRecentImages().length > 0 ? (
+                        <>
+                          <div className="px-2 py-1 text-[10px] font-semibold text-[hsl(var(--muted-foreground))]">Recent Images</div>
+                          <div className="grid grid-cols-4 gap-1 px-2 pb-2">
+                            {getRecentImages().slice(0, 8).map((src, i) => (
+                              <button key={i} onClick={() => insertImageToCanvas(src)} className="w-10 h-10 rounded border border-[hsl(var(--border))] overflow-hidden hover:border-[hsl(var(--ppt-selection))]">
+                                <img src={src} alt="" className="w-full h-full object-cover" />
+                              </button>
+                            ))}
+                          </div>
+                        </>
+                      ) : (
+                        <DropdownMenuItem disabled>
+                          <Clock className="w-4 h-4 mr-2" /> No recent images
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
                 <span className="ppt-ribbon-group-label">Images</span>
-                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                <input ref={fileInputRef} type="file" accept=".jpg,.jpeg,.png,.gif,.svg,.webp" className="hidden" onChange={handleImageUpload} />
               </div>
 
               <div className="ppt-ribbon-group" style={{ minWidth: 240 }}>
@@ -762,6 +843,41 @@ export const PPTRibbon: React.FC = () => {
         currentName={store.presentation.name}
         onSaveAs={(name) => store.saveAs(name)}
       />
+
+      {/* Insert Image from URL Dialog */}
+      <Dialog open={showUrlDialog} onOpenChange={setShowUrlDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Insert Image from URL</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <input
+              type="url"
+              placeholder="https://example.com/image.png"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleInsertFromUrl()}
+              className="ppt-input w-full text-left px-3 py-2"
+            />
+            {urlError && <p className="text-xs text-red-500">{urlError}</p>}
+            {imageUrl && (
+              <div className="border border-[hsl(var(--border))] rounded p-2 flex items-center justify-center h-32 bg-[hsl(var(--muted))]">
+                <img src={imageUrl} alt="Preview" className="max-w-full max-h-full object-contain" onError={() => setUrlError('Could not load image preview')} />
+              </div>
+            )}
+            <div className="flex justify-end gap-2">
+              <button className="ppt-ribbon-btn px-3 py-1.5 text-xs" onClick={() => { setShowUrlDialog(false); setImageUrl(''); setUrlError(''); }}>Cancel</button>
+              <button
+                className="px-3 py-1.5 text-xs rounded bg-[hsl(var(--ppt-brand))] text-white hover:opacity-90 disabled:opacity-50"
+                onClick={handleInsertFromUrl}
+                disabled={urlLoading || !imageUrl.trim()}
+              >
+                {urlLoading ? 'Loading...' : 'Insert'}
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
