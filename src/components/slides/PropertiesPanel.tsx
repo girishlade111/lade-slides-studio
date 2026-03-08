@@ -19,7 +19,7 @@ export const PropertiesPanel: React.FC = () => {
   const {
     presentation, currentSlideIndex, selectedObjectIds,
     updateObject, deleteObjects, pushHistory,
-    updateSlideBackground,
+    updateSlideBackground, applyBackgroundToAll,
   } = usePresentationStore();
 
   const slide = presentation.slides[currentSlideIndex];
