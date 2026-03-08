@@ -133,13 +133,14 @@ export const SlideToolbar: React.FC = () => {
   );
 };
 
-const ToolbarBtn: React.FC<{
+const ToolbarBtn = React.forwardRef<HTMLButtonElement, {
   children: React.ReactNode;
   onClick: () => void;
   active?: boolean;
   title?: string;
-}> = ({ children, onClick, active, title }) => (
+}>(({ children, onClick, active, title }, ref) => (
   <button
+    ref={ref}
     onClick={onClick}
     title={title}
     className={`p-2 rounded transition-colors ${
@@ -150,4 +151,5 @@ const ToolbarBtn: React.FC<{
   >
     {children}
   </button>
-);
+));
+ToolbarBtn.displayName = 'ToolbarBtn';
