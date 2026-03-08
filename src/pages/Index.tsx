@@ -21,7 +21,12 @@ const Index: React.FC = () => {
   }, [loadSavedList]);
 
   if (isPresentationMode) {
-    return <PresentationMode />;
+    return (
+      <PresentationOverlay
+        startIndex={currentSlideIndex}
+        onExit={() => usePresentationStore.getState().setPresentationMode(false)}
+      />
+    );
   }
 
   const slide = presentation.slides[currentSlideIndex];
