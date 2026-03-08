@@ -652,6 +652,26 @@ export const PPTRibbon: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      <OpenPresentationDialog
+        open={showOpenDialog}
+        onOpenChange={setShowOpenDialog}
+        presentations={store.savedPresentations}
+        onOpen={(id) => store.loadPresentation(id)}
+        onDelete={(id) => { store.deletePresentation(id); store.loadSavedList(); }}
+      />
+
+      <PresentationSettingsDialog
+        open={showSettingsDialog}
+        onOpenChange={setShowSettingsDialog}
+      />
+
+      <SaveAsDialog
+        open={showSaveAsDialog}
+        onOpenChange={setShowSaveAsDialog}
+        currentName={store.presentation.name}
+        onSaveAs={(name) => store.saveAs(name)}
+      />
     </>
   );
 };
