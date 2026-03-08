@@ -6,41 +6,59 @@
 
 @layer base {
   :root {
-    --background: 0 0% 96%;
-    --foreground: 220 20% 14%;
+    /* PowerPoint exact color system */
+    --background: 0 0% 91%;
+    --foreground: 0 0% 15%;
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 14%;
+    --card-foreground: 0 0% 15%;
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 14%;
-    --primary: 177 44% 41%;
+    --popover-foreground: 0 0% 15%;
+    --primary: 14 71% 49%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 46 100% 50%;
-    --secondary-foreground: 220 20% 14%;
-    --muted: 220 14% 92%;
-    --muted-foreground: 220 9% 46%;
-    --accent: 217 91% 60%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 15%;
+    --muted: 0 0% 95%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 213 62% 38%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 177 44% 41%;
-    --radius: 0.5rem;
+    --border: 0 0% 85%;
+    --input: 0 0% 85%;
+    --ring: 213 62% 38%;
+    --radius: 0.25rem;
+
+    /* PowerPoint specific tokens */
+    --ppt-brand: 14 71% 49%;
+    --ppt-brand-dark: 14 71% 40%;
+    --ppt-title-bar: 14 71% 49%;
+    --ppt-ribbon-bg: 0 0% 96%;
+    --ppt-ribbon-tab: 0 0% 40%;
+    --ppt-ribbon-tab-active: 0 0% 100%;
+    --ppt-ribbon-border: 0 0% 85%;
+    --ppt-ribbon-group-label: 0 0% 55%;
+    --ppt-canvas-bg: 0 0% 82%;
+    --ppt-slide-panel-bg: 0 0% 95%;
+    --ppt-status-bar: 0 0% 96%;
+    --ppt-selection: 213 62% 38%;
+    --ppt-hover: 213 62% 93%;
+    --ppt-active: 213 62% 86%;
 
     --success: 160 84% 39%;
     --warning: 38 92% 50%;
     --surface: 0 0% 100%;
-    --toolbar-bg: 220 20% 14%;
-    --toolbar-foreground: 0 0% 96%;
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 220 20% 14%;
-    --sidebar-primary: 177 44% 41%;
+
+    --toolbar-bg: 0 0% 96%;
+    --toolbar-foreground: 0 0% 15%;
+    --sidebar-background: 0 0% 95%;
+    --sidebar-foreground: 0 0% 15%;
+    --sidebar-primary: 213 62% 38%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 14% 96%;
-    --sidebar-accent-foreground: 220 20% 14%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 177 44% 41%;
-    --canvas-bg: 220 14% 80%;
+    --sidebar-accent: 0 0% 92%;
+    --sidebar-accent-foreground: 0 0% 15%;
+    --sidebar-border: 0 0% 85%;
+    --sidebar-ring: 213 62% 38%;
+    --canvas-bg: 0 0% 82%;
   }
 }
 
@@ -49,61 +67,248 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-sans;
-    font-family: 'Inter', sans-serif;
+    @apply bg-background text-foreground;
+    font-family: 'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 12px;
+    -webkit-font-smoothing: antialiased;
   }
 }
 
 @layer utilities {
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+    scrollbar-color: hsl(0 0% 75%) transparent;
   }
   .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
+    width: 8px;
+    height: 8px;
   }
   .scrollbar-thin::-webkit-scrollbar-track {
     background: transparent;
   }
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: hsl(var(--muted-foreground) / 0.3);
-    border-radius: 3px;
+    background: hsl(0 0% 75%);
+    border-radius: 4px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: hsl(0 0% 60%);
   }
 }
 
-/* Slide object selection */
+/* PowerPoint Title Bar */
+.ppt-title-bar {
+  background: hsl(var(--ppt-brand));
+  color: white;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  user-select: none;
+}
+
+/* PowerPoint Ribbon */
+.ppt-ribbon {
+  background: hsl(var(--ppt-ribbon-bg));
+  border-bottom: 1px solid hsl(var(--ppt-ribbon-border));
+}
+
+.ppt-ribbon-tabs {
+  display: flex;
+  align-items: flex-end;
+  padding: 0 4px;
+  gap: 0;
+  height: 30px;
+  background: hsl(var(--ppt-brand));
+}
+
+.ppt-ribbon-tab {
+  padding: 4px 14px;
+  font-size: 12px;
+  color: hsla(0, 0%, 100%, 0.85);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  border-radius: 2px 2px 0 0;
+  transition: background 0.1s;
+  position: relative;
+  white-space: nowrap;
+}
+
+.ppt-ribbon-tab:hover {
+  background: hsla(0, 0%, 100%, 0.15);
+  color: white;
+}
+
+.ppt-ribbon-tab.active {
+  background: hsl(var(--ppt-ribbon-bg));
+  color: hsl(var(--ppt-ribbon-tab));
+  font-weight: 500;
+}
+
+.ppt-file-tab {
+  background: hsl(var(--ppt-brand-dark));
+  color: white;
+  padding: 4px 18px;
+  font-weight: 500;
+  border-radius: 0;
+}
+
+.ppt-file-tab:hover {
+  background: hsl(14 71% 35%);
+  color: white;
+}
+
+/* Ribbon Content Area */
+.ppt-ribbon-content {
+  display: flex;
+  align-items: stretch;
+  height: 92px;
+  padding: 4px 6px;
+  gap: 2px;
+  overflow-x: auto;
+}
+
+.ppt-ribbon-group {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  position: relative;
+  padding: 2px 6px 16px;
+  min-width: 0;
+}
+
+.ppt-ribbon-group::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 4px;
+  bottom: 14px;
+  width: 1px;
+  background: hsl(var(--ppt-ribbon-border));
+}
+
+.ppt-ribbon-group:last-child::after {
+  display: none;
+}
+
+.ppt-ribbon-group-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 10px;
+  color: hsl(var(--ppt-ribbon-group-label));
+  line-height: 14px;
+}
+
+.ppt-ribbon-group-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 1px;
+  flex: 1;
+}
+
+/* Ribbon Buttons */
+.ppt-ribbon-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 6px;
+  border-radius: 2px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  background: transparent;
+  color: hsl(var(--foreground));
+  transition: all 0.1s;
+  min-width: 44px;
+  font-size: 11px;
+  gap: 2px;
+}
+
+.ppt-ribbon-btn:hover {
+  background: hsl(var(--ppt-hover));
+  border-color: hsl(213 62% 80%);
+}
+
+.ppt-ribbon-btn:active,
+.ppt-ribbon-btn.active {
+  background: hsl(var(--ppt-active));
+  border-color: hsl(213 62% 70%);
+}
+
+.ppt-ribbon-btn-large {
+  min-width: 52px;
+  padding: 6px 8px;
+}
+
+.ppt-ribbon-btn-small {
+  flex-direction: row;
+  min-width: unset;
+  padding: 2px 5px;
+  gap: 4px;
+  font-size: 11px;
+}
+
+.ppt-ribbon-btn-icon {
+  flex-direction: row;
+  min-width: 24px;
+  width: 24px;
+  height: 24px;
+  padding: 3px;
+  gap: 0;
+}
+
+/* Slide object selection - PowerPoint style blue border */
 .slide-object-selected {
-  outline: 2px solid hsl(var(--primary));
-  outline-offset: 1px;
+  outline: 2px solid hsl(var(--ppt-selection));
+  outline-offset: 0px;
 }
 
 .slide-object:hover:not(.slide-object-selected) {
-  outline: 1px solid hsl(var(--primary) / 0.4);
-  outline-offset: 1px;
+  outline: 1px dashed hsl(var(--ppt-selection) / 0.5);
+  outline-offset: 0px;
 }
 
-/* Resize handles */
+/* Resize handles - PowerPoint white circles with blue border */
 .resize-handle {
   width: 8px;
   height: 8px;
-  background: hsl(var(--primary));
-  border: 1px solid white;
-  border-radius: 1px;
+  background: white;
+  border: 1.5px solid hsl(var(--ppt-selection));
+  border-radius: 50%;
   position: absolute;
   z-index: 50;
 }
 
-/* Presentation mode */
-.presentation-mode {
-  cursor: none;
-}
-.presentation-mode:hover {
-  cursor: default;
-}
-.presentation-mode.laser-active {
-  cursor: none;
+/* Rotation handle */
+.rotate-handle {
+  width: 10px;
+  height: 10px;
+  background: white;
+  border: 1.5px solid hsl(var(--ppt-selection));
+  border-radius: 50%;
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: grab;
+  z-index: 50;
 }
 
+.rotate-handle::before {
+  content: '';
+  position: absolute;
+  bottom: -14px;
+  left: 50%;
+  width: 1px;
+  height: 14px;
+  background: hsl(var(--ppt-selection));
+  transform: translateX(-50%);
+}
+
+/* Presentation mode */
 .laser-dot {
   width: 12px;
   height: 12px;
@@ -113,4 +318,95 @@
   pointer-events: none;
   z-index: 99999;
   box-shadow: 0 0 10px 3px rgba(255, 0, 0, 0.4);
+}
+
+/* Status Bar */
+.ppt-status-bar {
+  height: 24px;
+  background: hsl(var(--ppt-status-bar));
+  border-top: 1px solid hsl(var(--ppt-ribbon-border));
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  font-size: 11px;
+  color: hsl(var(--muted-foreground));
+  gap: 8px;
+}
+
+/* Slide Panel */
+.ppt-slide-panel {
+  background: hsl(var(--ppt-slide-panel-bg));
+  border-right: 1px solid hsl(var(--ppt-ribbon-border));
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+}
+
+.ppt-slide-thumb {
+  position: relative;
+  cursor: pointer;
+  padding: 4px 8px 4px 4px;
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.ppt-slide-thumb.active .ppt-slide-thumb-preview {
+  outline: 2px solid hsl(var(--ppt-selection));
+  outline-offset: 0px;
+}
+
+.ppt-slide-thumb-preview {
+  border: 1px solid hsl(0 0% 80%);
+  background: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Font select PowerPoint style */
+.ppt-select {
+  height: 22px;
+  padding: 0 4px;
+  font-size: 11px;
+  border: 1px solid hsl(var(--ppt-ribbon-border));
+  border-radius: 2px;
+  background: white;
+  color: hsl(var(--foreground));
+  outline: none;
+  cursor: pointer;
+}
+
+.ppt-select:hover {
+  border-color: hsl(213 62% 70%);
+}
+
+.ppt-select:focus {
+  border-color: hsl(var(--ppt-selection));
+}
+
+.ppt-input {
+  height: 22px;
+  width: 40px;
+  padding: 0 4px;
+  font-size: 11px;
+  border: 1px solid hsl(var(--ppt-ribbon-border));
+  border-radius: 2px;
+  background: white;
+  color: hsl(var(--foreground));
+  outline: none;
+  text-align: center;
+}
+
+.ppt-input:focus {
+  border-color: hsl(var(--ppt-selection));
+}
+
+/* Canvas area */
+.ppt-canvas-area {
+  background: hsl(var(--ppt-canvas-bg));
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+  position: relative;
 }
