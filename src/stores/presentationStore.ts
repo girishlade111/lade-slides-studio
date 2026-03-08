@@ -77,6 +77,9 @@ interface PresentationStore {
   loadSavedList: () => void;
   newPresentation: (name?: string) => void;
   renamePres: (name: string) => void;
+  deletePresentation: (id: string) => void;
+  saveAs: (newName: string) => void;
+  listPresentations: () => SavedPresentationMeta[];
 
   // Current slide helper
   getCurrentSlide: () => Slide | undefined;
