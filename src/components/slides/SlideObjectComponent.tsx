@@ -2,6 +2,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import type { SlideObject } from '@/types/presentation';
 import { usePresentationStore } from '@/stores/presentationStore';
 import { ShapeRenderer } from './ShapeRenderer';
+import { RotateCw } from 'lucide-react';
 
 interface SlideObjectComponentProps {
   obj: SlideObject;
@@ -16,10 +17,13 @@ export const SlideObjectComponent: React.FC<SlideObjectComponentProps> = ({
   const { setSelectedObjects, updateObject, moveObject, resizeObject, pushHistory } = usePresentationStore();
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
+  const [isRotating, setIsRotating] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const dragStart = useRef({ x: 0, y: 0, objX: 0, objY: 0 });
   const resizeStart = useRef({ x: 0, y: 0, w: 0, h: 0, objX: 0, objY: 0, handle: '' });
+  const rotateStart = useRef({ startAngle: 0, objRotation: 0 });
   const textRef = useRef<HTMLDivElement>(null);
+  const objRef = useRef<HTMLDivElement>(null);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (isEditing) return;
@@ -45,8 +49,23 @@ export const SlideObjectComponent: React.FC<SlideObjectComponentProps> = ({
     };
   }, [obj, pushHistory]);
 
+  const handleRotateStart = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (obj.locked) return;
+    setIsRotating(true);
+    pushHistory();
+    // Calculate center of object in screen coordinates
+    const rect = objRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const startAngle = Math.atan2(e.clientY - cy, e.clientX - cx) * (180 / Math.PI);
+    rotateStart.current = { startAngle, objRotation: obj.rotation || 0 };
+  }, [obj, pushHistory]);
+
   useEffect(() => {
-    if (!isDragging && !isResizing) return;
+    if (!isDragging && !isResizing && !isRotating) return;
 
     const handleMove = (e: MouseEvent) => {
       if (isDragging) {
@@ -69,11 +88,23 @@ export const SlideObjectComponent: React.FC<SlideObjectComponentProps> = ({
 
         resizeObject(obj.id, { width: newW, height: newH }, { x: newX, y: newY });
       }
+      if (isRotating) {
+        const rect = objRef.current?.getBoundingClientRect();
+        if (!rect) return;
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const angle = Math.atan2(e.clientY - cy, e.clientX - cx) * (180 / Math.PI);
+        let rotation = rotateStart.current.objRotation + (angle - rotateStart.current.startAngle);
+        // Snap to 15° increments when holding shift
+        if (e.shiftKey) rotation = Math.round(rotation / 15) * 15;
+        updateObject(slideIndex, obj.id, { rotation });
+      }
     };
 
     const handleUp = () => {
       setIsDragging(false);
       setIsResizing(false);
+      setIsRotating(false);
     };
 
     window.addEventListener('mousemove', handleMove);
@@ -82,7 +113,7 @@ export const SlideObjectComponent: React.FC<SlideObjectComponentProps> = ({
       window.removeEventListener('mousemove', handleMove);
       window.removeEventListener('mouseup', handleUp);
     };
-  }, [isDragging, isResizing, obj.id, scale, slideIndex, updateObject, resizeObject]);
+  }, [isDragging, isResizing, isRotating, obj.id, scale, slideIndex, updateObject, resizeObject]);
 
   const handleDoubleClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -120,7 +151,7 @@ export const SlideObjectComponent: React.FC<SlideObjectComponentProps> = ({
             color: tp.color,
             textAlign: tp.textAlign,
             lineHeight: tp.lineHeight,
-            backgroundColor: tp.backgroundColor,
+            backgroundColor: tp.backgroundColor !== 'transparent' ? tp.backgroundColor : undefined,
             cursor: isEditing ? 'text' : 'default',
             wordBreak: 'break-word',
           }}
@@ -164,6 +195,7 @@ export const SlideObjectComponent: React.FC<SlideObjectComponentProps> = ({
 
   return (
     <div
+      ref={objRef}
       className={`slide-object absolute ${isSelected ? 'slide-object-selected' : ''}`}
       style={{
         left: obj.position.x,
@@ -172,7 +204,7 @@ export const SlideObjectComponent: React.FC<SlideObjectComponentProps> = ({
         height: obj.size.height,
         transform: obj.rotation ? `rotate(${obj.rotation}deg)` : undefined,
         zIndex: obj.zIndex,
-        cursor: isDragging ? 'grabbing' : 'grab',
+        cursor: isDragging ? 'grabbing' : isEditing ? 'text' : 'grab',
       }}
       onMouseDown={handleMouseDown}
       onDoubleClick={handleDoubleClick}
@@ -180,6 +212,7 @@ export const SlideObjectComponent: React.FC<SlideObjectComponentProps> = ({
       {renderContent()}
       {isSelected && !obj.locked && (
         <>
+          {/* Resize handles */}
           {handles.map((h) => (
             <div
               key={h}
@@ -188,6 +221,20 @@ export const SlideObjectComponent: React.FC<SlideObjectComponentProps> = ({
               onMouseDown={(e) => handleResizeStart(e, h)}
             />
           ))}
+          {/* Rotation handle */}
+          <div
+            className="absolute flex flex-col items-center"
+            style={{ top: -32, left: '50%', transform: 'translateX(-50%)' }}
+          >
+            <div
+              className="w-5 h-5 rounded-full bg-white border-[1.5px] border-[hsl(var(--ppt-selection))] flex items-center justify-center cursor-grab hover:bg-[hsl(var(--accent))] hover:text-white transition-colors"
+              onMouseDown={handleRotateStart}
+              title="Rotate"
+            >
+              <RotateCw className="w-3 h-3" />
+            </div>
+            <div className="w-px h-2 bg-[hsl(var(--ppt-selection))]" />
+          </div>
         </>
       )}
     </div>
