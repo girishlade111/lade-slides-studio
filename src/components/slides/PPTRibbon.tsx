@@ -170,6 +170,7 @@ export const PPTRibbon: React.FC = () => {
     } catch { alert('PNG export failed.'); }
   };
 
+  const selectedObj = store.getCurrentSlide()?.objects.find(o => store.selectedObjectIds.includes(o.id));
   const tp = selectedObj?.textProps;
   const updateTp = (changes: any) => {
     if (!selectedObj || !tp) return;
