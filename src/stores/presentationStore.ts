@@ -287,6 +287,13 @@ export const usePresentationStore = create<PresentationStore>((set, get) => ({
     set({ presentation: { ...presentation, slides, updatedAt: Date.now() } });
   },
 
+  applyBackgroundToAll: (bg) => {
+    const { presentation, pushHistory } = get();
+    pushHistory();
+    const slides = presentation.slides.map(s => ({ ...s, background: JSON.parse(JSON.stringify(bg)) }));
+    set({ presentation: { ...presentation, slides, updatedAt: Date.now() } });
+  },
+
   updateSlideNotes: (index, notes) => {
     const { presentation } = get();
     const slides = [...presentation.slides];
