@@ -8,7 +8,7 @@ import {
   Image, Trash2, Copy, Clipboard, Scissors,
   ArrowUpToLine, ArrowDownToLine,
   Plus, Play, ChevronDown, MousePointer,
-  Save, FileDown, FilePlus, FileText, FileType, Camera,
+  Save, FileDown, FilePlus, FileText, FileType, Camera, Settings,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -16,9 +16,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
   Dialog,
@@ -26,6 +23,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { OpenPresentationDialog } from './OpenPresentationDialog';
+import { PresentationSettingsDialog } from './PresentationSettingsDialog';
+import { SaveAsDialog } from './SaveAsDialog';
 
 type RibbonTab = 'Home' | 'Insert' | 'Design' | 'Transitions' | 'Slide Show';
 
@@ -52,6 +52,9 @@ const TRANSITION_OPTIONS = [
 export const PPTRibbon: React.FC = () => {
   const [activeTab, setActiveTab] = useState<RibbonTab>('Home');
   const [showThemePicker, setShowThemePicker] = useState(false);
+  const [showOpenDialog, setShowOpenDialog] = useState(false);
+  const [showSettingsDialog, setShowSettingsDialog] = useState(false);
+  const [showSaveAsDialog, setShowSaveAsDialog] = useState(false);
 
   const store = usePresentationStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -147,6 +150,26 @@ export const PPTRibbon: React.FC = () => {
     } catch { alert('PPTX export failed.'); }
   };
 
+  const handleExportAllPNG = async () => {
+    try {
+      const { toPng } = await import('html-to-image');
+      const st = usePresentationStore.getState();
+      const origIdx = st.currentSlideIndex;
+      for (let i = 0; i < st.presentation.slides.length; i++) {
+        st.setCurrentSlide(i);
+        await new Promise(r => setTimeout(r, 200));
+        const el = document.querySelector('[data-slide-export]') as HTMLElement;
+        if (!el) continue;
+        const dataUrl = await toPng(el, { width: 960, height: 540, pixelRatio: 2 });
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = `slide-${i + 1}.png`;
+        a.click();
+      }
+      st.setCurrentSlide(origIdx);
+    } catch { alert('PNG export failed.'); }
+  };
+
   const selectedObj = store.getCurrentSlide()?.objects.find(o => store.selectedObjectIds.includes(o.id));
   const tp = selectedObj?.textProps;
   const updateTp = (changes: any) => {
@@ -181,31 +204,36 @@ export const PPTRibbon: React.FC = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-56">
               <DropdownMenuItem onClick={() => store.newPresentation()}>
-                <FilePlus className="w-4 h-4 mr-2" /> New
+                <FilePlus className="w-4 h-4 mr-2" /> New Presentation
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => { store.loadSavedList(); setShowOpenDialog(true); }}>
+                <FileDown className="w-4 h-4 mr-2" /> Open...
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => store.savePresentation()}>
                 <Save className="w-4 h-4 mr-2" /> Save
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setShowSaveAsDialog(true)}>
+                <Save className="w-4 h-4 mr-2" /> Save As...
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger>
-                  <FileDown className="w-4 h-4 mr-2" /> Export
-                </DropdownMenuSubTrigger>
-                <DropdownMenuSubContent>
-                  <DropdownMenuItem onClick={handleExportPDF}>
-                    <FileText className="w-4 h-4 mr-2" /> PDF
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleExportPPTX}>
-                    <FileType className="w-4 h-4 mr-2" /> PowerPoint (.pptx)
-                  </DropdownMenuItem>
-                </DropdownMenuSubContent>
-              </DropdownMenuSub>
+              <DropdownMenuItem onClick={handleExportPDF}>
+                <FileText className="w-4 h-4 mr-2" /> Download as PDF
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportPPTX}>
+                <FileType className="w-4 h-4 mr-2" /> Download as PPTX
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportAllPNG}>
+                <Camera className="w-4 h-4 mr-2" /> Download as PNG
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
-              {store.savedPresentations.map((p) => (
-                <DropdownMenuItem key={p.id} onClick={() => store.loadPresentation(p.id)}>
-                  📄 {p.name}
-                </DropdownMenuItem>
-              ))}
+              <DropdownMenuItem onClick={() => setShowSettingsDialog(true)}>
+                <Settings className="w-4 h-4 mr-2" /> Presentation Settings
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => store.newPresentation()}>
+                <FileText className="w-4 h-4 mr-2" /> Close Presentation
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -644,6 +672,26 @@ export const PPTRibbon: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      <OpenPresentationDialog
+        open={showOpenDialog}
+        onOpenChange={setShowOpenDialog}
+        presentations={store.savedPresentations}
+        onOpen={(id) => store.loadPresentation(id)}
+        onDelete={(id) => { store.deletePresentation(id); store.loadSavedList(); }}
+      />
+
+      <PresentationSettingsDialog
+        open={showSettingsDialog}
+        onOpenChange={setShowSettingsDialog}
+      />
+
+      <SaveAsDialog
+        open={showSaveAsDialog}
+        onOpenChange={setShowSaveAsDialog}
+        currentName={store.presentation.name}
+        onSaveAs={(name) => store.saveAs(name)}
+      />
     </>
   );
 };

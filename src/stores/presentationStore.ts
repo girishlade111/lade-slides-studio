@@ -7,6 +7,14 @@ interface HistoryState {
   future: Presentation[];
 }
 
+interface SavedPresentationMeta {
+  id: string;
+  name: string;
+  createdAt: number;
+  updatedAt: number;
+  slideCount: number;
+}
+
 interface PresentationStore {
   presentation: Presentation;
   currentSlideIndex: number;
@@ -19,7 +27,7 @@ interface PresentationStore {
   isPresenterView: boolean;
   tool: 'select' | 'text' | 'shape' | 'image' | 'line';
   activeShapeType: ShapeType;
-  savedPresentations: { id: string; name: string; updatedAt: number }[];
+  savedPresentations: SavedPresentationMeta[];
   autoSaveIndicator: boolean;
 
   // Actions
@@ -69,6 +77,9 @@ interface PresentationStore {
   loadSavedList: () => void;
   newPresentation: (name?: string) => void;
   renamePres: (name: string) => void;
+  deletePresentation: (id: string) => void;
+  saveAs: (newName: string) => void;
+  listPresentations: () => SavedPresentationMeta[];
 
   // Current slide helper
   getCurrentSlide: () => Slide | undefined;
@@ -472,14 +483,31 @@ export const usePresentationStore = create<PresentationStore>((set, get) => ({
   loadSavedList: () => {
     try {
       const allData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-      const list = Object.values(allData).map((p: any) => ({
+      const list: SavedPresentationMeta[] = Object.values(allData).map((p: any) => ({
         id: p.id,
         name: p.name,
+        createdAt: p.createdAt || Date.now(),
         updatedAt: p.updatedAt,
-      })).sort((a: any, b: any) => b.updatedAt - a.updatedAt).slice(0, 10);
+        slideCount: p.slides?.length || 0,
+      })).sort((a: any, b: any) => b.updatedAt - a.updatedAt);
       set({ savedPresentations: list });
     } catch {
       set({ savedPresentations: [] });
+    }
+  },
+
+  listPresentations: () => {
+    try {
+      const allData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      return Object.values(allData).map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        createdAt: p.createdAt || Date.now(),
+        updatedAt: p.updatedAt,
+        slideCount: p.slides?.length || 0,
+      })).sort((a, b) => b.updatedAt - a.updatedAt);
+    } catch {
+      return [];
     }
   },
 
@@ -496,5 +524,29 @@ export const usePresentationStore = create<PresentationStore>((set, get) => ({
   renamePres: (name) => {
     const { presentation } = get();
     set({ presentation: { ...presentation, name, updatedAt: Date.now() } });
+  },
+
+  deletePresentation: (id) => {
+    try {
+      const allData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      delete allData[id];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
+      get().loadSavedList();
+    } catch {
+      console.warn('Failed to delete presentation');
+    }
+  },
+
+  saveAs: (newName) => {
+    const { presentation, savePresentation } = get();
+    const newPres: Presentation = {
+      ...JSON.parse(JSON.stringify(presentation)),
+      id: uuidv4(),
+      name: newName,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+    set({ presentation: newPres });
+    savePresentation();
   },
 }));
