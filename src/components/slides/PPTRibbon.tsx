@@ -285,7 +285,7 @@ export const PPTRibbon: React.FC = () => {
               </div>
 
               {/* Font Group */}
-              <div className="ppt-ribbon-group" style={{ minWidth: 180 }}>
+              <div className="ppt-ribbon-group" style={{ minWidth: 200 }}>
                 <div className="ppt-ribbon-group-content flex-col gap-1">
                   <div className="flex items-center gap-1">
                     <select
@@ -296,33 +296,36 @@ export const PPTRibbon: React.FC = () => {
                     >
                       {FONTS.map(f => <option key={f} value={f} style={{ fontFamily: f }}>{f}</option>)}
                     </select>
-                    <input
-                      className="ppt-input"
-                      type="number"
+                    <select
+                      className="ppt-select"
+                      style={{ width: 48 }}
                       value={tp?.fontSize || 24}
-                      onChange={(e) => updateTp({ fontSize: Math.max(8, Math.min(96, Number(e.target.value))) })}
-                      style={{ width: 38 }}
-                    />
+                      onChange={(e) => updateTp({ fontSize: Number(e.target.value) })}
+                    >
+                      {[8,10,12,14,16,18,20,24,28,32,36,44,48,56,64,72,96].map(s => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
                   </div>
                   <div className="flex items-center gap-0">
                     <button
                       className={`ppt-ribbon-btn ppt-ribbon-btn-icon ${tp?.fontWeight && tp.fontWeight >= 600 ? 'active' : ''}`}
                       onClick={() => updateTp({ fontWeight: (tp?.fontWeight || 400) >= 600 ? 400 : 700 })}
-                      title="Bold"
+                      title="Bold (Ctrl+B)"
                     >
                       <Bold className="w-3.5 h-3.5" />
                     </button>
                     <button
                       className={`ppt-ribbon-btn ppt-ribbon-btn-icon ${tp?.fontStyle === 'italic' ? 'active' : ''}`}
                       onClick={() => updateTp({ fontStyle: tp?.fontStyle === 'italic' ? 'normal' : 'italic' })}
-                      title="Italic"
+                      title="Italic (Ctrl+I)"
                     >
                       <Italic className="w-3.5 h-3.5" />
                     </button>
                     <button
                       className={`ppt-ribbon-btn ppt-ribbon-btn-icon ${tp?.textDecoration === 'underline' ? 'active' : ''}`}
                       onClick={() => updateTp({ textDecoration: tp?.textDecoration === 'underline' ? 'none' : 'underline' })}
-                      title="Underline"
+                      title="Underline (Ctrl+U)"
                     >
                       <Underline className="w-3.5 h-3.5" />
                     </button>
@@ -334,52 +337,83 @@ export const PPTRibbon: React.FC = () => {
                       <Strikethrough className="w-3.5 h-3.5" />
                     </button>
                     <div className="w-px h-4 bg-[hsl(var(--border))] mx-1" />
-                    <div className="relative">
+                    <div className="relative" title="Font Color">
                       <input
                         type="color"
                         value={tp?.color || '#1f2937'}
                         onChange={(e) => updateTp({ color: e.target.value })}
                         className="w-5 h-5 border-0 p-0 cursor-pointer rounded-sm"
-                        title="Font Color"
                       />
                       <div className="absolute bottom-0 left-0 right-0 h-[3px] rounded-sm" style={{ backgroundColor: tp?.color || '#1f2937' }} />
                     </div>
+                    <div className="relative ml-1" title="Highlight Color">
+                      <input
+                        type="color"
+                        value={tp?.backgroundColor === 'transparent' ? '#ffffff' : (tp?.backgroundColor || '#ffffff')}
+                        onChange={(e) => updateTp({ backgroundColor: e.target.value })}
+                        className="w-5 h-5 border-0 p-0 cursor-pointer rounded-sm"
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 h-[3px] rounded-sm bg-yellow-300" />
+                    </div>
+                    <button
+                      className="ppt-ribbon-btn ppt-ribbon-btn-icon ml-0.5"
+                      onClick={() => updateTp({ backgroundColor: 'transparent' })}
+                      title="Clear Highlight"
+                      style={{ fontSize: 9, minWidth: 18, width: 18 }}
+                    >
+                      ∅
+                    </button>
                   </div>
                 </div>
                 <span className="ppt-ribbon-group-label">Font</span>
               </div>
 
               {/* Paragraph Group */}
-              <div className="ppt-ribbon-group" style={{ minWidth: 100 }}>
+              <div className="ppt-ribbon-group" style={{ minWidth: 130 }}>
                 <div className="ppt-ribbon-group-content flex-col gap-1">
                   <div className="flex items-center gap-0">
                     <button
                       className={`ppt-ribbon-btn ppt-ribbon-btn-icon ${tp?.textAlign === 'left' ? 'active' : ''}`}
                       onClick={() => updateTp({ textAlign: 'left' })}
+                      title="Align Left (Ctrl+L)"
                     >
                       <AlignLeft className="w-3.5 h-3.5" />
                     </button>
                     <button
                       className={`ppt-ribbon-btn ppt-ribbon-btn-icon ${tp?.textAlign === 'center' ? 'active' : ''}`}
                       onClick={() => updateTp({ textAlign: 'center' })}
+                      title="Align Center (Ctrl+E)"
                     >
                       <AlignCenter className="w-3.5 h-3.5" />
                     </button>
                     <button
                       className={`ppt-ribbon-btn ppt-ribbon-btn-icon ${tp?.textAlign === 'right' ? 'active' : ''}`}
                       onClick={() => updateTp({ textAlign: 'right' })}
+                      title="Align Right (Ctrl+R)"
                     >
                       <AlignRight className="w-3.5 h-3.5" />
                     </button>
                     <button
                       className={`ppt-ribbon-btn ppt-ribbon-btn-icon ${tp?.textAlign === 'justify' ? 'active' : ''}`}
                       onClick={() => updateTp({ textAlign: 'justify' })}
+                      title="Justify"
                     >
                       <AlignJustify className="w-3.5 h-3.5" />
                     </button>
+                    <div className="w-px h-4 bg-[hsl(var(--border))] mx-1" />
+                    <select
+                      className="ppt-select"
+                      style={{ width: 42 }}
+                      value={tp?.lineHeight || 1.4}
+                      onChange={(e) => updateTp({ lineHeight: parseFloat(e.target.value) })}
+                      title="Line Spacing"
+                    >
+                      {[1.0, 1.15, 1.5, 2.0, 2.5, 3.0].map(v => (
+                        <option key={v} value={v}>{v}</option>
+                      ))}
+                    </select>
                   </div>
                   <div className="flex items-center gap-0">
-                    {/* Layer controls */}
                     <button className="ppt-ribbon-btn ppt-ribbon-btn-icon" onClick={() => {
                       if (!selectedObj) return;
                       const slide = store.getCurrentSlide();

@@ -19,8 +19,48 @@ export const useKeyboardShortcuts = () => {
       const target = e.target as HTMLElement;
       const isEditing = target.isContentEditable || target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
 
-      // Ctrl/Cmd shortcuts
+      // Text formatting shortcuts (work even in editing mode for selected text object)
       if (e.ctrlKey || e.metaKey) {
+        const selectedObj = store.getCurrentSlide()?.objects.find(o => store.selectedObjectIds.includes(o.id));
+        const tp = selectedObj?.textProps;
+
+        if (tp && selectedObj) {
+          const updateTp = (changes: Partial<typeof tp>) => {
+            store.updateObject(store.currentSlideIndex, selectedObj.id, { textProps: { ...tp, ...changes } });
+          };
+
+          if (e.key === 'b' || e.key === 'B') {
+            e.preventDefault();
+            updateTp({ fontWeight: tp.fontWeight >= 600 ? 400 : 700 });
+            return;
+          }
+          if (e.key === 'i' || e.key === 'I') {
+            e.preventDefault();
+            updateTp({ fontStyle: tp.fontStyle === 'italic' ? 'normal' : 'italic' });
+            return;
+          }
+          if (e.key === 'u' || e.key === 'U') {
+            e.preventDefault();
+            updateTp({ textDecoration: tp.textDecoration === 'underline' ? 'none' : 'underline' });
+            return;
+          }
+          if (e.key === 'e' || e.key === 'E') {
+            e.preventDefault();
+            updateTp({ textAlign: 'center' });
+            return;
+          }
+          if (e.key === 'l' || e.key === 'L') {
+            e.preventDefault();
+            updateTp({ textAlign: 'left' });
+            return;
+          }
+          if (e.key === 'r' || e.key === 'R') {
+            e.preventDefault();
+            updateTp({ textAlign: 'right' });
+            return;
+          }
+        }
+
         if (e.key === 'z') { e.preventDefault(); store.undo(); }
         if (e.key === 'y') { e.preventDefault(); store.redo(); }
         if (e.key === 's') { e.preventDefault(); store.savePresentation(); }
