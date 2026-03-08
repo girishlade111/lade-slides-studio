@@ -137,9 +137,12 @@ export const PresentationMode: React.FC = () => {
               </div>
             )}
             {obj.type === 'shape' && <ShapeRenderer obj={obj} />}
-            {obj.type === 'image' && obj.imageProps && (
-              <img src={obj.imageProps.src} alt="" className="w-full h-full" style={{ objectFit: obj.imageProps.objectFit, opacity: obj.imageProps.opacity / 100, filter: obj.imageProps.filter !== 'none' ? obj.imageProps.filter : undefined }} draggable={false} />
-            )}
+            {obj.type === 'image' && obj.imageProps && (() => {
+              const ip = obj.imageProps!;
+              const f = ip.filters || { grayscale: 0, sepia: 0, blur: 0, brightness: 100, contrast: 100, saturation: 100 };
+              const filterStr = [f.grayscale ? `grayscale(${f.grayscale}%)` : '', f.sepia ? `sepia(${f.sepia}%)` : '', f.blur ? `blur(${f.blur}px)` : '', f.brightness !== 100 ? `brightness(${f.brightness}%)` : '', f.contrast !== 100 ? `contrast(${f.contrast}%)` : '', f.saturation !== 100 ? `saturate(${f.saturation}%)` : ''].filter(Boolean).join(' ') || undefined;
+              return <img src={ip.src} alt="" className="w-full h-full" style={{ objectFit: ip.objectFit, opacity: ip.opacity / 100, filter: filterStr, borderRadius: ip.cornerRadius ? `${ip.cornerRadius}px` : undefined, border: ip.border?.enabled ? `${ip.border.width}px solid ${ip.border.color}` : undefined, boxShadow: ip.shadow?.enabled ? `${ip.shadow.offsetX}px ${ip.shadow.offsetY}px ${ip.shadow.blur}px ${ip.shadow.color}` : undefined, transform: (ip.flipH || ip.flipV) ? `scale(${ip.flipH ? -1 : 1}, ${ip.flipV ? -1 : 1})` : undefined }} draggable={false} />;
+            })()}
           </div>
         ))}
       </div>
