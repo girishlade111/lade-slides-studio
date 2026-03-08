@@ -1,12 +1,37 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import React, { useEffect } from 'react';
+import { usePresentationStore } from '@/stores/presentationStore';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { HeaderMenu } from '@/components/slides/HeaderMenu';
+import { SlideSidebar } from '@/components/slides/SlideSidebar';
+import { SlideCanvas } from '@/components/slides/SlideCanvas';
+import { PropertiesPanel } from '@/components/slides/PropertiesPanel';
+import { SlideToolbar } from '@/components/slides/SlideToolbar';
+import { PresentationMode } from '@/components/slides/PresentationMode';
 
-const Index = () => {
+const Index: React.FC = () => {
+  const { isPresentationMode, loadSavedList } = usePresentationStore();
+  useKeyboardShortcuts();
+
+  useEffect(() => {
+    loadSavedList();
+  }, [loadSavedList]);
+
+  if (isPresentationMode) {
+    return <PresentationMode />;
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <div className="h-screen flex flex-col overflow-hidden">
+      <HeaderMenu />
+      <div className="flex-1 flex overflow-hidden">
+        <SlideSidebar />
+        <SlideCanvas />
+        <PropertiesPanel />
       </div>
+      <SlideToolbar />
+      <footer className="h-6 bg-toolbar flex items-center justify-center">
+        <span className="text-[10px] text-toolbar-foreground/50">Powered by Lade Stack</span>
+      </footer>
     </div>
   );
 };
