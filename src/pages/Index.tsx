@@ -7,7 +7,7 @@ import { PPTSlidePanel } from '@/components/slides/PPTSlidePanel';
 import { PPTCanvas } from '@/components/slides/PPTCanvas';
 import { PPTStatusBar } from '@/components/slides/PPTStatusBar';
 import { PropertiesPanel } from '@/components/slides/PropertiesPanel';
-import { PresentationMode } from '@/components/slides/PresentationMode';
+import { PresentationOverlay } from '@/components/slides/PresentationOverlay';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
 const Index: React.FC = () => {
@@ -21,7 +21,12 @@ const Index: React.FC = () => {
   }, [loadSavedList]);
 
   if (isPresentationMode) {
-    return <PresentationMode />;
+    return (
+      <PresentationOverlay
+        startIndex={currentSlideIndex}
+        onExit={() => usePresentationStore.getState().setPresentationMode(false)}
+      />
+    );
   }
 
   const slide = presentation.slides[currentSlideIndex];

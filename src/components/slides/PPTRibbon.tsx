@@ -8,7 +8,7 @@ import {
   Image, Trash2, Copy, Clipboard, Scissors,
   ArrowUpToLine, ArrowDownToLine,
   Plus, Play, ChevronDown, MousePointer,
-  Save, FileDown, FilePlus, FileText, FileType,
+  Save, FileDown, FilePlus, FileText, FileType, Camera,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -586,6 +586,30 @@ export const PPTRibbon: React.FC = () => {
                   </button>
                 </div>
                 <span className="ppt-ribbon-group-label">Start Slide Show</span>
+              </div>
+
+              <div className="ppt-ribbon-group" style={{ minWidth: 120 }}>
+                <div className="ppt-ribbon-group-content">
+                  <button
+                    className="ppt-ribbon-btn ppt-ribbon-btn-large"
+                    onClick={async () => {
+                      try {
+                        const { toPng } = await import('html-to-image');
+                        const el = document.querySelector('[data-slide-export]') as HTMLElement;
+                        if (!el) return;
+                        const dataUrl = await toPng(el, { width: 960, height: 540, pixelRatio: 2 });
+                        const a = document.createElement('a');
+                        a.href = dataUrl;
+                        a.download = `slide-${store.currentSlideIndex + 1}.png`;
+                        a.click();
+                      } catch { alert('PNG export failed.'); }
+                    }}
+                  >
+                    <Camera className="w-6 h-6 text-green-600" />
+                    <span>Export PNG</span>
+                  </button>
+                </div>
+                <span className="ppt-ribbon-group-label">Export Slide</span>
               </div>
             </>
           )}
