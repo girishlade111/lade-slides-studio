@@ -67,7 +67,7 @@ export const PresentationMode: React.FC = () => {
 
   const startTime = useRef(Date.now());
   const prevSlideRef = useRef(currentSlideIndex);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  
 
   const slide = presentation.slides[currentSlideIndex];
 
