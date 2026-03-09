@@ -28,6 +28,8 @@ import { OpenPresentationDialog } from './OpenPresentationDialog';
 import { PresentationSettingsDialog } from './PresentationSettingsDialog';
 import { SaveAsDialog } from './SaveAsDialog';
 import { ExportDialog } from './ExportDialog';
+import { LayoutSelector as LayoutSelectorComponent } from './LayoutSelector';
+import { LayoutGrid } from 'lucide-react';
 
 type RibbonTab = 'Home' | 'Insert' | 'Design' | 'Transitions' | 'Slide Show' | 'View';
 
