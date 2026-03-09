@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { usePresentationStore } from '@/stores/presentationStore';
 import { useCollaborationStore } from '@/stores/collaborationStore';
+import { useMasterSlideStore } from '@/stores/masterSlideStore';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { PPTTitleBar } from '@/components/slides/PPTTitleBar';
 import { PPTRibbon } from '@/components/slides/PPTRibbon';
@@ -15,11 +16,13 @@ import { AnimationsPanel } from '@/components/slides/AnimationsPanel';
 import { CommentsPanel } from '@/components/slides/CommentsPanel';
 import { VersionHistoryPanel } from '@/components/slides/VersionHistoryPanel';
 import { ActivityLogPanel } from '@/components/slides/ActivityLogPanel';
+import { MasterSlideEditor } from '@/components/slides/MasterSlideEditor';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
 const Index: React.FC = () => {
   const { isPresentationMode, loadSavedList, presentation, currentSlideIndex, updateSlideNotes } = usePresentationStore();
   const { activePanel, setActivePanel, loadVersions, saveVersion } = useCollaborationStore();
+  const { isMasterEditMode, setMasterEditMode, loadMasters } = useMasterSlideStore();
   const [showNotes, setShowNotes] = useState(false);
   const [showProps] = useState(true);
   const [showThemesPanel, setShowThemesPanel] = useState(false);
@@ -30,14 +33,13 @@ const Index: React.FC = () => {
 
   useEffect(() => {
     loadSavedList();
-  }, [loadSavedList]);
+    loadMasters();
+  }, [loadSavedList, loadMasters]);
 
-  // Load versions for current presentation
   useEffect(() => {
     loadVersions(presentation.id);
   }, [presentation.id, loadVersions]);
 
-  // Auto-save version every 5 minutes
   useEffect(() => {
     const interval = setInterval(() => {
       saveVersion('auto', presentation, prevPresentationRef.current || undefined);
@@ -50,6 +52,14 @@ const Index: React.FC = () => {
     return <PresentationMode />;
   }
 
+  if (isMasterEditMode) {
+    return (
+      <div className="h-screen flex flex-col overflow-hidden" style={{ background: 'hsl(var(--ppt-ribbon-bg))' }}>
+        <MasterSlideEditor onClose={() => setMasterEditMode(false)} />
+      </div>
+    );
+  }
+
   const slide = presentation.slides[currentSlideIndex];
 
   return (
@@ -59,6 +69,7 @@ const Index: React.FC = () => {
         onToggleThemes={() => { setShowThemesPanel(!showThemesPanel); setShowTransitionsPanel(false); setShowAnimationsPanel(false); }}
         onToggleTransitions={() => { setShowTransitionsPanel(!showTransitionsPanel); setShowThemesPanel(false); setShowAnimationsPanel(false); }}
         onToggleAnimations={() => { setShowAnimationsPanel(!showAnimationsPanel); setShowThemesPanel(false); setShowTransitionsPanel(false); }}
+        onToggleMasterEditor={() => setMasterEditMode(true)}
       />
 
       <div className="flex-1 flex overflow-hidden">
