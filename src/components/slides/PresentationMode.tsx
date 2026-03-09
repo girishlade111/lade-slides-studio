@@ -206,7 +206,7 @@ export const PresentationMode: React.FC = () => {
     else setLaserPos(null);
   }, [ctrlHeld, laserActive]);
 
-  const handleClick = useCallback((e: React.MouseEvent) => {
+  const handleClick = useCallback(() => {
     if (penActive) return; // Don't advance when drawing
     if (!ctrlHeld && !laserActive) goNext();
   }, [ctrlHeld, laserActive, penActive, goNext]);
