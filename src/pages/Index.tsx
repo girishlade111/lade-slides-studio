@@ -75,6 +75,9 @@ const Index: React.FC = () => {
 
         {/* Properties Panel */}
         {showProps && <PropertiesPanel />}
+
+        {/* Themes Panel */}
+        {showThemesPanel && <ThemesPanel onClose={() => setShowThemesPanel(false)} />}
       </div>
 
       {/* PowerPoint Status Bar */}
