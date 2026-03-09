@@ -18,6 +18,8 @@ const Index: React.FC = () => {
   const [showNotes, setShowNotes] = useState(false);
   const [showProps] = useState(true);
   const [showThemesPanel, setShowThemesPanel] = useState(false);
+  const [showTransitionsPanel, setShowTransitionsPanel] = useState(false);
+  const [showAnimationsPanel, setShowAnimationsPanel] = useState(false);
   useKeyboardShortcuts();
 
   useEffect(() => {
