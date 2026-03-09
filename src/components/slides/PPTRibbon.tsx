@@ -9,7 +9,7 @@ import {
   ArrowUpToLine, ArrowDownToLine,
   Plus, Play, ChevronDown, MousePointer,
   Save, FileDown, FilePlus, FileText, FileType, Camera, Settings,
-  Upload, Link, Clock,
+  Upload, Link, Clock, Palette,
 } from 'lucide-react';
 import {
   DropdownMenu,
