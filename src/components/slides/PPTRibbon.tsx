@@ -765,6 +765,36 @@ export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTr
                 </div>
                 <span className="ppt-ribbon-group-label">Timing</span>
               </div>
+
+              {/* Advanced Transitions Panel */}
+              <div className="ppt-ribbon-group" style={{ minWidth: 100 }}>
+                <div className="ppt-ribbon-group-content">
+                  <button
+                    className="ppt-ribbon-btn ppt-ribbon-btn-large"
+                    onClick={onToggleTransitions}
+                    title="Open Transitions Panel"
+                  >
+                    <Settings className="w-6 h-6 text-[hsl(var(--ppt-brand))]" />
+                    <span>Advanced</span>
+                  </button>
+                </div>
+                <span className="ppt-ribbon-group-label">Transitions Panel</span>
+              </div>
+
+              {/* Animations */}
+              <div className="ppt-ribbon-group" style={{ minWidth: 100 }}>
+                <div className="ppt-ribbon-group-content">
+                  <button
+                    className="ppt-ribbon-btn ppt-ribbon-btn-large"
+                    onClick={onToggleAnimations}
+                    title="Open Animations Panel"
+                  >
+                    <Play className="w-6 h-6 text-[hsl(var(--accent))]" />
+                    <span>Animations</span>
+                  </button>
+                </div>
+                <span className="ppt-ribbon-group-label">Object Animations</span>
+              </div>
             </>
           )}
 
