@@ -8,12 +8,14 @@ import { PPTCanvas } from '@/components/slides/PPTCanvas';
 import { PPTStatusBar } from '@/components/slides/PPTStatusBar';
 import { PropertiesPanel } from '@/components/slides/PropertiesPanel';
 import { PresentationOverlay } from '@/components/slides/PresentationOverlay';
+import { ThemesPanel } from '@/components/slides/ThemesPanel';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
 const Index: React.FC = () => {
   const { isPresentationMode, loadSavedList, presentation, currentSlideIndex, updateSlideNotes } = usePresentationStore();
   const [showNotes, setShowNotes] = useState(false);
   const [showProps] = useState(true);
+  const [showThemesPanel, setShowThemesPanel] = useState(false);
   useKeyboardShortcuts();
 
   useEffect(() => {
@@ -37,7 +39,7 @@ const Index: React.FC = () => {
       <PPTTitleBar />
 
       {/* PowerPoint Ribbon */}
-      <PPTRibbon />
+      <PPTRibbon onToggleThemes={() => setShowThemesPanel(!showThemesPanel)} />
 
       {/* Main Content Area */}
       <div className="flex-1 flex overflow-hidden">
@@ -73,6 +75,9 @@ const Index: React.FC = () => {
 
         {/* Properties Panel */}
         {showProps && <PropertiesPanel />}
+
+        {/* Themes Panel */}
+        {showThemesPanel && <ThemesPanel onClose={() => setShowThemesPanel(false)} />}
       </div>
 
       {/* PowerPoint Status Bar */}
