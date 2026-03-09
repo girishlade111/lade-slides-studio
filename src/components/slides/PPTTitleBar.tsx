@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import { usePresentationStore } from '@/stores/presentationStore';
-import { Save, Undo2, Redo2 } from 'lucide-react';
+import { Save, Undo2, Redo2, Play } from 'lucide-react';
 
 export const PPTTitleBar: React.FC = () => {
-  const { presentation, undo, redo, history, savePresentation, renamePres, autoSaveIndicator } = usePresentationStore();
+  const { presentation, undo, redo, history, savePresentation, renamePres, autoSaveIndicator, setCurrentSlide, setPresentationMode } = usePresentationStore();
   const [isRenaming, setIsRenaming] = useState(false);
   const [nameInput, setNameInput] = useState(presentation.name);
 
@@ -66,6 +66,16 @@ export const PPTTitleBar: React.FC = () => {
           <span className="text-[9px] text-white/70 animate-pulse">Saved</span>
         )}
       </div>
+
+      {/* Present button */}
+      <button
+        onClick={() => { setCurrentSlide(0); setPresentationMode(true); }}
+        className="flex items-center gap-1.5 px-3 py-1 rounded bg-white/15 hover:bg-white/25 text-white text-xs font-medium transition-colors"
+        title="Start Presentation (F5)"
+      >
+        <Play className="w-3.5 h-3.5 fill-current" />
+        Present
+      </button>
     </div>
   );
 };

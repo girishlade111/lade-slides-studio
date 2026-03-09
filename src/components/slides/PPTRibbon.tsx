@@ -739,6 +739,19 @@ export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTr
                 <span className="ppt-ribbon-group-label">Start Slide Show</span>
               </div>
 
+              <div className="ppt-ribbon-group" style={{ minWidth: 100 }}>
+                <div className="ppt-ribbon-group-content flex-col gap-1 text-[11px]">
+                  <div className="text-[hsl(var(--muted-foreground))] px-2 pt-1">During presentation:</div>
+                  <div className="px-2 space-y-0.5 text-[10px] text-[hsl(var(--muted-foreground))]">
+                    <div><kbd className="bg-[hsl(var(--muted))] px-1 rounded text-[9px]">S</kbd> Presenter View</div>
+                    <div><kbd className="bg-[hsl(var(--muted))] px-1 rounded text-[9px]">G</kbd> Slide Grid</div>
+                    <div><kbd className="bg-[hsl(var(--muted))] px-1 rounded text-[9px]">E</kbd> Pen Tool</div>
+                    <div><kbd className="bg-[hsl(var(--muted))] px-1 rounded text-[9px]">B</kbd> Black Screen</div>
+                  </div>
+                </div>
+                <span className="ppt-ribbon-group-label">Shortcuts</span>
+              </div>
+
               <div className="ppt-ribbon-group" style={{ minWidth: 120 }}>
                 <div className="ppt-ribbon-group-content">
                   <button

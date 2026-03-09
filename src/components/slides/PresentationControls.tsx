@@ -72,19 +72,19 @@ export const PresentationControls: React.FC<PresentationControlsProps> = ({
               {PEN_COLORS.map(c => (
                 <button
                   key={c}
-                  onClick={() => onSetPenColor(c)}
+                  onClick={(e) => { e.stopPropagation(); onSetPenColor(c); }}
                   className={`w-4 h-4 rounded-full border-2 transition-transform ${penColor === c ? 'border-white scale-125' : 'border-white/40'}`}
                   style={{ backgroundColor: c }}
                 />
               ))}
               <button
-                onClick={onToggleEraser}
+                onClick={(e) => { e.stopPropagation(); onToggleEraser(); }}
                 className={`p-1.5 rounded-full transition-colors ${isEraser ? 'bg-white/30 text-white' : 'hover:bg-white/20 text-white/70'}`}
                 title="Eraser"
               >
                 <Eraser className="w-3.5 h-3.5" />
               </button>
-              <button onClick={onClearDrawings} className="p-1.5 rounded-full hover:bg-white/20 text-white/70 transition-colors" title="Clear drawings">
+              <button onClick={(e) => { e.stopPropagation(); onClearDrawings(); }} className="p-1.5 rounded-full hover:bg-white/20 text-white/70 transition-colors" title="Clear drawings">
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
             </>
@@ -92,8 +92,8 @@ export const PresentationControls: React.FC<PresentationControlsProps> = ({
 
           {/* Laser */}
           <button
-            onClick={onToggleLaser}
-            className={`p-1.5 rounded-full transition-colors ${laserActive ? 'bg-red-500/50 text-white' : 'hover:bg-white/20 text-white/70'}`}
+            onClick={(e) => { e.stopPropagation(); onToggleLaser(); }}
+            className={`p-1.5 rounded-full transition-colors ${laserActive ? 'bg-destructive/50 text-white' : 'hover:bg-white/20 text-white/70'}`}
             title="Laser pointer (Ctrl+mouse)"
           >
             <Pointer className="w-3.5 h-3.5" />
@@ -102,19 +102,19 @@ export const PresentationControls: React.FC<PresentationControlsProps> = ({
           <div className="w-px h-5 bg-white/30 mx-1" />
 
           {/* Grid view */}
-          <button onClick={onToggleGrid} className="p-1.5 rounded-full hover:bg-white/20 text-white/70 transition-colors" title="Thumbnail grid (G)">
+          <button onClick={(e) => { e.stopPropagation(); onToggleGrid(); }} className="p-1.5 rounded-full hover:bg-white/20 text-white/70 transition-colors" title="Thumbnail grid (G)">
             <Grid3X3 className="w-3.5 h-3.5" />
           </button>
 
           {/* Presenter view */}
-          <button onClick={onTogglePresenterView} className="p-1.5 rounded-full hover:bg-white/20 text-white/70 transition-colors" title="Presenter view (S)">
+          <button onClick={(e) => { e.stopPropagation(); onTogglePresenterView(); }} className="p-1.5 rounded-full hover:bg-white/20 text-white/70 transition-colors" title="Presenter view (S)">
             <Monitor className="w-3.5 h-3.5" />
           </button>
 
           <div className="w-px h-5 bg-white/30 mx-1" />
 
           {/* Exit */}
-          <button onClick={onExit} className="p-1.5 rounded-full hover:bg-red-500/40 text-white/70 transition-colors" title="Exit (Esc)">
+          <button onClick={(e) => { e.stopPropagation(); onExit(); }} className="p-1.5 rounded-full hover:bg-destructive/40 text-white/70 transition-colors" title="Exit (Esc)">
             <X className="w-4 h-4" />
           </button>
         </div>
