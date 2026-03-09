@@ -15,6 +15,7 @@ const Index: React.FC = () => {
   const { isPresentationMode, loadSavedList, presentation, currentSlideIndex, updateSlideNotes } = usePresentationStore();
   const [showNotes, setShowNotes] = useState(false);
   const [showProps] = useState(true);
+  const [showThemesPanel, setShowThemesPanel] = useState(false);
   useKeyboardShortcuts();
 
   useEffect(() => {
