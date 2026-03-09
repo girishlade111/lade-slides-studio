@@ -222,14 +222,17 @@ export const HeaderMenu: React.FC = () => {
                 <Download className="w-4 h-4 mr-2" /> Export
               </DropdownMenuSubTrigger>
               <DropdownMenuSubContent>
-                <DropdownMenuItem onClick={handleExportPDF}>
+                <DropdownMenuItem onClick={() => { setShowExportDialog(true); setExportTab('pdf'); }}>
                   <FileText className="w-4 h-4 mr-2" /> Export as PDF
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleExportPPTX}>
+                <DropdownMenuItem onClick={() => { setShowExportDialog(true); setExportTab('pptx'); }}>
                   <FileType className="w-4 h-4 mr-2" /> Export as PPTX
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleExportPNG}>
-                  <ImageIcon className="w-4 h-4 mr-2" /> Export Slide as PNG
+                <DropdownMenuItem onClick={() => { setShowExportDialog(true); setExportTab('png'); }}>
+                  <ImageIcon className="w-4 h-4 mr-2" /> Export as PNG
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => { setShowExportDialog(true); setExportTab('html'); }}>
+                  <Code className="w-4 h-4 mr-2" /> Export as HTML
                 </DropdownMenuItem>
               </DropdownMenuSubContent>
             </DropdownMenuSub>
