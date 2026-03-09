@@ -207,6 +207,56 @@ export const THEMES: Theme[] = [
   { id: 'tech-gray', name: 'Tech Gray', colors: { primary: '#374151', secondary: '#f3f4f6', background: '#f9fafb', text: '#111827', accent: '#6b7280' }, fontFamily: 'Inter' },
 ];
 
+// Collaboration types
+export interface CommentReply {
+  id: string;
+  author: string;
+  text: string;
+  createdAt: string;
+}
+
+export interface SlideComment {
+  id: string;
+  slideId: string;
+  objectId: string | null;
+  author: string;
+  authorColor: string;
+  text: string;
+  createdAt: string;
+  resolved: boolean;
+  replies: CommentReply[];
+}
+
+export type ActivityType =
+  | 'slide_added' | 'slide_deleted' | 'slide_duplicated'
+  | 'object_added' | 'object_modified' | 'object_deleted'
+  | 'background_changed' | 'theme_applied'
+  | 'comment_added' | 'comment_resolved'
+  | 'export_performed' | 'presentation_saved' | 'version_restored';
+
+export interface ActivityEntry {
+  id: string;
+  presentationId: string;
+  type: ActivityType;
+  description: string;
+  author: string;
+  timestamp: string;
+  undoable: boolean;
+}
+
+export interface VersionSnapshot {
+  id: string;
+  presentationId: string;
+  createdAt: string;
+  type: 'auto' | 'manual';
+  snapshot: Presentation;
+  changesSummary: {
+    slidesAdded: number;
+    slidesDeleted: number;
+    objectsModified: number;
+  };
+}
+
 export const PRESET_COLORS = [
   '#000000', '#ffffff', '#ef4444', '#f97316', '#eab308', '#22c55e',
   '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899', '#6b7280', '#1e293b',
