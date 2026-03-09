@@ -192,7 +192,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({ open, onOpenChange, 
               line: obj.shapeProps.strokeWidth > 0 ? {
                 color: obj.shapeProps.stroke.replace('#', ''),
                 width: obj.shapeProps.strokeWidth,
-                dashType: obj.shapeProps.strokeStyle === 'dashed' ? 'dash' : obj.shapeProps.strokeStyle === 'dotted' ? 'dot' : 'solid',
+                dashType: obj.shapeProps.strokeStyle === 'dashed' ? 'dash' : obj.shapeProps.strokeStyle === 'dotted' ? 'sysDot' : 'solid',
               } : undefined,
               rotate: obj.rotation || 0,
             });
