@@ -8,7 +8,7 @@ import {
   Image, Trash2, Copy, Clipboard, Scissors,
   ArrowUpToLine, ArrowDownToLine,
   Plus, Play, ChevronDown, MousePointer,
-  Save, FileDown, FilePlus, FileText, FileType, Camera, Settings,
+  Save, FileDown, FilePlus, FileText, FileType, Camera, Settings, Download,
   Upload, Link, Clock, Palette,
 } from 'lucide-react';
 import {
@@ -27,6 +27,7 @@ import {
 import { OpenPresentationDialog } from './OpenPresentationDialog';
 import { PresentationSettingsDialog } from './PresentationSettingsDialog';
 import { SaveAsDialog } from './SaveAsDialog';
+import { ExportDialog } from './ExportDialog';
 
 type RibbonTab = 'Home' | 'Insert' | 'Design' | 'Transitions' | 'Slide Show';
 
@@ -96,6 +97,8 @@ export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTr
   const [showOpenDialog, setShowOpenDialog] = useState(false);
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
   const [showSaveAsDialog, setShowSaveAsDialog] = useState(false);
+  const [showExportDialog, setShowExportDialog] = useState(false);
+  const [exportTab, setExportTab] = useState<'pdf' | 'pptx' | 'png' | 'html'>('pdf');
   const [showUrlDialog, setShowUrlDialog] = useState(false);
   const [imageUrl, setImageUrl] = useState('');
   const [urlLoading, setUrlLoading] = useState(false);
@@ -162,93 +165,6 @@ export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTr
     }
   };
 
-  const handleExportPDF = async () => {
-    try {
-      const { jsPDF } = await import('jspdf');
-      const { toPng } = await import('html-to-image');
-      const pdf = new jsPDF({ orientation: 'landscape', unit: 'px', format: [960, 540] });
-      const st = usePresentationStore.getState();
-      const origIdx = st.currentSlideIndex;
-      for (let i = 0; i < st.presentation.slides.length; i++) {
-        st.setCurrentSlide(i);
-        await new Promise(r => setTimeout(r, 200));
-        const el = document.querySelector('[data-slide-export]') as HTMLElement;
-        if (!el) continue;
-        const dataUrl = await toPng(el, { width: 960, height: 540, pixelRatio: 2 });
-        if (i > 0) pdf.addPage([960, 540], 'landscape');
-        pdf.addImage(dataUrl, 'PNG', 0, 0, 960, 540);
-      }
-      st.setCurrentSlide(origIdx);
-      pdf.save(`${st.presentation.name}.pdf`);
-    } catch (err) {
-      alert('PDF export failed.');
-    }
-  };
-
-  const handleExportPPTX = async () => {
-    try {
-      const PptxGenJS = (await import('pptxgenjs')).default;
-      const pptx = new PptxGenJS();
-      const p = store.presentation;
-      pptx.title = p.name;
-      pptx.layout = 'LAYOUT_16x9';
-      for (const slide of p.slides) {
-        const pSlide = pptx.addSlide();
-        if (slide.background.type === 'color') {
-          pSlide.background = { color: slide.background.value.replace('#', '') };
-        }
-        for (const obj of slide.objects) {
-          if (obj.type === 'text' && obj.textProps) {
-            pSlide.addText(obj.textProps.content, {
-              x: obj.position.x / 960 * 10, y: obj.position.y / 540 * 7.5,
-              w: obj.size.width / 960 * 10, h: obj.size.height / 540 * 7.5,
-              fontSize: Math.round(obj.textProps.fontSize * 0.75),
-              fontFace: obj.textProps.fontFamily,
-              color: obj.textProps.color.replace('#', ''),
-              bold: obj.textProps.fontWeight >= 600,
-              italic: obj.textProps.fontStyle === 'italic',
-              align: obj.textProps.textAlign === 'justify' ? 'left' : obj.textProps.textAlign,
-            });
-          }
-          if (obj.type === 'shape' && obj.shapeProps) {
-            pSlide.addShape('rect' as any, {
-              x: obj.position.x / 960 * 10, y: obj.position.y / 540 * 7.5,
-              w: obj.size.width / 960 * 10, h: obj.size.height / 540 * 7.5,
-              fill: { color: obj.shapeProps.fill.replace('#', '') },
-            });
-          }
-          if (obj.type === 'image' && obj.imageProps) {
-            pSlide.addImage({
-              data: obj.imageProps.src,
-              x: obj.position.x / 960 * 10, y: obj.position.y / 540 * 7.5,
-              w: obj.size.width / 960 * 10, h: obj.size.height / 540 * 7.5,
-            });
-          }
-        }
-      }
-      await pptx.writeFile({ fileName: `${p.name}.pptx` });
-    } catch { alert('PPTX export failed.'); }
-  };
-
-  const handleExportAllPNG = async () => {
-    try {
-      const { toPng } = await import('html-to-image');
-      const st = usePresentationStore.getState();
-      const origIdx = st.currentSlideIndex;
-      for (let i = 0; i < st.presentation.slides.length; i++) {
-        st.setCurrentSlide(i);
-        await new Promise(r => setTimeout(r, 200));
-        const el = document.querySelector('[data-slide-export]') as HTMLElement;
-        if (!el) continue;
-        const dataUrl = await toPng(el, { width: 960, height: 540, pixelRatio: 2 });
-        const a = document.createElement('a');
-        a.href = dataUrl;
-        a.download = `slide-${i + 1}.png`;
-        a.click();
-      }
-      st.setCurrentSlide(origIdx);
-    } catch { alert('PNG export failed.'); }
-  };
 
   const selectedObj = store.getCurrentSlide()?.objects.find(o => store.selectedObjectIds.includes(o.id));
   const tp = selectedObj?.textProps;
@@ -297,14 +213,17 @@ export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTr
                 <Save className="w-4 h-4 mr-2" /> Save As...
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleExportPDF}>
+              <DropdownMenuItem onClick={() => { setShowExportDialog(true); setExportTab('pdf'); }}>
                 <FileText className="w-4 h-4 mr-2" /> Download as PDF
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleExportPPTX}>
+              <DropdownMenuItem onClick={() => { setShowExportDialog(true); setExportTab('pptx'); }}>
                 <FileType className="w-4 h-4 mr-2" /> Download as PPTX
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleExportAllPNG}>
+              <DropdownMenuItem onClick={() => { setShowExportDialog(true); setExportTab('png'); }}>
                 <Camera className="w-4 h-4 mr-2" /> Download as PNG
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => { setShowExportDialog(true); setExportTab('html'); }}>
+                <Download className="w-4 h-4 mr-2" /> Download as HTML
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setShowSettingsDialog(true)}>
@@ -824,24 +743,13 @@ export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTr
                 <div className="ppt-ribbon-group-content">
                   <button
                     className="ppt-ribbon-btn ppt-ribbon-btn-large"
-                    onClick={async () => {
-                      try {
-                        const { toPng } = await import('html-to-image');
-                        const el = document.querySelector('[data-slide-export]') as HTMLElement;
-                        if (!el) return;
-                        const dataUrl = await toPng(el, { width: 960, height: 540, pixelRatio: 2 });
-                        const a = document.createElement('a');
-                        a.href = dataUrl;
-                        a.download = `slide-${store.currentSlideIndex + 1}.png`;
-                        a.click();
-                      } catch { alert('PNG export failed.'); }
-                    }}
+                    onClick={() => { setShowExportDialog(true); setExportTab('pdf'); }}
                   >
-                    <Camera className="w-6 h-6 text-green-600" />
-                    <span>Export PNG</span>
+                    <Download className="w-6 h-6 text-[hsl(var(--ppt-brand))]" />
+                    <span>Export</span>
                   </button>
                 </div>
-                <span className="ppt-ribbon-group-label">Export Slide</span>
+                <span className="ppt-ribbon-group-label">Export</span>
               </div>
             </>
           )}
@@ -931,6 +839,8 @@ export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTr
           </div>
         </DialogContent>
       </Dialog>
+
+      <ExportDialog open={showExportDialog} onOpenChange={setShowExportDialog} defaultTab={exportTab} />
     </>
   );
 };
