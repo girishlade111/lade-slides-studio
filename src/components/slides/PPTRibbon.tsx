@@ -830,24 +830,13 @@ export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTr
                 <div className="ppt-ribbon-group-content">
                   <button
                     className="ppt-ribbon-btn ppt-ribbon-btn-large"
-                    onClick={async () => {
-                      try {
-                        const { toPng } = await import('html-to-image');
-                        const el = document.querySelector('[data-slide-export]') as HTMLElement;
-                        if (!el) return;
-                        const dataUrl = await toPng(el, { width: 960, height: 540, pixelRatio: 2 });
-                        const a = document.createElement('a');
-                        a.href = dataUrl;
-                        a.download = `slide-${store.currentSlideIndex + 1}.png`;
-                        a.click();
-                      } catch { alert('PNG export failed.'); }
-                    }}
+                    onClick={() => { setShowExportDialog(true); setExportTab('pdf'); }}
                   >
-                    <Camera className="w-6 h-6 text-green-600" />
-                    <span>Export PNG</span>
+                    <Download className="w-6 h-6 text-[hsl(var(--ppt-brand))]" />
+                    <span>Export</span>
                   </button>
                 </div>
-                <span className="ppt-ribbon-group-label">Export Slide</span>
+                <span className="ppt-ribbon-group-label">Export</span>
               </div>
             </>
           )}
