@@ -839,6 +839,8 @@ export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTr
           </div>
         </DialogContent>
       </Dialog>
+
+      <ExportDialog open={showExportDialog} onOpenChange={setShowExportDialog} defaultTab={exportTab} />
     </>
   );
 };
