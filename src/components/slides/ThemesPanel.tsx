@@ -62,9 +62,12 @@ function makeTemplateSlides(theme: PresentationTheme): Slide[] {
     },
   });
 
+  const defaultTransition = { type: 'none' as const, duration: 0.5, direction: 'left' as const, easing: 'ease-in-out' as const, sound: false };
+  const fadeTransition = { type: 'fade' as const, duration: 0.5, direction: 'left' as const, easing: 'ease-in-out' as const, sound: false };
+
   // 1. Title Slide
   const titleSlide: Slide = {
-    id: uuidv4(), order: 0, background: bg, transition: { type: 'none', duration: 0.5 }, notes: '',
+    id: uuidv4(), order: 0, background: bg, transition: defaultTransition, notes: '',
     objects: [
       mkShape(0, 0, 960, 200, theme.colors.primary),
       mkText('Presentation Title', 80, 220, 800, 80, 48, 700, true, 'center'),
