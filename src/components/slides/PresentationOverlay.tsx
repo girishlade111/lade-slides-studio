@@ -1,16 +1,39 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { usePresentationStore } from '@/stores/presentationStore';
 import { buildBgStyle } from '@/lib/backgroundUtils';
 import { ShapeRenderer } from './ShapeRenderer';
+import type { TransitionType, TransitionDirection, EasingType } from '@/types/presentation';
 
 interface Props {
   startIndex: number;
   onExit: () => void;
 }
 
+function getTransitionCSS(type: TransitionType, dir: TransitionDirection, duration: number, easing: EasingType): React.CSSProperties {
+  const easingMap: Record<EasingType, string> = {
+    'linear': 'linear', 'ease-in': 'ease-in', 'ease-out': 'ease-out', 'ease-in-out': 'ease-in-out',
+  };
+  switch (type) {
+    case 'fade': return { animation: `pres-fade-in ${duration}s ${easingMap[easing]} forwards` };
+    case 'slide': case 'push': {
+      const dirs: Record<string, string> = { left: '-100%, 0', right: '100%, 0', up: '0, -100%', down: '0, 100%' };
+      return { animation: `pres-slide-from ${duration}s ${easingMap[easing]} forwards`, '--slide-from': dirs[dir] || '-100%, 0' } as any;
+    }
+    case 'zoom': return { animation: `pres-zoom-${dir === 'out' ? 'out' : 'in'} ${duration}s ${easingMap[easing]} forwards` };
+    case 'rotate': return { animation: `pres-rotate ${duration}s ${easingMap[easing]} forwards` };
+    case 'flip': return { animation: `pres-flip-${dir === 'vertical' ? 'v' : 'h'} ${duration}s ${easingMap[easing]} forwards` };
+    case 'wipe': return { animation: `pres-wipe-${dir || 'left'} ${duration}s ${easingMap[easing]} forwards` };
+    case 'cube': return { animation: `pres-cube ${duration}s ${easingMap[easing]} forwards` };
+    case 'curtain': return { animation: `pres-curtain-${dir === 'close' ? 'close' : 'open'} ${duration}s ${easingMap[easing]} forwards` };
+    default: return {};
+  }
+}
+
 export const PresentationOverlay: React.FC<Props> = ({ startIndex, onExit }) => {
   const { presentation } = usePresentationStore();
   const [currentIndex, setCurrentIndex] = useState(startIndex);
+  const [transitioning, setTransitioning] = useState(false);
+  const prevIdxRef = useRef(startIndex);
   const slide = presentation.slides[currentIndex];
 
   const goNext = useCallback(() => {
@@ -20,6 +43,17 @@ export const PresentationOverlay: React.FC<Props> = ({ startIndex, onExit }) => 
   const goPrev = useCallback(() => {
     setCurrentIndex((i) => Math.max(i - 1, 0));
   }, []);
+
+  useEffect(() => {
+    if (prevIdxRef.current !== currentIndex) {
+      const s = presentation.slides[currentIndex];
+      if (s?.transition.type !== 'none') {
+        setTransitioning(true);
+        setTimeout(() => setTransitioning(false), (s.transition.duration || 0.5) * 1000);
+      }
+      prevIdxRef.current = currentIndex;
+    }
+  }, [currentIndex, presentation.slides]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -39,24 +73,25 @@ export const PresentationOverlay: React.FC<Props> = ({ startIndex, onExit }) => 
   if (!slide) return null;
 
   const bgStyle: React.CSSProperties = buildBgStyle(slide.background);
-
   const vw = window.innerWidth;
   const vh = window.innerHeight;
   const scale = Math.min(vw / presentation.slideWidth, vh / presentation.slideHeight);
 
+  const transitionStyle = transitioning && slide.transition.type !== 'none'
+    ? getTransitionCSS(slide.transition.type, slide.transition.direction, slide.transition.duration, slide.transition.easing)
+    : {};
+
   return (
-    <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black cursor-none"
-      onClick={goNext}
-    >
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black cursor-none" onClick={goNext}>
       <div
-        className="relative"
+        className="relative overflow-hidden"
         style={{
           width: presentation.slideWidth,
           height: presentation.slideHeight,
           transform: `scale(${scale})`,
           transformOrigin: 'center center',
           ...bgStyle,
+          ...transitionStyle,
         }}
       >
         {slide.objects.map((obj) => (
@@ -73,21 +108,18 @@ export const PresentationOverlay: React.FC<Props> = ({ startIndex, onExit }) => 
             }}
           >
             {obj.type === 'text' && obj.textProps && (
-              <div
-                style={{
-                  fontFamily: obj.textProps.fontFamily,
-                  fontSize: `${obj.textProps.fontSize}px`,
-                  fontWeight: obj.textProps.fontWeight,
-                  fontStyle: obj.textProps.fontStyle,
-                  textDecoration: obj.textProps.textDecoration !== 'none' ? obj.textProps.textDecoration : undefined,
-                  color: obj.textProps.color,
-                  textAlign: obj.textProps.textAlign,
-                  lineHeight: obj.textProps.lineHeight,
-                  backgroundColor: obj.textProps.backgroundColor !== 'transparent' ? obj.textProps.backgroundColor : undefined,
-                  width: '100%',
-                  height: '100%',
-                }}
-              >
+              <div style={{
+                fontFamily: obj.textProps.fontFamily,
+                fontSize: `${obj.textProps.fontSize}px`,
+                fontWeight: obj.textProps.fontWeight,
+                fontStyle: obj.textProps.fontStyle,
+                textDecoration: obj.textProps.textDecoration !== 'none' ? obj.textProps.textDecoration : undefined,
+                color: obj.textProps.color,
+                textAlign: obj.textProps.textAlign,
+                lineHeight: obj.textProps.lineHeight,
+                backgroundColor: obj.textProps.backgroundColor !== 'transparent' ? obj.textProps.backgroundColor : undefined,
+                width: '100%', height: '100%',
+              }}>
                 {obj.textProps.content}
               </div>
             )}
@@ -102,7 +134,6 @@ export const PresentationOverlay: React.FC<Props> = ({ startIndex, onExit }) => 
         ))}
       </div>
 
-      {/* Slide counter */}
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 text-white/50 text-xs select-none pointer-events-none">
         {currentIndex + 1} / {presentation.slides.length}
       </div>
