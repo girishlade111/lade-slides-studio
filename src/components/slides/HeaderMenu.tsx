@@ -3,7 +3,7 @@ import { usePresentationStore } from '@/stores/presentationStore';
 import { THEMES } from '@/types/presentation';
 import {
   Save, FileDown, FilePlus, Undo2, Redo2, Play, Edit3, Check,
-  Palette, Download, FileText, Image as ImageIcon, FileType,
+  Palette, Download, FileText, Image as ImageIcon, FileType, Code,
 } from 'lucide-react';
 import {
   DropdownMenu,
