@@ -34,6 +34,8 @@ export const HeaderMenu: React.FC = () => {
   const [isRenaming, setIsRenaming] = useState(false);
   const [nameInput, setNameInput] = useState(presentation.name);
   const [showThemePicker, setShowThemePicker] = useState(false);
+  const [showExportDialog, setShowExportDialog] = useState(false);
+  const [exportTab, setExportTab] = useState<'pdf' | 'pptx' | 'png' | 'html'>('pdf');
 
   const handleRename = useCallback(() => {
     renamePres(nameInput);
