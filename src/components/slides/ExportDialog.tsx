@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
-import { FileText, FileType, Image as ImageIcon, Code, CheckCircle2, AlertCircle, X } from 'lucide-react';
+import { FileText, FileType, Image as ImageIcon, Code, CheckCircle2, AlertCircle } from 'lucide-react';
 
 type ExportTab = 'pdf' | 'pptx' | 'png' | 'html';
 
