@@ -154,7 +154,13 @@ export interface SlideBackground {
   };
 }
 
-export interface SlideTransition { type: TransitionType; duration: number; }
+export interface SlideTransition {
+  type: TransitionType;
+  direction: TransitionDirection;
+  duration: number;
+  easing: EasingType;
+  sound: boolean;
+}
 
 export interface Slide {
   id: string;
