@@ -300,14 +300,17 @@ export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTr
                 <Save className="w-4 h-4 mr-2" /> Save As...
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleExportPDF}>
+              <DropdownMenuItem onClick={() => { setShowExportDialog(true); setExportTab('pdf'); }}>
                 <FileText className="w-4 h-4 mr-2" /> Download as PDF
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleExportPPTX}>
+              <DropdownMenuItem onClick={() => { setShowExportDialog(true); setExportTab('pptx'); }}>
                 <FileType className="w-4 h-4 mr-2" /> Download as PPTX
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleExportAllPNG}>
+              <DropdownMenuItem onClick={() => { setShowExportDialog(true); setExportTab('png'); }}>
                 <Camera className="w-4 h-4 mr-2" /> Download as PNG
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => { setShowExportDialog(true); setExportTab('html'); }}>
+                <Download className="w-4 h-4 mr-2" /> Download as HTML
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setShowSettingsDialog(true)}>
