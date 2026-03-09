@@ -768,6 +768,34 @@ export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTr
               </div>
             </>
           )}
+
+          {activeTab === 'View' && (
+            <>
+              <div className="ppt-ribbon-group" style={{ minWidth: 120 }}>
+                <div className="ppt-ribbon-group-content">
+                  <button
+                    className="ppt-ribbon-btn ppt-ribbon-btn-large"
+                    onClick={onToggleMasterEditor}
+                    title="Edit Master Slides"
+                  >
+                    <LayoutGrid className="w-6 h-6 text-[hsl(var(--ppt-brand))]" />
+                    <span>Master Slide</span>
+                  </button>
+                </div>
+                <span className="ppt-ribbon-group-label">Master Views</span>
+              </div>
+
+              <div className="ppt-ribbon-group" style={{ minWidth: 100 }}>
+                <div className="ppt-ribbon-group-content flex-col gap-1 pt-2">
+                  <label className="flex items-center gap-2 text-[11px] cursor-pointer">
+                    <input type="checkbox" checked={store.showGrid} onChange={(e) => store.setShowGrid(e.target.checked)} />
+                    Show Grid
+                  </label>
+                </div>
+                <span className="ppt-ribbon-group-label">Show</span>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
