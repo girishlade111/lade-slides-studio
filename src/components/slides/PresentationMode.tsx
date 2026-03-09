@@ -440,9 +440,9 @@ export const PresentationMode: React.FC = () => {
         laserActive={laserActive}
         penColor={penColor}
         isEraser={isEraser}
-        onPrev={(e) => { (e as any)?.stopPropagation?.(); goPrev(); }}
-        onNext={(e) => { (e as any)?.stopPropagation?.(); goNext(); }}
-        onExit={(e) => { (e as any)?.stopPropagation?.(); exit(); }}
+        onPrev={() => goPrev()}
+        onNext={() => goNext()}
+        onExit={() => exit()}
         onTogglePen={() => { setPenActive(p => !p); setIsEraser(false); }}
         onToggleLaser={() => setLaserActive(p => !p)}
         onSetPenColor={(c) => { setPenColor(c); setIsEraser(false); }}
