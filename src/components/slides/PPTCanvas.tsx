@@ -1,6 +1,8 @@
 import React, { useRef, useCallback } from 'react';
 import { usePresentationStore } from '@/stores/presentationStore';
 import { SlideObjectComponent } from './SlideObjectComponent';
+import { SmartGuides } from './SmartGuides';
+import { AlignmentToolbar } from './AlignmentToolbar';
 
 export const PPTCanvas: React.FC = () => {
   const {
