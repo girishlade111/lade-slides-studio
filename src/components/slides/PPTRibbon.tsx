@@ -29,7 +29,7 @@ import { PresentationSettingsDialog } from './PresentationSettingsDialog';
 import { SaveAsDialog } from './SaveAsDialog';
 import { ExportDialog } from './ExportDialog';
 
-type RibbonTab = 'Home' | 'Insert' | 'Design' | 'Transitions' | 'Slide Show';
+type RibbonTab = 'Home' | 'Insert' | 'Design' | 'Transitions' | 'Slide Show' | 'View';
 
 const QUICK_SHAPES: { type: ShapeType; icon: React.ReactNode; label: string }[] = [
   { type: 'rectangle', icon: <Square className="w-4 h-4" />, label: 'Rectangle' },
