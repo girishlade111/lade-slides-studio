@@ -655,33 +655,50 @@ export const PPTRibbon: React.FC<{ onToggleThemes?: () => void }> = ({ onToggleT
           )}
 
           {activeTab === 'Design' && (
-            <div className="ppt-ribbon-group" style={{ minWidth: 500 }}>
-              <div className="ppt-ribbon-group-content overflow-x-auto gap-2 py-1">
-                {THEMES.map(theme => (
-                  <button
-                    key={theme.id}
-                    onClick={() => applyTheme(theme.id)}
-                    className={`flex-shrink-0 rounded border-2 transition-all hover:scale-105 ${
-                      store.presentation.theme === theme.id ? 'border-[hsl(var(--ppt-selection))] shadow-md' : 'border-transparent hover:border-[hsl(var(--border))]'
-                    }`}
-                    title={theme.name}
-                    style={{ width: 84, height: 56 }}
-                  >
-                    <div
-                      className="w-full h-full rounded-sm flex items-end p-1"
-                      style={{ backgroundColor: theme.colors.background }}
+            <>
+              <div className="ppt-ribbon-group" style={{ minWidth: 500 }}>
+                <div className="ppt-ribbon-group-content overflow-x-auto gap-2 py-1">
+                  {THEMES.map(theme => (
+                    <button
+                      key={theme.id}
+                      onClick={() => applyTheme(theme.id)}
+                      className={`flex-shrink-0 rounded border-2 transition-all hover:scale-105 ${
+                        store.presentation.theme === theme.id ? 'border-[hsl(var(--ppt-selection))] shadow-md' : 'border-transparent hover:border-[hsl(var(--border))]'
+                      }`}
+                      title={theme.name}
+                      style={{ width: 84, height: 56 }}
                     >
-                      <div className="flex gap-0.5">
-                        <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: theme.colors.primary }} />
-                        <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: theme.colors.accent }} />
-                        <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: theme.colors.text }} />
+                      <div
+                        className="w-full h-full rounded-sm flex items-end p-1"
+                        style={{ backgroundColor: theme.colors.background }}
+                      >
+                        <div className="flex gap-0.5">
+                          <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: theme.colors.primary }} />
+                          <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: theme.colors.accent }} />
+                          <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: theme.colors.text }} />
+                        </div>
                       </div>
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  ))}
+                </div>
+                <span className="ppt-ribbon-group-label">Themes</span>
               </div>
-              <span className="ppt-ribbon-group-label">Themes</span>
-            </div>
+
+              {/* Themes Panel Button */}
+              <div className="ppt-ribbon-group" style={{ minWidth: 80 }}>
+                <div className="ppt-ribbon-group-content">
+                  <button
+                    className="ppt-ribbon-btn ppt-ribbon-btn-large"
+                    onClick={onToggleThemes}
+                    title="Open Themes Panel"
+                  >
+                    <Palette className="w-6 h-6 text-[hsl(var(--ppt-brand))]" />
+                    <span>Themes</span>
+                  </button>
+                </div>
+                <span className="ppt-ribbon-group-label">Advanced</span>
+              </div>
+            </>
           )}
 
           {activeTab === 'Transitions' && (
