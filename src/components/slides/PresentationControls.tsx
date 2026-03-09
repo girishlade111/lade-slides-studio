@@ -41,13 +41,13 @@ export const PresentationControls: React.FC<PresentationControlsProps> = ({
       <div className="flex items-center justify-center pb-3">
         <div className="flex items-center gap-1 bg-black/80 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-2xl">
           {/* Navigation */}
-          <button onClick={onPrev} className="p-1.5 rounded-full hover:bg-white/20 text-white transition-colors" title="Previous (←)">
+          <button onClick={(e) => { e.stopPropagation(); onPrev(); }} className="p-1.5 rounded-full hover:bg-white/20 text-white transition-colors" title="Previous (←)">
             <ChevronLeft className="w-4 h-4" />
           </button>
           <span className="text-white/90 text-xs font-medium px-2 min-w-[60px] text-center">
             {currentIndex + 1} / {totalSlides}
           </span>
-          <button onClick={onNext} className="p-1.5 rounded-full hover:bg-white/20 text-white transition-colors" title="Next (→)">
+          <button onClick={(e) => { e.stopPropagation(); onNext(); }} className="p-1.5 rounded-full hover:bg-white/20 text-white transition-colors" title="Next (→)">
             <ChevronRight className="w-4 h-4" />
           </button>
 
