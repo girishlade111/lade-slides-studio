@@ -24,15 +24,64 @@ export const useKeyboardShortcuts = () => {
         const selectedObj = store.getCurrentSlide()?.objects.find(o => store.selectedObjectIds.includes(o.id));
         const tp = selectedObj?.textProps;
 
+        // Ctrl+Shift alignment shortcuts
+        if (e.shiftKey && store.selectedObjectIds.length > 0) {
+          const slide = store.getCurrentSlide();
+          if (slide) {
+            const objs = slide.objects.filter(o => store.selectedObjectIds.includes(o.id));
+            if (objs.length > 0) {
+              const doAlign = (fn: () => void) => { e.preventDefault(); store.pushHistory(); fn(); return; };
+
+              if (e.key === 'L' || e.key === 'l') {
+                const minX = Math.min(...objs.map(o => o.position.x));
+                return doAlign(() => objs.forEach(o => store.updateObject(store.currentSlideIndex, o.id, { position: { ...o.position, x: minX } })));
+              }
+              if (e.key === 'E' || e.key === 'e') {
+                const minX = Math.min(...objs.map(o => o.position.x));
+                const maxX = Math.max(...objs.map(o => o.position.x + o.size.width));
+                const cx = (minX + maxX) / 2;
+                return doAlign(() => objs.forEach(o => store.updateObject(store.currentSlideIndex, o.id, { position: { ...o.position, x: cx - o.size.width / 2 } })));
+              }
+              if (e.key === 'R' || e.key === 'r') {
+                const maxX = Math.max(...objs.map(o => o.position.x + o.size.width));
+                return doAlign(() => objs.forEach(o => store.updateObject(store.currentSlideIndex, o.id, { position: { ...o.position, x: maxX - o.size.width } })));
+              }
+              if (e.key === 'T' || e.key === 't') {
+                const minY = Math.min(...objs.map(o => o.position.y));
+                return doAlign(() => objs.forEach(o => store.updateObject(store.currentSlideIndex, o.id, { position: { ...o.position, y: minY } })));
+              }
+              if (e.key === 'M' || e.key === 'm') {
+                const minY = Math.min(...objs.map(o => o.position.y));
+                const maxY = Math.max(...objs.map(o => o.position.y + o.size.height));
+                const cy = (minY + maxY) / 2;
+                return doAlign(() => objs.forEach(o => store.updateObject(store.currentSlideIndex, o.id, { position: { ...o.position, y: cy - o.size.height / 2 } })));
+              }
+              if (e.key === 'B' || e.key === 'b') {
+                const maxY = Math.max(...objs.map(o => o.position.y + o.size.height));
+                return doAlign(() => objs.forEach(o => store.updateObject(store.currentSlideIndex, o.id, { position: { ...o.position, y: maxY - o.size.height } })));
+              }
+              if (e.key === ']') {
+                return doAlign(() => {
+                  const allZ = slide.objects.map(o => o.zIndex);
+                  objs.forEach(o => store.updateObject(store.currentSlideIndex, o.id, { zIndex: o.zIndex + 1 }));
+                });
+              }
+              if (e.key === '[') {
+                return doAlign(() => {
+                  objs.forEach(o => store.updateObject(store.currentSlideIndex, o.id, { zIndex: Math.max(0, o.zIndex - 1) }));
+                });
+              }
+            }
+          }
+        }
+
         if (tp && selectedObj) {
           const updateTp = (changes: Partial<typeof tp>) => {
             store.updateObject(store.currentSlideIndex, selectedObj.id, { textProps: { ...tp, ...changes } });
           };
 
           if (e.key === 'b' || e.key === 'B') {
-            e.preventDefault();
-            updateTp({ fontWeight: tp.fontWeight >= 600 ? 400 : 700 });
-            return;
+            if (!e.shiftKey) { e.preventDefault(); updateTp({ fontWeight: tp.fontWeight >= 600 ? 400 : 700 }); return; }
           }
           if (e.key === 'i' || e.key === 'I') {
             e.preventDefault();
@@ -42,21 +91,6 @@ export const useKeyboardShortcuts = () => {
           if (e.key === 'u' || e.key === 'U') {
             e.preventDefault();
             updateTp({ textDecoration: tp.textDecoration === 'underline' ? 'none' : 'underline' });
-            return;
-          }
-          if (e.key === 'e' || e.key === 'E') {
-            e.preventDefault();
-            updateTp({ textAlign: 'center' });
-            return;
-          }
-          if (e.key === 'l' || e.key === 'L') {
-            e.preventDefault();
-            updateTp({ textAlign: 'left' });
-            return;
-          }
-          if (e.key === 'r' || e.key === 'R') {
-            e.preventDefault();
-            updateTp({ textAlign: 'right' });
             return;
           }
         }
