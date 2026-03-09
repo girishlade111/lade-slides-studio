@@ -89,6 +89,7 @@ interface PPTRibbonProps {
   onToggleThemes?: () => void;
   onToggleTransitions?: () => void;
   onToggleAnimations?: () => void;
+  onToggleMasterEditor?: () => void;
 }
 
 export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTransitions, onToggleAnimations }) => {
