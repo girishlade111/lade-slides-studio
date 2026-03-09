@@ -9,6 +9,8 @@ import { PPTStatusBar } from '@/components/slides/PPTStatusBar';
 import { PropertiesPanel } from '@/components/slides/PropertiesPanel';
 import { PresentationOverlay } from '@/components/slides/PresentationOverlay';
 import { ThemesPanel } from '@/components/slides/ThemesPanel';
+import { TransitionsPanel } from '@/components/slides/TransitionsPanel';
+import { AnimationsPanel } from '@/components/slides/AnimationsPanel';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
 const Index: React.FC = () => {
