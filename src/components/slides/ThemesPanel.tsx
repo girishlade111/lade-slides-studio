@@ -90,7 +90,7 @@ function makeTemplateSlides(theme: PresentationTheme): Slide[] {
 
   // 3. Content Slide
   const contentSlide: Slide = {
-    id: uuidv4(), order: 2, background: bg, transition: { type: 'fade', duration: 0.5 }, notes: '',
+    id: uuidv4(), order: 2, background: bg, transition: fadeTransition, notes: '',
     objects: [
       mkShape(0, 0, 960, 70, theme.colors.primary),
       { ...mkText('Content Title', 40, 12, 400, 45, 28, 700, true, 'left'), textProps: { ...mkText('Content Title', 40, 12, 400, 45, 28, 700, true, 'left').textProps!, color: '#ffffff' } },
