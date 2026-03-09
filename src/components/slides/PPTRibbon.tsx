@@ -84,7 +84,7 @@ function addRecentImage(src: string) {
   try { localStorage.setItem(RECENT_IMAGES_KEY, JSON.stringify(list.slice(0, MAX_RECENT))); } catch {}
 }
 
-export const PPTRibbon: React.FC = () => {
+export const PPTRibbon: React.FC<{ onToggleThemes?: () => void }> = ({ onToggleThemes }) => {
   const [activeTab, setActiveTab] = useState<RibbonTab>('Home');
   const [showThemePicker, setShowThemePicker] = useState(false);
   const [showOpenDialog, setShowOpenDialog] = useState(false);
