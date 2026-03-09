@@ -257,6 +257,50 @@ export interface VersionSnapshot {
   };
 }
 
+// Master Slide Types
+export type PlaceholderType = 'title' | 'content' | 'subtitle' | 'footer' | 'number' | 'image' | 'caption';
+
+export interface MasterPlaceholder {
+  id: string;
+  type: PlaceholderType;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  defaultText: string;
+  fontSize: number;
+  fontFamily: string;
+  color: string;
+  align: 'left' | 'center' | 'right';
+  fontWeight: number;
+}
+
+export type MasterLayoutName =
+  | 'Title Slide'
+  | 'Title and Content'
+  | 'Section Header'
+  | 'Two Content'
+  | 'Comparison'
+  | 'Blank'
+  | 'Title Only'
+  | 'Content with Caption'
+  | 'Picture with Caption';
+
+export interface MasterLayout {
+  id: string;
+  name: MasterLayoutName;
+  placeholders: MasterPlaceholder[];
+  background: SlideBackground;
+}
+
+export interface MasterSlide {
+  id: string;
+  name: string;
+  layouts: MasterLayout[];
+  theme: ThemeColors;
+  fontFamily: string;
+}
+
 export const PRESET_COLORS = [
   '#000000', '#ffffff', '#ef4444', '#f97316', '#eab308', '#22c55e',
   '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899', '#6b7280', '#1e293b',
