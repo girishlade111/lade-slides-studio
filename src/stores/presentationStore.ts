@@ -95,7 +95,7 @@ function createDefaultSlide(order: number): Slide {
     order,
     background: { type: 'color', value: '#ffffff' },
     objects: [],
-    transition: { type: 'none', duration: 0.5 },
+    transition: { type: 'none', duration: 0.5, direction: 'left', easing: 'ease-in-out', sound: false },
     notes: '',
   };
 }

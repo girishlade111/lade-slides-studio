@@ -117,7 +117,7 @@ function makeTemplateSlides(theme: PresentationTheme): Slide[] {
 
   // 5. Thank You Slide
   const thankYouSlide: Slide = {
-    id: uuidv4(), order: 4, background: bg, transition: { type: 'fade', duration: 0.5 }, notes: '',
+    id: uuidv4(), order: 4, background: bg, transition: fadeTransition, notes: '',
     objects: [
       mkShape(0, 0, 960, 540, theme.colors.primary),
       { ...mkText('Thank You!', 130, 160, 700, 100, 56, 700, true, 'center'), textProps: { ...mkText('Thank You!', 130, 160, 700, 100, 56, 700, true, 'center').textProps!, color: '#ffffff' } },

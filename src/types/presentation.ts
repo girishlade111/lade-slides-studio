@@ -111,6 +111,7 @@ export interface SlideObject {
   zIndex: number;
   locked: boolean;
   animation: AnimationType;
+  animations?: ObjectAnimation[];
   textProps?: TextProperties;
   shapeProps?: ShapeProperties;
   imageProps?: ImageProperties;
