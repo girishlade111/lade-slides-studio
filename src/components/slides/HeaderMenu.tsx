@@ -298,6 +298,8 @@ export const HeaderMenu: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      <ExportDialog open={showExportDialog} onOpenChange={setShowExportDialog} defaultTab={exportTab} />
     </>
   );
 };
