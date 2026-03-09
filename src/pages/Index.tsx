@@ -8,6 +8,7 @@ import { PPTCanvas } from '@/components/slides/PPTCanvas';
 import { PPTStatusBar } from '@/components/slides/PPTStatusBar';
 import { PropertiesPanel } from '@/components/slides/PropertiesPanel';
 import { PresentationOverlay } from '@/components/slides/PresentationOverlay';
+import { ThemesPanel } from '@/components/slides/ThemesPanel';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
 const Index: React.FC = () => {
