@@ -102,7 +102,7 @@ function makeTemplateSlides(theme: PresentationTheme): Slide[] {
 
   // 4. Two-Column Slide
   const twoColSlide: Slide = {
-    id: uuidv4(), order: 3, background: bg, transition: { type: 'fade', duration: 0.5 }, notes: '',
+    id: uuidv4(), order: 3, background: bg, transition: fadeTransition, notes: '',
     objects: [
       mkShape(0, 0, 960, 70, theme.colors.primary),
       { ...mkText('Comparison', 40, 12, 400, 45, 28, 700, true, 'left'), textProps: { ...mkText('Comparison', 40, 12, 400, 45, 28, 700, true, 'left').textProps!, color: '#ffffff' } },
