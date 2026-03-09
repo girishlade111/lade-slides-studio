@@ -7,7 +7,7 @@ import { PPTSlidePanel } from '@/components/slides/PPTSlidePanel';
 import { PPTCanvas } from '@/components/slides/PPTCanvas';
 import { PPTStatusBar } from '@/components/slides/PPTStatusBar';
 import { PropertiesPanel } from '@/components/slides/PropertiesPanel';
-import { PresentationOverlay } from '@/components/slides/PresentationOverlay';
+import { PresentationMode } from '@/components/slides/PresentationMode';
 import { ThemesPanel } from '@/components/slides/ThemesPanel';
 import { TransitionsPanel } from '@/components/slides/TransitionsPanel';
 import { AnimationsPanel } from '@/components/slides/AnimationsPanel';
@@ -27,12 +27,7 @@ const Index: React.FC = () => {
   }, [loadSavedList]);
 
   if (isPresentationMode) {
-    return (
-      <PresentationOverlay
-        startIndex={currentSlideIndex}
-        onExit={() => usePresentationStore.getState().setPresentationMode(false)}
-      />
-    );
+    return <PresentationMode />;
   }
 
   const slide = presentation.slides[currentSlideIndex];
