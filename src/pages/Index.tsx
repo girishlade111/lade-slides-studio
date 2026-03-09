@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { usePresentationStore } from '@/stores/presentationStore';
+import { useCollaborationStore } from '@/stores/collaborationStore';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { PPTTitleBar } from '@/components/slides/PPTTitleBar';
 import { PPTRibbon } from '@/components/slides/PPTRibbon';
@@ -11,20 +12,39 @@ import { PresentationMode } from '@/components/slides/PresentationMode';
 import { ThemesPanel } from '@/components/slides/ThemesPanel';
 import { TransitionsPanel } from '@/components/slides/TransitionsPanel';
 import { AnimationsPanel } from '@/components/slides/AnimationsPanel';
+import { CommentsPanel } from '@/components/slides/CommentsPanel';
+import { VersionHistoryPanel } from '@/components/slides/VersionHistoryPanel';
+import { ActivityLogPanel } from '@/components/slides/ActivityLogPanel';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
 const Index: React.FC = () => {
   const { isPresentationMode, loadSavedList, presentation, currentSlideIndex, updateSlideNotes } = usePresentationStore();
+  const { activePanel, setActivePanel, loadVersions, saveVersion } = useCollaborationStore();
   const [showNotes, setShowNotes] = useState(false);
   const [showProps] = useState(true);
   const [showThemesPanel, setShowThemesPanel] = useState(false);
   const [showTransitionsPanel, setShowTransitionsPanel] = useState(false);
   const [showAnimationsPanel, setShowAnimationsPanel] = useState(false);
+  const prevPresentationRef = useRef<typeof presentation | null>(null);
   useKeyboardShortcuts();
 
   useEffect(() => {
     loadSavedList();
   }, [loadSavedList]);
+
+  // Load versions for current presentation
+  useEffect(() => {
+    loadVersions(presentation.id);
+  }, [presentation.id, loadVersions]);
+
+  // Auto-save version every 5 minutes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      saveVersion('auto', presentation, prevPresentationRef.current || undefined);
+      prevPresentationRef.current = JSON.parse(JSON.stringify(presentation));
+    }, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [presentation, saveVersion]);
 
   if (isPresentationMode) {
     return <PresentationMode />;
@@ -34,58 +54,45 @@ const Index: React.FC = () => {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden" style={{ background: 'hsl(var(--ppt-ribbon-bg))' }}>
-      {/* PowerPoint Title Bar */}
       <PPTTitleBar />
-
-      {/* PowerPoint Ribbon */}
       <PPTRibbon
         onToggleThemes={() => { setShowThemesPanel(!showThemesPanel); setShowTransitionsPanel(false); setShowAnimationsPanel(false); }}
         onToggleTransitions={() => { setShowTransitionsPanel(!showTransitionsPanel); setShowThemesPanel(false); setShowAnimationsPanel(false); }}
         onToggleAnimations={() => { setShowAnimationsPanel(!showAnimationsPanel); setShowThemesPanel(false); setShowTransitionsPanel(false); }}
       />
 
-      {/* Main Content Area */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Slide Panel */}
         <PPTSlidePanel />
 
-        {/* Center: Canvas + Notes */}
         <div className="flex-1 flex flex-col overflow-hidden">
           <PPTCanvas />
 
-          {/* Notes Pane - PowerPoint style */}
-          <div
-            className={`border-t border-[hsl(var(--border))] bg-white transition-all ${showNotes ? 'h-28' : 'h-6'}`}
-          >
-            <button
-              onClick={() => setShowNotes(!showNotes)}
-              className="w-full h-6 flex items-center px-3 gap-1 text-[11px] text-[hsl(var(--muted-foreground))] hover:bg-black/5 transition-colors"
-            >
+          <div className={`border-t border-[hsl(var(--border))] bg-white transition-all ${showNotes ? 'h-28' : 'h-6'}`}>
+            <button onClick={() => setShowNotes(!showNotes)}
+              className="w-full h-6 flex items-center px-3 gap-1 text-[11px] text-[hsl(var(--muted-foreground))] hover:bg-black/5 transition-colors">
               {showNotes ? <ChevronDown className="w-3 h-3" /> : <ChevronUp className="w-3 h-3" />}
               Notes
             </button>
             {showNotes && slide && (
-              <textarea
-                value={slide.notes}
-                onChange={(e) => updateSlideNotes(currentSlideIndex, e.target.value)}
+              <textarea value={slide.notes} onChange={(e) => updateSlideNotes(currentSlideIndex, e.target.value)}
                 placeholder="Click to add notes"
                 className="w-full h-[calc(100%-1.5rem)] px-3 py-1 text-[12px] text-[hsl(var(--foreground))] bg-white outline-none resize-none scrollbar-thin"
-                style={{ fontFamily: "'Segoe UI', 'Inter', sans-serif" }}
-              />
+                style={{ fontFamily: "'Segoe UI', 'Inter', sans-serif" }} />
             )}
           </div>
         </div>
 
-        {/* Properties Panel */}
-        {showProps && <PropertiesPanel />}
+        {showProps && activePanel === 'none' && <PropertiesPanel />}
 
-        {/* Themes Panel */}
+        {activePanel === 'comments' && <CommentsPanel onClose={() => setActivePanel('comments')} />}
+        {activePanel === 'versions' && <VersionHistoryPanel onClose={() => setActivePanel('versions')} />}
+        {activePanel === 'activity' && <ActivityLogPanel onClose={() => setActivePanel('activity')} />}
+
         {showThemesPanel && <ThemesPanel onClose={() => setShowThemesPanel(false)} />}
         {showTransitionsPanel && <TransitionsPanel onClose={() => setShowTransitionsPanel(false)} />}
         {showAnimationsPanel && <AnimationsPanel onClose={() => setShowAnimationsPanel(false)} />}
       </div>
 
-      {/* PowerPoint Status Bar */}
       <PPTStatusBar />
     </div>
   );
