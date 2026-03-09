@@ -718,9 +718,7 @@ export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTr
           )}
 
           {activeTab === 'Slide Show' && (
-
-      <ExportDialog open={showExportDialog} onOpenChange={setShowExportDialog} defaultTab={exportTab} />
-    <>
+            <>
               <div className="ppt-ribbon-group" style={{ minWidth: 120 }}>
                 <div className="ppt-ribbon-group-content">
                   <button
