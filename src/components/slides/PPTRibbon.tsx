@@ -8,7 +8,7 @@ import {
   Image, Trash2, Copy, Clipboard, Scissors,
   ArrowUpToLine, ArrowDownToLine,
   Plus, Play, ChevronDown, MousePointer,
-  Save, FileDown, FilePlus, FileText, FileType, Camera, Settings,
+  Save, FileDown, FilePlus, FileText, FileType, Camera, Settings, Download,
   Upload, Link, Clock, Palette,
 } from 'lucide-react';
 import {
