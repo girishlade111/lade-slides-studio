@@ -86,6 +86,8 @@ const Index: React.FC = () => {
 
         {/* Themes Panel */}
         {showThemesPanel && <ThemesPanel onClose={() => setShowThemesPanel(false)} />}
+        {showTransitionsPanel && <TransitionsPanel onClose={() => setShowTransitionsPanel(false)} />}
+        {showAnimationsPanel && <AnimationsPanel onClose={() => setShowAnimationsPanel(false)} />}
       </div>
 
       {/* PowerPoint Status Bar */}
