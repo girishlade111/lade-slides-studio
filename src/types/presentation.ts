@@ -6,8 +6,30 @@ export type ShapeType =
   | 'line' | 'connector' | 'elbow-connector'
   | 'process' | 'decision' | 'start-end' | 'document' | 'database' | 'manual-input'
   | 'speech-bubble' | 'thought-bubble' | 'rect-callout' | 'banner' | 'ribbon';
-export type TransitionType = 'none' | 'fade' | 'slide-left' | 'slide-right' | 'slide-up' | 'slide-down' | 'zoom' | 'flip';
+export type TransitionType = 'none' | 'fade' | 'slide' | 'push' | 'wipe' | 'zoom' | 'rotate' | 'flip' | 'cube' | 'curtain';
+export type TransitionDirection = 'left' | 'right' | 'up' | 'down' | 'in' | 'out' | 'horizontal' | 'vertical' | 'open' | 'close';
+export type EasingType = 'linear' | 'ease-in' | 'ease-out' | 'ease-in-out';
 export type AnimationType = 'none' | 'fade-in' | 'fly-in' | 'zoom-in' | 'fade-out' | 'fly-out' | 'pulse' | 'shake';
+
+export type AnimationCategory = 'entrance' | 'emphasis' | 'exit';
+export type AnimationEffect =
+  | 'fadeIn' | 'flyIn' | 'zoomIn' | 'bounceIn' | 'rotateIn' | 'wipeIn' | 'slideIn' | 'growIn'
+  | 'pulse' | 'shake' | 'spin' | 'bounce' | 'colorFlash' | 'growShrink' | 'teeter'
+  | 'fadeOut' | 'flyOut' | 'zoomOut' | 'collapse' | 'rotateOut' | 'wipeOut' | 'slideOut';
+export type AnimationTrigger = 'onClick' | 'withPrevious' | 'afterPrevious' | 'auto';
+
+export interface ObjectAnimation {
+  id: string;
+  type: AnimationCategory;
+  effect: AnimationEffect;
+  direction?: TransitionDirection;
+  startTrigger: AnimationTrigger;
+  delay: number;
+  duration: number;
+  easing: EasingType;
+  repeat: number; // 0 = infinite loop
+  order: number;
+}
 
 export interface Position { x: number; y: number; }
 export interface Size { width: number; height: number; }
