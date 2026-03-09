@@ -28,8 +28,10 @@ import { OpenPresentationDialog } from './OpenPresentationDialog';
 import { PresentationSettingsDialog } from './PresentationSettingsDialog';
 import { SaveAsDialog } from './SaveAsDialog';
 import { ExportDialog } from './ExportDialog';
+import { LayoutSelector as LayoutSelectorComponent } from './LayoutSelector';
+import { LayoutGrid } from 'lucide-react';
 
-type RibbonTab = 'Home' | 'Insert' | 'Design' | 'Transitions' | 'Slide Show';
+type RibbonTab = 'Home' | 'Insert' | 'Design' | 'Transitions' | 'Slide Show' | 'View';
 
 const QUICK_SHAPES: { type: ShapeType; icon: React.ReactNode; label: string }[] = [
   { type: 'rectangle', icon: <Square className="w-4 h-4" />, label: 'Rectangle' },
@@ -89,9 +91,10 @@ interface PPTRibbonProps {
   onToggleThemes?: () => void;
   onToggleTransitions?: () => void;
   onToggleAnimations?: () => void;
+  onToggleMasterEditor?: () => void;
 }
 
-export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTransitions, onToggleAnimations }) => {
+export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTransitions, onToggleAnimations, onToggleMasterEditor }) => {
   const [activeTab, setActiveTab] = useState<RibbonTab>('Home');
   const [showThemePicker, setShowThemePicker] = useState(false);
   const [showOpenDialog, setShowOpenDialog] = useState(false);
@@ -108,7 +111,7 @@ export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTr
   const store = usePresentationStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const tabs: RibbonTab[] = ['Home', 'Insert', 'Design', 'Transitions', 'Slide Show'];
+  const tabs: RibbonTab[] = ['Home', 'Insert', 'Design', 'Transitions', 'Slide Show', 'View'];
 
   const insertImageToCanvas = (src: string) => {
     const img = new window.Image();
@@ -273,12 +276,13 @@ export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTr
               </div>
 
               {/* Slides Group */}
-              <div className="ppt-ribbon-group" style={{ minWidth: 80 }}>
+              <div className="ppt-ribbon-group" style={{ minWidth: 140 }}>
                 <div className="ppt-ribbon-group-content">
                   <button className="ppt-ribbon-btn ppt-ribbon-btn-large" onClick={() => store.addSlide(store.currentSlideIndex)} title="New Slide">
                     <Plus className="w-6 h-6 text-[hsl(var(--accent))]" />
                     <span>New Slide</span>
                   </button>
+                  <LayoutSelectorComponent />
                 </div>
                 <span className="ppt-ribbon-group-label">Slides</span>
               </div>
@@ -763,6 +767,34 @@ export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTr
                   </button>
                 </div>
                 <span className="ppt-ribbon-group-label">Export</span>
+              </div>
+            </>
+          )}
+
+          {activeTab === 'View' && (
+            <>
+              <div className="ppt-ribbon-group" style={{ minWidth: 120 }}>
+                <div className="ppt-ribbon-group-content">
+                  <button
+                    className="ppt-ribbon-btn ppt-ribbon-btn-large"
+                    onClick={onToggleMasterEditor}
+                    title="Edit Master Slides"
+                  >
+                    <LayoutGrid className="w-6 h-6 text-[hsl(var(--ppt-brand))]" />
+                    <span>Master Slide</span>
+                  </button>
+                </div>
+                <span className="ppt-ribbon-group-label">Master Views</span>
+              </div>
+
+              <div className="ppt-ribbon-group" style={{ minWidth: 100 }}>
+                <div className="ppt-ribbon-group-content flex-col gap-1 pt-2">
+                  <label className="flex items-center gap-2 text-[11px] cursor-pointer">
+                    <input type="checkbox" checked={store.showGrid} onChange={(e) => store.setShowGrid(e.target.checked)} />
+                    Show Grid
+                  </label>
+                </div>
+                <span className="ppt-ribbon-group-label">Show</span>
               </div>
             </>
           )}
