@@ -27,6 +27,7 @@ import {
 import { OpenPresentationDialog } from './OpenPresentationDialog';
 import { PresentationSettingsDialog } from './PresentationSettingsDialog';
 import { SaveAsDialog } from './SaveAsDialog';
+import { ExportDialog } from './ExportDialog';
 
 type RibbonTab = 'Home' | 'Insert' | 'Design' | 'Transitions' | 'Slide Show';
 
