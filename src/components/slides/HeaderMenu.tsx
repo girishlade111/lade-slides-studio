@@ -21,6 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { ExportDialog } from './ExportDialog';
 
 export const HeaderMenu: React.FC = () => {
   const {
