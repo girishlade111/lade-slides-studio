@@ -62,7 +62,6 @@ export const useKeyboardShortcuts = () => {
               }
               if (e.key === ']') {
                 return doAlign(() => {
-                  const allZ = slide.objects.map(o => o.zIndex);
                   objs.forEach(o => store.updateObject(store.currentSlideIndex, o.id, { zIndex: o.zIndex + 1 }));
                 });
               }
