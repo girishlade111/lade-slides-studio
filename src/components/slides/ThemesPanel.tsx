@@ -77,7 +77,7 @@ function makeTemplateSlides(theme: PresentationTheme): Slide[] {
 
   // 2. Agenda Slide
   const agendaSlide: Slide = {
-    id: uuidv4(), order: 1, background: bg, transition: { type: 'fade', duration: 0.5 }, notes: '',
+    id: uuidv4(), order: 1, background: bg, transition: fadeTransition, notes: '',
     objects: [
       mkShape(0, 0, 960, 80, theme.colors.primary),
       mkText('Agenda', 60, 12, 300, 50, 32, 700, true, 'left'),
