@@ -84,7 +84,13 @@ function addRecentImage(src: string) {
   try { localStorage.setItem(RECENT_IMAGES_KEY, JSON.stringify(list.slice(0, MAX_RECENT))); } catch {}
 }
 
-export const PPTRibbon: React.FC<{ onToggleThemes?: () => void }> = ({ onToggleThemes }) => {
+interface PPTRibbonProps {
+  onToggleThemes?: () => void;
+  onToggleTransitions?: () => void;
+  onToggleAnimations?: () => void;
+}
+
+export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTransitions, onToggleAnimations }) => {
   const [activeTab, setActiveTab] = useState<RibbonTab>('Home');
   const [showThemePicker, setShowThemePicker] = useState(false);
   const [showOpenDialog, setShowOpenDialog] = useState(false);
@@ -758,6 +764,36 @@ export const PPTRibbon: React.FC<{ onToggleThemes?: () => void }> = ({ onToggleT
                   </div>
                 </div>
                 <span className="ppt-ribbon-group-label">Timing</span>
+              </div>
+
+              {/* Advanced Transitions Panel */}
+              <div className="ppt-ribbon-group" style={{ minWidth: 100 }}>
+                <div className="ppt-ribbon-group-content">
+                  <button
+                    className="ppt-ribbon-btn ppt-ribbon-btn-large"
+                    onClick={onToggleTransitions}
+                    title="Open Transitions Panel"
+                  >
+                    <Settings className="w-6 h-6 text-[hsl(var(--ppt-brand))]" />
+                    <span>Advanced</span>
+                  </button>
+                </div>
+                <span className="ppt-ribbon-group-label">Transitions Panel</span>
+              </div>
+
+              {/* Animations */}
+              <div className="ppt-ribbon-group" style={{ minWidth: 100 }}>
+                <div className="ppt-ribbon-group-content">
+                  <button
+                    className="ppt-ribbon-btn ppt-ribbon-btn-large"
+                    onClick={onToggleAnimations}
+                    title="Open Animations Panel"
+                  >
+                    <Play className="w-6 h-6 text-[hsl(var(--accent))]" />
+                    <span>Animations</span>
+                  </button>
+                </div>
+                <span className="ppt-ribbon-group-label">Object Animations</span>
               </div>
             </>
           )}

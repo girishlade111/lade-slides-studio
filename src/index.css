@@ -410,3 +410,180 @@
   overflow: auto;
   position: relative;
 }
+
+/* ===== PRESENTATION TRANSITION KEYFRAMES ===== */
+@keyframes pres-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes pres-slide-from {
+  from { transform: translate(var(--slide-from, -100%, 0)); opacity: 0; }
+  to { transform: translate(0, 0); opacity: 1; }
+}
+@keyframes pres-zoom-in {
+  from { transform: scale(0.3); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+@keyframes pres-zoom-out {
+  from { transform: scale(1.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+@keyframes pres-rotate {
+  from { transform: rotate(-90deg) scale(0.5); opacity: 0; }
+  to { transform: rotate(0) scale(1); opacity: 1; }
+}
+@keyframes pres-flip-h {
+  from { transform: rotateY(90deg); opacity: 0; }
+  to { transform: rotateY(0); opacity: 1; }
+}
+@keyframes pres-flip-v {
+  from { transform: rotateX(90deg); opacity: 0; }
+  to { transform: rotateX(0); opacity: 1; }
+}
+@keyframes pres-wipe-left {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+@keyframes pres-wipe-right {
+  from { clip-path: inset(0 0 0 100%); }
+  to { clip-path: inset(0 0 0 0); }
+}
+@keyframes pres-wipe-up {
+  from { clip-path: inset(100% 0 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+@keyframes pres-wipe-down {
+  from { clip-path: inset(0 0 100% 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+@keyframes pres-cube {
+  from { transform: perspective(800px) rotateY(-90deg); opacity: 0; }
+  to { transform: perspective(800px) rotateY(0); opacity: 1; }
+}
+@keyframes pres-curtain-open {
+  from { clip-path: inset(0 50% 0 50%); }
+  to { clip-path: inset(0 0 0 0); }
+}
+@keyframes pres-curtain-close {
+  from { clip-path: inset(0 0 0 0); }
+  to { clip-path: inset(0 50% 0 50%); }
+}
+
+/* ===== OBJECT ANIMATION KEYFRAMES ===== */
+/* Entrance */
+@keyframes obj-fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes obj-flyIn-left {
+  from { transform: translateX(-120%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes obj-flyIn-right {
+  from { transform: translateX(120%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes obj-flyIn-up {
+  from { transform: translateY(-120%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes obj-flyIn-down {
+  from { transform: translateY(120%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+@keyframes obj-zoomIn {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+@keyframes obj-bounceIn {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.15); }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes obj-rotateIn {
+  from { transform: rotate(-360deg) scale(0); opacity: 0; }
+  to { transform: rotate(0) scale(1); opacity: 1; }
+}
+@keyframes obj-wipeIn-left { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0); } }
+@keyframes obj-wipeIn-right { from { clip-path: inset(0 0 0 100%); } to { clip-path: inset(0); } }
+@keyframes obj-wipeIn-up { from { clip-path: inset(100% 0 0 0); } to { clip-path: inset(0); } }
+@keyframes obj-wipeIn-down { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0); } }
+@keyframes obj-slideIn-left { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+@keyframes obj-slideIn-right { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@keyframes obj-slideIn-up { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+@keyframes obj-slideIn-down { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes obj-growIn {
+  from { transform: scale(0.3); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Emphasis */
+@keyframes obj-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+@keyframes obj-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-10px); }
+  40% { transform: translateX(10px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
+}
+@keyframes obj-spin {
+  from { transform: rotate(0); }
+  to { transform: rotate(360deg); }
+}
+@keyframes obj-bounce {
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-20px); }
+  60% { transform: translateY(-10px); }
+}
+@keyframes obj-colorFlash {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.5) saturate(2); }
+}
+@keyframes obj-growShrink {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+@keyframes obj-teeter {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(5deg); }
+  75% { transform: rotate(-5deg); }
+}
+
+/* Exit */
+@keyframes obj-fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes obj-flyOut-left { from { transform: translateX(0); opacity: 1; } to { transform: translateX(-120%); opacity: 0; } }
+@keyframes obj-flyOut-right { from { transform: translateX(0); opacity: 1; } to { transform: translateX(120%); opacity: 0; } }
+@keyframes obj-flyOut-up { from { transform: translateY(0); opacity: 1; } to { transform: translateY(-120%); opacity: 0; } }
+@keyframes obj-flyOut-down { from { transform: translateY(0); opacity: 1; } to { transform: translateY(120%); opacity: 0; } }
+@keyframes obj-zoomOut {
+  from { transform: scale(1); opacity: 1; }
+  to { transform: scale(0); opacity: 0; }
+}
+@keyframes obj-collapse {
+  from { transform: scaleY(1); opacity: 1; }
+  to { transform: scaleY(0); opacity: 0; }
+}
+@keyframes obj-rotateOut {
+  from { transform: rotate(0) scale(1); opacity: 1; }
+  to { transform: rotate(360deg) scale(0); opacity: 0; }
+}
+@keyframes obj-wipeOut-left { from { clip-path: inset(0); } to { clip-path: inset(0 100% 0 0); } }
+@keyframes obj-wipeOut-right { from { clip-path: inset(0); } to { clip-path: inset(0 0 0 100%); } }
+@keyframes obj-wipeOut-up { from { clip-path: inset(0); } to { clip-path: inset(100% 0 0 0); } }
+@keyframes obj-wipeOut-down { from { clip-path: inset(0); } to { clip-path: inset(0 0 100% 0); } }
+@keyframes obj-slideOut-left { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+@keyframes obj-slideOut-right { from { transform: translateX(0); } to { transform: translateX(100%); } }
+@keyframes obj-slideOut-up { from { transform: translateY(0); } to { transform: translateY(-100%); } }
+@keyframes obj-slideOut-down { from { transform: translateY(0); } to { transform: translateY(100%); } }
+
+/* Preview transition keyframes (for panel previews) */
+@keyframes preview-fade-left { from { opacity: 0; } to { opacity: 1; } }
+@keyframes preview-slide-left { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes preview-zoom-in { from { transform: scale(0.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }

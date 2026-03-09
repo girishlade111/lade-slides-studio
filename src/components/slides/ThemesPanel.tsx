@@ -62,9 +62,12 @@ function makeTemplateSlides(theme: PresentationTheme): Slide[] {
     },
   });
 
+  const defaultTransition = { type: 'none' as const, duration: 0.5, direction: 'left' as const, easing: 'ease-in-out' as const, sound: false };
+  const fadeTransition = { type: 'fade' as const, duration: 0.5, direction: 'left' as const, easing: 'ease-in-out' as const, sound: false };
+
   // 1. Title Slide
   const titleSlide: Slide = {
-    id: uuidv4(), order: 0, background: bg, transition: { type: 'none', duration: 0.5 }, notes: '',
+    id: uuidv4(), order: 0, background: bg, transition: defaultTransition, notes: '',
     objects: [
       mkShape(0, 0, 960, 200, theme.colors.primary),
       mkText('Presentation Title', 80, 220, 800, 80, 48, 700, true, 'center'),
@@ -74,7 +77,7 @@ function makeTemplateSlides(theme: PresentationTheme): Slide[] {
 
   // 2. Agenda Slide
   const agendaSlide: Slide = {
-    id: uuidv4(), order: 1, background: bg, transition: { type: 'fade', duration: 0.5 }, notes: '',
+    id: uuidv4(), order: 1, background: bg, transition: fadeTransition, notes: '',
     objects: [
       mkShape(0, 0, 960, 80, theme.colors.primary),
       mkText('Agenda', 60, 12, 300, 50, 32, 700, true, 'left'),
@@ -87,7 +90,7 @@ function makeTemplateSlides(theme: PresentationTheme): Slide[] {
 
   // 3. Content Slide
   const contentSlide: Slide = {
-    id: uuidv4(), order: 2, background: bg, transition: { type: 'fade', duration: 0.5 }, notes: '',
+    id: uuidv4(), order: 2, background: bg, transition: fadeTransition, notes: '',
     objects: [
       mkShape(0, 0, 960, 70, theme.colors.primary),
       { ...mkText('Content Title', 40, 12, 400, 45, 28, 700, true, 'left'), textProps: { ...mkText('Content Title', 40, 12, 400, 45, 28, 700, true, 'left').textProps!, color: '#ffffff' } },
@@ -99,7 +102,7 @@ function makeTemplateSlides(theme: PresentationTheme): Slide[] {
 
   // 4. Two-Column Slide
   const twoColSlide: Slide = {
-    id: uuidv4(), order: 3, background: bg, transition: { type: 'fade', duration: 0.5 }, notes: '',
+    id: uuidv4(), order: 3, background: bg, transition: fadeTransition, notes: '',
     objects: [
       mkShape(0, 0, 960, 70, theme.colors.primary),
       { ...mkText('Comparison', 40, 12, 400, 45, 28, 700, true, 'left'), textProps: { ...mkText('Comparison', 40, 12, 400, 45, 28, 700, true, 'left').textProps!, color: '#ffffff' } },
@@ -114,7 +117,7 @@ function makeTemplateSlides(theme: PresentationTheme): Slide[] {
 
   // 5. Thank You Slide
   const thankYouSlide: Slide = {
-    id: uuidv4(), order: 4, background: bg, transition: { type: 'fade', duration: 0.5 }, notes: '',
+    id: uuidv4(), order: 4, background: bg, transition: fadeTransition, notes: '',
     objects: [
       mkShape(0, 0, 960, 540, theme.colors.primary),
       { ...mkText('Thank You!', 130, 160, 700, 100, 56, 700, true, 'center'), textProps: { ...mkText('Thank You!', 130, 160, 700, 100, 56, 700, true, 'center').textProps!, color: '#ffffff' } },

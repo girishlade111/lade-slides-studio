@@ -9,6 +9,8 @@ import { PPTStatusBar } from '@/components/slides/PPTStatusBar';
 import { PropertiesPanel } from '@/components/slides/PropertiesPanel';
 import { PresentationOverlay } from '@/components/slides/PresentationOverlay';
 import { ThemesPanel } from '@/components/slides/ThemesPanel';
+import { TransitionsPanel } from '@/components/slides/TransitionsPanel';
+import { AnimationsPanel } from '@/components/slides/AnimationsPanel';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
 const Index: React.FC = () => {
@@ -16,6 +18,8 @@ const Index: React.FC = () => {
   const [showNotes, setShowNotes] = useState(false);
   const [showProps] = useState(true);
   const [showThemesPanel, setShowThemesPanel] = useState(false);
+  const [showTransitionsPanel, setShowTransitionsPanel] = useState(false);
+  const [showAnimationsPanel, setShowAnimationsPanel] = useState(false);
   useKeyboardShortcuts();
 
   useEffect(() => {
@@ -39,7 +43,11 @@ const Index: React.FC = () => {
       <PPTTitleBar />
 
       {/* PowerPoint Ribbon */}
-      <PPTRibbon onToggleThemes={() => setShowThemesPanel(!showThemesPanel)} />
+      <PPTRibbon
+        onToggleThemes={() => { setShowThemesPanel(!showThemesPanel); setShowTransitionsPanel(false); setShowAnimationsPanel(false); }}
+        onToggleTransitions={() => { setShowTransitionsPanel(!showTransitionsPanel); setShowThemesPanel(false); setShowAnimationsPanel(false); }}
+        onToggleAnimations={() => { setShowAnimationsPanel(!showAnimationsPanel); setShowThemesPanel(false); setShowTransitionsPanel(false); }}
+      />
 
       {/* Main Content Area */}
       <div className="flex-1 flex overflow-hidden">
@@ -78,6 +86,8 @@ const Index: React.FC = () => {
 
         {/* Themes Panel */}
         {showThemesPanel && <ThemesPanel onClose={() => setShowThemesPanel(false)} />}
+        {showTransitionsPanel && <TransitionsPanel onClose={() => setShowTransitionsPanel(false)} />}
+        {showAnimationsPanel && <AnimationsPanel onClose={() => setShowAnimationsPanel(false)} />}
       </div>
 
       {/* PowerPoint Status Bar */}
