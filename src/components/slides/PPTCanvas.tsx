@@ -119,6 +119,13 @@ export const PPTCanvas: React.FC = () => {
               <rect width="100%" height="100%" fill="url(#grid)" />
             </svg>
           )}
+          {/* Smart Guides */}
+          <SmartGuides
+            objects={slide.objects}
+            selectedIds={selectedObjectIds}
+            slideWidth={presentation.slideWidth}
+            slideHeight={presentation.slideHeight}
+          />
           {slide.objects.map((obj) => (
             <SlideObjectComponent
               key={obj.id}
