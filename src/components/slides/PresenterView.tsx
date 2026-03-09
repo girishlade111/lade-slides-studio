@@ -188,7 +188,7 @@ export const PresenterView: React.FC<PresenterViewProps> = ({
           <button
             onClick={onNext}
             disabled={currentIndex === presentation.slides.length - 1}
-            className="flex-1 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-30 text-white text-xs flex items-center justify-center gap-1 transition-colors"
+            className="flex-1 py-2 rounded-lg bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))]/80 disabled:opacity-30 text-[hsl(var(--primary-foreground))] text-xs flex items-center justify-center gap-1 transition-colors"
           >
             Next <ChevronRight className="w-4 h-4" />
           </button>
