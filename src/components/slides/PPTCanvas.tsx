@@ -1,6 +1,8 @@
 import React, { useRef, useCallback } from 'react';
 import { usePresentationStore } from '@/stores/presentationStore';
 import { SlideObjectComponent } from './SlideObjectComponent';
+import { SmartGuides } from './SmartGuides';
+import { AlignmentToolbar } from './AlignmentToolbar';
 
 export const PPTCanvas: React.FC = () => {
   const {
@@ -77,6 +79,12 @@ export const PPTCanvas: React.FC = () => {
 
   return (
     <div className="ppt-canvas-area">
+      {/* Alignment toolbar when objects selected */}
+      {selectedObjectIds.length > 0 && (
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-50">
+          <AlignmentToolbar />
+        </div>
+      )}
       <div
         style={{
           width: presentation.slideWidth * scale,
@@ -111,6 +119,13 @@ export const PPTCanvas: React.FC = () => {
               <rect width="100%" height="100%" fill="url(#grid)" />
             </svg>
           )}
+          {/* Smart Guides */}
+          <SmartGuides
+            objects={slide.objects}
+            selectedIds={selectedObjectIds}
+            slideWidth={presentation.slideWidth}
+            slideHeight={presentation.slideHeight}
+          />
           {slide.objects.map((obj) => (
             <SlideObjectComponent
               key={obj.id}
