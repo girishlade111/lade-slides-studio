@@ -60,7 +60,7 @@ export const PresentationControls: React.FC<PresentationControlsProps> = ({
 
           {/* Pen tool */}
           <button
-            onClick={onTogglePen}
+            onClick={(e) => { e.stopPropagation(); onTogglePen(); }}
             className={`p-1.5 rounded-full transition-colors ${penActive && !isEraser ? 'bg-white/30 text-white' : 'hover:bg-white/20 text-white/70'}`}
             title="Pen (E)"
           >
