@@ -39,7 +39,7 @@ const Index: React.FC = () => {
       <PPTTitleBar />
 
       {/* PowerPoint Ribbon */}
-      <PPTRibbon />
+      <PPTRibbon onToggleThemes={() => setShowThemesPanel(!showThemesPanel)} />
 
       {/* Main Content Area */}
       <div className="flex-1 flex overflow-hidden">
