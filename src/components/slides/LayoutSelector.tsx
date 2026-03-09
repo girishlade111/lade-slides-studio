@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useMasterSlideStore } from '@/stores/masterSlideStore';
 import { usePresentationStore } from '@/stores/presentationStore';
 import type { MasterLayout, PlaceholderType } from '@/types/presentation';

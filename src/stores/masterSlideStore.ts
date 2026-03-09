@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
-import type { MasterSlide, MasterLayout, MasterPlaceholder, MasterLayoutName, SlideBackground, ThemeColors, SlideObject } from '@/types/presentation';
+import type { MasterSlide, MasterLayout, MasterPlaceholder, SlideBackground, SlideObject } from '@/types/presentation';
 
 const MASTER_STORAGE_KEY = 'lade-slides-masters';
 

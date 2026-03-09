@@ -92,7 +92,7 @@ interface PPTRibbonProps {
   onToggleMasterEditor?: () => void;
 }
 
-export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTransitions, onToggleAnimations }) => {
+export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTransitions, onToggleAnimations, onToggleMasterEditor }) => {
   const [activeTab, setActiveTab] = useState<RibbonTab>('Home');
   const [showThemePicker, setShowThemePicker] = useState(false);
   const [showOpenDialog, setShowOpenDialog] = useState(false);

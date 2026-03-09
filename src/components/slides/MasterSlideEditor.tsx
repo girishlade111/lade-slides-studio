@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import type { MasterPlaceholder, PlaceholderType } from '@/types/presentation';
 import {
   X, Plus, Type, Image, Hash, AlignLeft, Trash2,
-  Download, Upload, Edit3, Check, LayoutGrid,
+  Download, Upload, Edit3, LayoutGrid,
 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
