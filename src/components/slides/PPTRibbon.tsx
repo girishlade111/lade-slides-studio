@@ -274,12 +274,13 @@ export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTr
               </div>
 
               {/* Slides Group */}
-              <div className="ppt-ribbon-group" style={{ minWidth: 80 }}>
+              <div className="ppt-ribbon-group" style={{ minWidth: 140 }}>
                 <div className="ppt-ribbon-group-content">
                   <button className="ppt-ribbon-btn ppt-ribbon-btn-large" onClick={() => store.addSlide(store.currentSlideIndex)} title="New Slide">
                     <Plus className="w-6 h-6 text-[hsl(var(--accent))]" />
                     <span>New Slide</span>
                   </button>
+                  <LayoutSelectorComponent />
                 </div>
                 <span className="ppt-ribbon-group-label">Slides</span>
               </div>
