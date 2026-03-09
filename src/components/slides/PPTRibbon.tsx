@@ -109,7 +109,7 @@ export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTr
   const store = usePresentationStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const tabs: RibbonTab[] = ['Home', 'Insert', 'Design', 'Transitions', 'Slide Show'];
+  const tabs: RibbonTab[] = ['Home', 'Insert', 'Design', 'Transitions', 'Slide Show', 'View'];
 
   const insertImageToCanvas = (src: string) => {
     const img = new window.Image();
