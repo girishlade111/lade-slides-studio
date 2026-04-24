@@ -22,9 +22,9 @@ export function indexToColumn(idx: number): string {
 }
 
 export function cellRefToIndex(ref: string): { row: number; col: number } | null {
-  const match = ref.match(/^([A-Z]+)(\d+)$/);
+  const match = ref.match(/^([A-Z]+)(\d+)$/i);
   if (!match) return null;
-  return { col: columnToIndex(match[1]), row: parseInt(match[2], 10) - 1 };
+  return { col: columnToIndex(match[1].toUpperCase()), row: parseInt(match[2], 10) - 1 };
 }
 
 function parseRange(range: string): { row: number; col: number }[] | null {
@@ -42,176 +42,412 @@ function parseRange(range: string): { row: number; col: number }[] | null {
   return cells;
 }
 
-function getCellValue(cells: TableCell[][], row: number, col: number, visiting: Set<string>): number {
-  if (row < 0 || row >= cells.length || col < 0 || col >= (cells[0]?.length ?? 0)) return 0;
-  const cell = cells[row][col];
-  if (cell.formula) {
-    const key = `${row},${col}`;
-    if (visiting.has(key)) return NaN; // circular
-    visiting.add(key);
-    const result = evaluateFormula(cell.formula, cells, visiting);
-    visiting.delete(key);
-    return typeof result === 'number' ? result : parseFloat(result) || 0;
-  }
-  const num = parseFloat(cell.content);
-  return isNaN(num) ? 0 : num;
+type TokenType = 'NUMBER' | 'STRING' | 'REF' | 'RANGE' | 'FUNC' | 'OP' | 'LPAREN' | 'RPAREN' | 'COMMA' | 'EOF';
+
+interface Token {
+  type: TokenType;
+  value: string;
 }
 
-function resolveValues(arg: string, cells: TableCell[][], visiting: Set<string>): number[] {
-  arg = arg.trim();
-  if (arg.includes(':')) {
-    const range = parseRange(arg);
-    if (!range) return [];
-    return range.map(({ row, col }) => getCellValue(cells, row, col, visiting));
-  }
-  const ref = cellRefToIndex(arg);
-  if (ref) return [getCellValue(cells, ref.row, ref.col, visiting)];
-  const num = parseFloat(arg);
-  return isNaN(num) ? [] : [num];
-}
+class Lexer {
+  private pos = 0;
+  constructor(private input: string) {}
 
-function evaluateFunction(name: string, args: string[], cells: TableCell[][], visiting: Set<string>): number | string {
-  const values: number[] = [];
-  for (const arg of args) {
-    values.push(...resolveValues(arg, cells, visiting));
+  private peek(): string {
+    return this.pos < this.input.length ? this.input[this.pos] : '';
   }
 
-  switch (name) {
-    case 'SUM':
-      return values.reduce((a, b) => a + b, 0);
-    case 'AVERAGE':
-      return values.length === 0 ? 0 : values.reduce((a, b) => a + b, 0) / values.length;
-    case 'COUNT':
-      return values.length;
-    case 'MIN':
-      return values.length === 0 ? 0 : Math.min(...values);
-    case 'MAX':
-      return values.length === 0 ? 0 : Math.max(...values);
-    case 'ABS':
-      return values.length > 0 ? Math.abs(values[0]) : 0;
-    case 'ROUND':
-      if (values.length >= 2) return parseFloat(values[0].toFixed(values[1]));
-      return values.length > 0 ? Math.round(values[0]) : 0;
-    case 'IF': {
-      const condition = values[0];
-      const trueVal = args.length > 1 ? resolveValues(args[1], cells, visiting)[0] ?? 0 : 1;
-      const falseVal = args.length > 2 ? resolveValues(args[2], cells, visiting)[0] ?? 0 : 0;
-      return condition ? trueVal : falseVal;
-    }
-    default:
-      return '#NAME?';
+  private advance(): string {
+    return this.pos < this.input.length ? this.input[this.pos++] : '';
   }
-}
 
-function tokenize(expr: string): string[] {
-  const tokens: string[] = [];
-  let current = '';
-  for (let i = 0; i < expr.length; i++) {
-    const ch = expr[i];
-    if ('+-*/(),%'.includes(ch)) {
-      if (current.trim()) tokens.push(current.trim());
-      tokens.push(ch);
-      current = '';
-    } else {
-      current += ch;
-    }
+  private isWhitespace(c: string) {
+    return c === ' ' || c === '\t' || c === '\n' || c === '\r';
   }
-  if (current.trim()) tokens.push(current.trim());
-  return tokens;
-}
 
-function evaluateExpression(expr: string, cells: TableCell[][], visiting: Set<string>): number | string {
-  expr = expr.trim();
+  private isAlpha(c: string) {
+    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+  }
 
-  const funcMatch = expr.match(/^([A-Z]+)\((.+)\)$/);
-  if (funcMatch) {
-    const fname = funcMatch[1];
-    const argsStr = funcMatch[2];
-    const args: string[] = [];
-    let depth = 0;
-    let current = '';
-    for (const ch of argsStr) {
-      if (ch === '(') depth++;
-      if (ch === ')') depth--;
-      if (ch === ',' && depth === 0) {
-        args.push(current);
-        current = '';
-      } else {
-        current += ch;
+  private isDigit(c: string) {
+    return c >= '0' && c <= '9';
+  }
+
+  next(): Token {
+    while (this.isWhitespace(this.peek())) this.advance();
+    
+    if (this.pos >= this.input.length) return { type: 'EOF', value: '' };
+
+    const c = this.peek();
+
+    if (c === '"' || c === "'") {
+      const quote = this.advance(); // skip quote
+      let str = '';
+      while (this.peek() !== quote && this.pos < this.input.length) {
+        str += this.advance();
       }
+      if (this.peek() === quote) this.advance();
+      return { type: 'STRING', value: str };
     }
-    if (current) args.push(current);
-    return evaluateFunction(fname, args, cells, visiting);
+
+    if ("+-*/^%=<>&".includes(c)) {
+      let op = this.advance();
+      const nxt = this.peek();
+      if ((op === '<' && (nxt === '=' || nxt === '>')) || (op === '>' && nxt === '=')) {
+        op += this.advance();
+      }
+      return { type: 'OP', value: op };
+    }
+
+    if (c === '(') return { type: 'LPAREN', value: this.advance() };
+    if (c === ')') return { type: 'RPAREN', value: this.advance() };
+    if (c === ',') return { type: 'COMMA', value: this.advance() };
+
+    if (this.isDigit(c) || c === '.') {
+      let num = '';
+      while (this.isDigit(this.peek()) || this.peek() === '.') {
+        num += this.advance();
+      }
+      return { type: 'NUMBER', value: num };
+    }
+
+    if (this.isAlpha(c)) {
+      let id = '';
+      while (this.isAlpha(this.peek()) || this.isDigit(this.peek())) {
+        id += this.advance();
+      }
+      
+      if (this.peek() === '(') {
+        return { type: 'FUNC', value: id.toUpperCase() };
+      }
+      
+      if (this.peek() === ':') {
+        this.advance(); // skip :
+        let id2 = '';
+        while (this.isAlpha(this.peek()) || this.isDigit(this.peek())) {
+          id2 += this.advance();
+        }
+        return { type: 'RANGE', value: `${id}:${id2}`.toUpperCase() };
+      }
+      
+      if (id.match(/^[A-Z]+\d+$/i)) {
+        return { type: 'REF', value: id.toUpperCase() };
+      }
+      // If it's a known string like TRUE or FALSE
+      if (id.toUpperCase() === 'TRUE' || id.toUpperCase() === 'FALSE') {
+        return { type: 'STRING', value: id.toUpperCase() };
+      }
+      return { type: 'STRING', value: id };
+    }
+
+    // fallback
+    return { type: 'STRING', value: this.advance() };
+  }
+}
+
+class Parser {
+  private current!: Token;
+  constructor(private lexer: Lexer) {
+    this.advance();
   }
 
-  const tokens = tokenize(expr);
-  if (tokens.length === 1) {
-    const ref = cellRefToIndex(tokens[0]);
-    if (ref) return getCellValue(cells, ref.row, ref.col, visiting);
-    const num = parseFloat(tokens[0]);
-    if (!isNaN(num)) return num;
-    return '#VALUE!';
+  private advance() {
+    this.current = this.lexer.next();
   }
 
-  const values: number[] = [];
-  const ops: string[] = [];
-
-  for (let i = 0; i < tokens.length; i++) {
-    const t = tokens[i];
-    if ('+-*/%'.includes(t)) {
-      ops.push(t);
+  private eat(type: TokenType) {
+    if (this.current.type === type) {
+      this.advance();
     } else {
-      const ref = cellRefToIndex(t);
-      if (ref) {
-        values.push(getCellValue(cells, ref.row, ref.col, visiting));
-      } else {
-        const innerFunc = t.match(/^([A-Z]+)\(/);
-        if (innerFunc) {
-          const result = evaluateExpression(t, cells, visiting);
-          values.push(typeof result === 'number' ? result : 0);
-        } else {
-          const num = parseFloat(t);
-          values.push(isNaN(num) ? 0 : num);
+      throw new Error(`Expected ${type} but got ${this.current.type}`);
+    }
+  }
+
+  parse(): any {
+    if (this.current.type === 'EOF') return null;
+    const res = this.parseExpression();
+    if (this.current.type !== 'EOF') {
+       throw new Error(`Unexpected token ${this.current.value}`);
+    }
+    return res;
+  }
+
+  private parseExpression(): any {
+    return this.parseComparison();
+  }
+
+  private parseComparison(): any {
+    let node = this.parseConcat();
+    while (this.current.type === 'OP' && ["=", "<", ">", "<=", ">=", "<>"].includes(this.current.value)) {
+      const op = this.current.value;
+      this.advance();
+      node = { type: 'BinaryOp', op, left: node, right: this.parseConcat() };
+    }
+    return node;
+  }
+
+  private parseConcat(): any {
+    let node = this.parseAdditive();
+    while (this.current.type === 'OP' && this.current.value === '&') {
+      this.advance();
+      node = { type: 'BinaryOp', op: '&', left: node, right: this.parseAdditive() };
+    }
+    return node;
+  }
+
+  private parseAdditive(): any {
+    let node = this.parseMultiplicative();
+    while (this.current.type === 'OP' && ['+', '-'].includes(this.current.value)) {
+      const op = this.current.value;
+      this.advance();
+      node = { type: 'BinaryOp', op, left: node, right: this.parseMultiplicative() };
+    }
+    return node;
+  }
+
+  private parseMultiplicative(): any {
+    let node = this.parsePower();
+    while (this.current.type === 'OP' && ['*', '/', '%'].includes(this.current.value)) {
+      const op = this.current.value;
+      this.advance();
+      node = { type: 'BinaryOp', op, left: node, right: this.parsePower() };
+    }
+    return node;
+  }
+
+  private parsePower(): any {
+    let node = this.parseUnary();
+    while (this.current.type === 'OP' && this.current.value === '^') {
+      this.advance();
+      node = { type: 'BinaryOp', op: '^', left: node, right: this.parseUnary() };
+    }
+    return node;
+  }
+
+  private parseUnary(): any {
+    if (this.current.type === 'OP' && ['+', '-'].includes(this.current.value)) {
+      const op = this.current.value;
+      this.advance();
+      return { type: 'UnaryOp', op, expr: this.parseUnary() };
+    }
+    return this.parseFactor();
+  }
+
+  private parseFactor(): any {
+    const token = this.current;
+    if (token.type === 'NUMBER') {
+      this.advance();
+      return { type: 'Literal', value: parseFloat(token.value) };
+    }
+    if (token.type === 'STRING') {
+      this.advance();
+      return { type: 'Literal', value: token.value };
+    }
+    if (token.type === 'REF') {
+      this.advance();
+      return { type: 'Ref', value: token.value };
+    }
+    if (token.type === 'RANGE') {
+      this.advance();
+      return { type: 'Range', value: token.value };
+    }
+    if (token.type === 'FUNC') {
+      const name = token.value;
+      this.advance(); // consume FUNC
+      this.eat('LPAREN');
+      const args: any[] = [];
+      if (this.current.type !== 'RPAREN') {
+        args.push(this.parseExpression());
+        while (this.current.type === 'COMMA') {
+          this.advance();
+          args.push(this.parseExpression());
         }
       }
+      this.eat('RPAREN');
+      return { type: 'Call', name, args };
     }
-  }
-
-  // * / % first
-  for (let i = 0; i < ops.length; i++) {
-    if (ops[i] === '*' || ops[i] === '/' || ops[i] === '%') {
-      const a = values[i];
-      const b = values[i + 1];
-      let result: number;
-      if (ops[i] === '*') result = a * b;
-      else if (ops[i] === '/') result = b === 0 ? NaN : a / b;
-      else result = b === 0 ? NaN : a % b;
-      values.splice(i, 2, result);
-      ops.splice(i, 1);
-      i--;
+    if (token.type === 'LPAREN') {
+      this.advance();
+      const node = this.parseExpression();
+      this.eat('RPAREN');
+      return node;
     }
+    
+    // allow implicit string if unexpected token
+    const val = token.value;
+    this.advance();
+    return { type: 'Literal', value: val };
+  }
+}
+
+class Evaluator {
+  constructor(private cells: TableCell[][], private visiting: Set<string>) {}
+
+  private getCellValue(row: number, col: number): any {
+    if (row < 0 || row >= this.cells.length || col < 0 || col >= (this.cells[0]?.length ?? 0)) return null;
+    const cell = this.cells[row][col];
+    if (cell.formula) {
+      const key = `${row},${col}`;
+      if (this.visiting.has(key)) throw new Error('#CIRCULAR!');
+      this.visiting.add(key);
+      const res = evaluateAST(parse(cell.formula.substring(1)), this.cells, this.visiting);
+      this.visiting.delete(key);
+      return res;
+    }
+    if (!isNaN(Number(cell.content)) && cell.content.trim() !== '') {
+      return Number(cell.content);
+    }
+    if (cell.content.toLowerCase() === 'true') return true;
+    if (cell.content.toLowerCase() === 'false') return false;
+    return cell.content;
   }
 
-  let result = values[0] ?? 0;
-  for (let i = 0; i < ops.length; i++) {
-    if (ops[i] === '+') result += values[i + 1];
-    else if (ops[i] === '-') result -= values[i + 1];
+  private resolveRange(rangeStr: string): any[] {
+    const range = parseRange(rangeStr);
+    if (!range) throw new Error('#REF!');
+    return range.map(({ row, col }) => this.getCellValue(row, col));
   }
 
-  return result;
+  evaluate(node: any): any {
+    if (!node) return null;
+
+    if (node.type === 'Literal') {
+      if (node.value === 'TRUE') return true;
+      if (node.value === 'FALSE') return false;
+      return node.value;
+    }
+    
+    if (node.type === 'Ref') {
+      const ref = cellRefToIndex(node.value);
+      if (!ref) throw new Error('#REF!');
+      return this.getCellValue(ref.row, ref.col);
+    }
+    
+    if (node.type === 'Range') {
+      return this.resolveRange(node.value);
+    }
+
+    if (node.type === 'UnaryOp') {
+      const val = this.evaluate(node.expr);
+      if (node.op === '+') return Number(val);
+      if (node.op === '-') return -Number(val);
+    }
+
+    if (node.type === 'BinaryOp') {
+      const left = this.evaluate(node.left);
+      // Short-circuit OR/AND if possible
+      if (node.op === '&') return `${left ?? ''}${this.evaluate(node.right) ?? ''}`;
+      
+      const right = this.evaluate(node.right);
+      
+      switch (node.op) {
+        case '+': return Number(left) + Number(right);
+        case '-': return Number(left) - Number(right);
+        case '*': return Number(left) * Number(right);
+        case '/': 
+          if (Number(right) === 0) throw new Error('#DIV/0!');
+          return Number(left) / Number(right);
+        case '^': return Math.pow(Number(left), Number(right));
+        case '%': return Number(left) % Number(right);
+        case '=': return left === right;
+        case '<>': return left !== right;
+        case '<': return Number(left) < Number(right);
+        case '>': return Number(left) > Number(right);
+        case '<=': return Number(left) <= Number(right);
+        case '>=': return Number(left) >= Number(right);
+      }
+    }
+
+    if (node.type === 'Call') {
+      const args = node.args;
+      const flatArgs = (): any[] => {
+        const res: any[] = [];
+        for (const arg of args) {
+          const val = this.evaluate(arg);
+          if (Array.isArray(val)) res.push(...val);
+          else res.push(val);
+        }
+        return res;
+      };
+
+      const nums = () => flatArgs().map(a => Number(a)).filter(n => !isNaN(n));
+
+      switch (node.name) {
+        case 'SUM': return nums().reduce((a, b) => a + b, 0);
+        case 'AVERAGE': {
+          const n = nums();
+          return n.length ? n.reduce((a, b) => a + b, 0) / n.length : 0;
+        }
+        case 'COUNT': return nums().length;
+        case 'MIN': {
+          const n = nums();
+          return n.length ? Math.min(...n) : 0;
+        }
+        case 'MAX': {
+          const n = nums();
+          return n.length ? Math.max(...n) : 0;
+        }
+        case 'IF': {
+          const cond = this.evaluate(args[0]);
+          if (cond) return args.length > 1 ? this.evaluate(args[1]) : true;
+          return args.length > 2 ? this.evaluate(args[2]) : false;
+        }
+        case 'AND': return flatArgs().every(a => !!a);
+        case 'OR': return flatArgs().some(a => !!a);
+        case 'NOT': return !this.evaluate(args[0]);
+        case 'CONCATENATE': return flatArgs().map(a => String(a ?? '')).join('');
+        case 'ABS': return Math.abs(Number(this.evaluate(args[0])));
+        case 'ROUND': {
+           const val = Number(this.evaluate(args[0]));
+           const precision = args.length > 1 ? Number(this.evaluate(args[1])) : 0;
+           const factor = Math.pow(10, precision);
+           return Math.round(val * factor) / factor;
+        }
+        case 'IFERROR': {
+          try {
+            return this.evaluate(args[0]);
+          } catch {
+            return args.length > 1 ? this.evaluate(args[1]) : '';
+          }
+        }
+        default: throw new Error('#NAME?');
+      }
+    }
+    
+    return null;
+  }
+}
+
+function parse(expr: string) {
+  const lexer = new Lexer(expr);
+  const parser = new Parser(lexer);
+  return parser.parse();
+}
+
+function evaluateAST(ast: any, cells: TableCell[][], visiting: Set<string>): any {
+  const evaluator = new Evaluator(cells, visiting);
+  return evaluator.evaluate(ast);
 }
 
 export function evaluateFormula(formula: string, cells: TableCell[][], visiting = new Set<string>()): string {
   if (!formula || !formula.startsWith('=')) return formula;
-
   try {
-    const expr = formula.substring(1).trim().toUpperCase();
-    const result = evaluateExpression(expr, cells, visiting);
-    if (typeof result === 'string') return result;
-    if (isNaN(result)) return '#DIV/0!';
-    if (!isFinite(result)) return '#DIV/0!';
-    return Number.isInteger(result) ? result.toString() : result.toFixed(2);
-  } catch {
+    const expr = formula.substring(1).trim();
+    if (!expr) return '';
+    const ast = parse(expr);
+    const result = evaluateAST(ast, cells, visiting);
+    
+    if (result === null || result === undefined) return '';
+    if (typeof result === 'number') {
+      if (isNaN(result)) return '#VALUE!';
+      if (!isFinite(result)) return '#DIV/0!';
+      // Avoid tiny floating point errors like 0.1+0.2
+      return Number.isInteger(result) ? result.toString() : parseFloat(result.toPrecision(10)).toString();
+    }
+    if (typeof result === 'boolean') return result ? 'TRUE' : 'FALSE';
+    return String(result);
+  } catch (e: any) {
+    if (e.message && e.message.startsWith('#')) return e.message;
     return '#ERROR!';
   }
 }
