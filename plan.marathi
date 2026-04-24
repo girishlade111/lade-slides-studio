@@ -8,4 +8,7 @@
     <script>
         console.log("Hello World");
     </script>
+    <script>
+        console.log("Hello World");
+    </script>
 </html>
