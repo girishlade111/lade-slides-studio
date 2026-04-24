@@ -1,73 +1,169 @@
-# Welcome to your Lovable project
+# Lade Slides Studio
 
-## Project info
+A powerful **web-based presentation and spreadsheet application** for creating, editing, and presenting professional slideshows with integrated spreadsheet functionality.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+---
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+### Core Features
+- **Slide Editor** - Create and edit presentation slides with a rich visual interface
+- **Spreadsheet Integration** - Built-in formula engine for spreadsheet calculations
+- **Real-time Collaboration** - Work together with your team seamlessly
+- **Theme Editor** - Customize slide themes with customizable colors and backgrounds
+- **Transitions & Animations** - Add smooth transitions and animations to slides
+- **Export Options** - Export presentations in multiple formats (PPTX, PDF, images)
+- **Master Slides** - Create reusable slide templates
+- **Multi-layout Support** - Choose from various slide layouts (title, content, two-column, etc.)
 
-**Use Lovable**
+### UI Components
+- **Ribbon Toolbar** - Microsoft Office-style ribbon interface
+- **Slide Panel** - Thumbnail navigation for slides
+- **Properties Panel** - Fine-tuneelement properties
+- **Smart Guides** - Alignment assistance while editing
+- **Presenter View** - Speaker notes and presentation controls
+- **Drawing Tools** - Freehand drawing and shape tools
+- **Commenting** - Add and manage comments on slides
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+## Tech Stack
 
-**Use your preferred IDE**
+### Frontend
+- **React 18** - UI library
+- **TypeScript** - Type-safe JavaScript
+- **Vite** - Build tool and dev server
+- **Tailwind CSS** - Utility-first CSS framework
+- **shadcn/ui** - Accessible UI component library
+- **Zustand** - State management
+- **React Router** - Client-side routing
+- **Lucide React** - Icon library
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Libraries & Tools
+- **PPTXGenJS** - PowerPoint (.pptx) export
+- **jsPDF** - PDF generation
+- **html-to-image** - Convert HTML to images
+- **Recharts** - Charts and data visualization
+- **date-fns** - Date manipulation
+- **Zod** - Schema validation
+- **Vitest** - Testing framework
+- **ESLint** - Code linting
+- **Sharp** - Image processing (favicon generation)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+---
 
-Follow these steps:
+## Getting Started
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Prerequisites
+- **Node.js** (v18 or higher)
+- **npm** or **yarn**
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Installation
 
-# Step 3: Install the necessary dependencies.
-npm i
+```bash
+# Clone the repository
+git clone https://github.com/girishlade111/lade-slides-studio.git
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Navigate to the project directory
+cd lade-slides-studio
+
+# Install dependencies
+npm install
+
+# Start development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Build & Deploy
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+# Build for production
+npm run build
 
-**Use GitHub Codespaces**
+# Preview production build
+npm run preview
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+# Run tests
+npm run test
+npm run test:watch
+```
 
-## What technologies are used for this project?
+---
 
-This project is built with:
+## Configuration
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Project Structure
+```
+├── public/              # Static assets
+│   ├── favicon.ico      # Browser favicon
+│   └── lade-logo.png   # Application logo
+├── src/
+│   ├── assets/         # Project assets
+│   ├── components/    # React components
+│   │   ├── slides/    # Slide-related components
+│   │   └── ui/       # UI components (shadcn)
+│   ├── hooks/         # Custom React hooks
+│   ├── lib/          # Utility functions
+│   │   └── formulaEngine.ts  # Spreadsheet formulas
+│   ├── pages/        # Page components
+│   ├── stores/       # Zustand state stores
+│   ├── types/        # TypeScript definitions
+│   └── test/         # Test files
+├── scripts/           # Build scripts
+│   └── generate-favicon.mjs
+└── index.html        # Entry HTML file
+```
 
-## How can I deploy this project?
+### Environment Variables
+Create a `.env` file in the root directory:
+```env
+VITE_APP_TITLE=Lade Slides Studio
+VITE_API_URL=your_api_url
+```
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+### Package Scripts
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start dev server with hot reload |
+| `npm run build` | Build for production |
+| `npm run build:dev` | Build in development mode |
+| `npm run lint` | Run ESLint |
+| `npm run preview` | Preview production build |
+| `npm run test` | Run tests once |
+| `npm run test:watch` | Run tests in watch mode |
 
-## Can I connect a custom domain to my Lovable project?
+---
 
-Yes, you can!
+## Development Stats
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+- **License**: Private
+- **Version**: 0.0.0
+- **Type**: React + TypeScript Web Application
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+### Dependencies
+- **Runtime**: 74 dependencies
+- **Dev**: 25 dependencies
+
+---
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/name`)
+3. Commit your changes (`git commit -m 'Add feature'`)
+4. Push to the branch (`git push origin feature/name`)
+5. Open a Pull Request
+
+---
+
+## License
+
+Private - All rights reserved
+
+---
+
+## Author
+
+**Girish Lade**
+- GitHub: [@girishlade111](https://github.com/girishlade111)
+- Email: girishlade111@gmail.com
