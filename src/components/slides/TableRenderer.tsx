@@ -260,11 +260,14 @@ export const TableRenderer: React.FC<TableRendererProps> = ({ obj, isEditing, sl
 
   useEffect(() => {
     if (!isEditing) {
+      if (editingCell) {
+        commitEdit();
+      }
       setSelectedCell(null);
       setEditingCell(null);
       setSelectionEnd(null);
     }
-  }, [isEditing]);
+  }, [isEditing, editingCell, commitEdit]);
 
   const formatSelectedCells = useCallback((updates: Partial<TableCell>) => {
     const range = getSelectionRange();
