@@ -17,6 +17,7 @@ import { CommentsPanel } from '@/components/slides/CommentsPanel';
 import { VersionHistoryPanel } from '@/components/slides/VersionHistoryPanel';
 import { ActivityLogPanel } from '@/components/slides/ActivityLogPanel';
 import { MasterSlideEditor } from '@/components/slides/MasterSlideEditor';
+import { TableFormulaBar } from '@/components/slides/TableFormulaBar';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
 const Index: React.FC = () => {

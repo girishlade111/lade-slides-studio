@@ -55,7 +55,7 @@ export function evaluateFormula(formula: string, getCellValue: (row: number, col
   }
 
   try {
-    let expression = formula.substring(1);
+    const expression = formula.substring(1);
     
     // Helper to parse cell reference (e.g., A1)
     const parseCellRef = (ref: string): { row: number, col: number } | null => {
