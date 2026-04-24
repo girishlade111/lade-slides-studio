@@ -972,23 +972,3 @@ export const usePresentationStore = create<PresentationStore>((set, get) => ({
     savePresentation();
   },
 }));
-Storage.setItem(STORAGE_KEY, JSON.stringify(allData));
-      get().loadSavedList();
-    } catch {
-      console.warn('Failed to delete presentation');
-    }
-  },
-
-  saveAs: (newName) => {
-    const { presentation, savePresentation } = get();
-    const newPres: Presentation = {
-      ...JSON.parse(JSON.stringify(presentation)),
-      id: uuidv4(),
-      name: newName,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    };
-    set({ presentation: newPres });
-    savePresentation();
-  },
-}));

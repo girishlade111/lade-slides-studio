@@ -206,31 +206,35 @@ export function evaluateFormula(formula: string, getCellValue: (row: number, col
           return Math.min(...values).toString();
         case 'MAX':
           return Math.max(...values).toString();
-        case 'MEDIAN':
+        case 'MEDIAN': {
           const sorted = [...values].sort((a, b) => a - b);
           const mid = Math.floor(sorted.length / 2);
           return sorted.length % 2 !== 0 ? sorted[mid].toString() : ((sorted[mid - 1] + sorted[mid]) / 2).toString();
-        case 'STDEV':
+        }
+        case 'STDEV': {
           if (values.length < 2) return '0';
           const avg = values.reduce((a, b) => a + b, 0) / values.length;
           const variance = values.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / (values.length - 1);
           return Math.sqrt(variance).toString();
-        case 'ROUND':
+        }
+        case 'ROUND': {
           const numToRound = values[0] || 0;
           const decimals = values[1] || 0;
           const factor = Math.pow(10, decimals);
           return (Math.round(numToRound * factor) / factor).toString();
+        }
         case 'ABS':
           return Math.abs(values[0] || 0).toString();
         case 'SQRT':
           return Math.sqrt(values[0] || 0).toString();
-        case 'PMT':
+        case 'PMT': {
           const rate = values[0] || 0;
           const nper = values[1] || 0;
           const pv = values[2] || 0;
           if (rate === 0) return (-(pv / nper)).toString();
           const pmt = (rate * pv * Math.pow(1 + rate, nper)) / (1 - Math.pow(1 + rate, nper));
           return pmt.toString();
+        }
         default:
           return '0';
       }

@@ -118,7 +118,7 @@ export const ChartRenderer: React.FC<ChartRendererProps> = ({ object }) => {
             </LineChart>
           </ResponsiveContainer>
         );
-      case 'pie':
+      case 'pie': {
         // Pie usually uses 1 data series. We'll use the first header.
         const dataKey = headers[0];
         return (
@@ -143,6 +143,7 @@ export const ChartRenderer: React.FC<ChartRendererProps> = ({ object }) => {
             </PieChart>
           </ResponsiveContainer>
         );
+      }
       default:
         return <div>Unsupported chart type</div>;
     }
