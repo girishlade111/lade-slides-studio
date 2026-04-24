@@ -16,7 +16,7 @@ export function getCellDisplayValue(cell: TableCell, cells: TableCell[][]): stri
 export function shiftFormula(formula: string, rowOffset: number, colOffset: number): string {
   if (!formula.startsWith('=')) return formula;
   
-  const cellRefRegex = /([\$]?)([A-Z]+)([\$]?)(\d+)/gi;
+  const cellRefRegex = /([$]?)([A-Z]+)([$]?)(\d+)/gi;
   
   return formula.replace(cellRefRegex, (match, colAbsolute, colStr, rowAbsolute, rowStr) => {
     let col = 0;
