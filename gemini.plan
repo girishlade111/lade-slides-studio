@@ -24,9 +24,3 @@
    24 ### 3. `src/lib/formulaEngine.ts`
    25 - Add functions: `VLOOKUP`, `CONCATENATE`, `DATE`.
    26 - Add a helper `shiftFormula(formula, rowOffset, colOffset)` to support the Drag-to-Fill feature when dragging formulas.
-   27
-   28 ### 4. `src/components/slides/TableFormulaBar.tsx` (NEW)
-   29 - A new component that sits above the canvas.
-   30 - Reads `activeTableId` and `activeTableCell` from the store.
-   31 - Displays the cell reference (e.g., "A1") and an input field for the formula/content.
-   32 - Two-way binding with the active cell's content/formula using `updateTableCell`.
