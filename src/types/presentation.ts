@@ -1,4 +1,4 @@
-export type ObjectType = 'text' | 'shape' | 'image';
+export type ObjectType = 'text' | 'shape' | 'image' | 'table';
 export type ShapeType =
   | 'rectangle' | 'rounded-rectangle' | 'circle' | 'triangle' | 'diamond'
   | 'pentagon' | 'hexagon' | 'octagon' | 'star' | 'heart' | 'cloud'
