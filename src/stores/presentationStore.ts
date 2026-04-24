@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
-import type { Presentation, Slide, SlideObject, SlideBackground, TextProperties, ShapeProperties, ShapeType, ImageProperties } from '@/types/presentation';
+import type { Presentation, Slide, SlideObject, SlideBackground, TextProperties, ShapeProperties, ShapeType, ImageProperties, TableProperties, TableCell, CellBorder } from '@/types/presentation';
 
 interface HistoryState {
   past: Presentation[];
@@ -25,7 +25,7 @@ interface PresentationStore {
   showGrid: boolean;
   isPresentationMode: boolean;
   isPresenterView: boolean;
-  tool: 'select' | 'text' | 'shape' | 'image' | 'line';
+  tool: 'select' | 'text' | 'shape' | 'image' | 'line' | 'table';
   activeShapeType: ShapeType;
   savedPresentations: SavedPresentationMeta[];
   autoSaveIndicator: boolean;
@@ -64,6 +64,17 @@ interface PresentationStore {
   addTextBox: (x: number, y: number) => void;
   addShape: (shapeType: ShapeType, x: number, y: number) => void;
   addImage: (src: string, x: number, y: number, width: number, height: number) => void;
+  addTable: (x: number, y: number, rows?: number, columns?: number) => void;
+
+  // Table actions
+  updateTableCell: (slideIndex: number, objectId: string, row: number, col: number, updates: Partial<TableCell>) => void;
+  addTableRow: (objectId: string, afterRow: number) => void;
+  deleteTableRow: (objectId: string, row: number) => void;
+  addTableColumn: (objectId: string, afterCol: number) => void;
+  deleteTableColumn: (objectId: string, col: number) => void;
+  mergeCells: (objectId: string, startRow: number, startCol: number, endRow: number, endCol: number) => void;
+  unmergeCells: (objectId: string, row: number, col: number) => void;
+  sortTableColumn: (objectId: string, col: number, ascending: boolean) => void;
 
   // History
   undo: () => void;
