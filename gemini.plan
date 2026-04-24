@@ -49,6 +49,4 @@
    49   - On mouse up, apply the source cell's content/formatting to the filled range. If it's a formula, use `shiftFormula` to adjust references.
    50 - **Store Sync:**
    51   - When `handleCellClick` happens, call the store's `setActiveTableCell` so external components know what is selected.
-   52
-   53 ### 7. `src/components/slides/PropertiesPanel.tsx`
-   54 - Add controls to configure `validationOptions` for a dropdown if a cell is selected and `validationType` is set to `dropdown`.
+   
