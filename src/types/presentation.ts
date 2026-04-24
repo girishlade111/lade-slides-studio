@@ -1,4 +1,25 @@
-export type ObjectType = 'text' | 'shape' | 'image' | 'table';
+export type ObjectType = 'text' | 'shape' | 'image' | 'table' | 'chart';
+
+export interface ConditionalFormatRule {
+  range: string;
+  condition: 'greater' | 'less' | 'equal' | 'between';
+  value: string;
+  secondaryValue?: string; // For 'between'
+  style: {
+    backgroundColor?: string;
+    textColor?: string;
+  };
+}
+
+export interface ChartProperties {
+  type: 'bar' | 'pie' | 'line';
+  sourceTableId: string;
+  dataRange: string;
+  title: string;
+  showLegend: boolean;
+  colors?: string[];
+}
+
 export type ShapeType =
   | 'rectangle' | 'rounded-rectangle' | 'circle' | 'triangle' | 'diamond'
   | 'pentagon' | 'hexagon' | 'octagon' | 'star' | 'heart' | 'cloud'
@@ -147,6 +168,9 @@ export interface TableProperties {
   headerTextColor: string;
   defaultFontFamily: string;
   defaultFontSize: number;
+  frozenRows?: number;
+  frozenCols?: number;
+  conditionalFormatting?: ConditionalFormatRule[];
 }
 
 export interface SlideObject {

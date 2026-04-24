@@ -13,11 +13,3 @@
    13 - Add `dataFormat?: 'general' | 'currency' | 'percentage' | 'date';` to `TableCell`.
    14 - Add `validationType?: 'none' | 'dropdown' | 'checkbox';` to `TableCell`.
    15 - Add `validationOptions?: string[];` to `TableCell`.
-   16
-   17 ### 2. `src/stores/presentationStore.ts`
-   18 - Add state for the active table cell to allow external components (like the Formula Bar and Toolbar) to interact with it:
-   19   - `activeTableId: string | null`
-   20   - `activeTableCell: { r: number, c: number } | null`
-   21 - Add an action: `setActiveTableCell: (objectId: string | null, row: number | null, col: number | null) => void`.
-   22 - Update `addTable` default properties to initialize new fields as needed.
-   
