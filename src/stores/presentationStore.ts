@@ -192,6 +192,8 @@ export const usePresentationStore = create<PresentationStore>((set, get) => ({
   savedPresentations: [],
   autoSaveIndicator: false,
   slideClipboard: null,
+  activeTableId: null,
+  activeTableCell: null,
 
   setPresentation: (p) => set({ presentation: p }),
   setCurrentSlide: (index) => set({ currentSlideIndex: index, selectedObjectIds: [] }),
