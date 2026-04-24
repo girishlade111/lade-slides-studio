@@ -171,6 +171,9 @@ export const SlideObjectComponent: React.FC<SlideObjectComponentProps> = ({
     if (obj.type === 'shape') {
       return <ShapeRenderer obj={obj} />;
     }
+    if (obj.type === 'chart') {
+      return <ChartRenderer object={obj} />;
+    }
     if (obj.type === 'table' && obj.tableProps) {
       return <TableRenderer obj={obj} isEditing={isEditing} slideIndex={slideIndex} />;
     }
