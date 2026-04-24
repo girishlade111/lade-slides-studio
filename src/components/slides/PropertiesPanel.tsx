@@ -492,6 +492,56 @@ const TablePropsEditor: React.FC<{ obj: any; update: (u: any) => void }> = ({ ob
           <input type="range" min="8" max="24" value={tp.defaultFontSize} onChange={(e) => up({ defaultFontSize: Number(e.target.value) })} className="w-full" style={{ accentColor: 'hsl(var(--accent))' }} />
         </div>
       </Section>
+
+      {store.activeTableId === obj.id && store.activeTableCell && (
+        <Section title="Selected Cell Formatting">
+          {(() => {
+            const cell = tp.cells[store.activeTableCell.r][store.activeTableCell.c];
+            if (!cell) return null;
+            return (
+              <div className="space-y-1.5 mt-1">
+                <div>
+                  <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Data Format</span>
+                  <select 
+                    className="ppt-select w-full mt-0.5" 
+                    value={cell.dataFormat || 'general'} 
+                    onChange={(e) => store.updateTableCell(store.currentSlideIndex, obj.id, store.activeTableCell!.r, store.activeTableCell!.c, { dataFormat: e.target.value as any })}
+                  >
+                    <option value="general">General</option>
+                    <option value="currency">Currency</option>
+                    <option value="percentage">Percentage</option>
+                    <option value="date">Date</option>
+                  </select>
+                </div>
+                <div>
+                  <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Data Validation</span>
+                  <select 
+                    className="ppt-select w-full mt-0.5" 
+                    value={cell.validationType || 'none'} 
+                    onChange={(e) => store.updateTableCell(store.currentSlideIndex, obj.id, store.activeTableCell!.r, store.activeTableCell!.c, { validationType: e.target.value as any })}
+                  >
+                    <option value="none">None</option>
+                    <option value="checkbox">Checkbox</option>
+                    <option value="dropdown">Dropdown</option>
+                  </select>
+                </div>
+                {cell.validationType === 'dropdown' && (
+                  <div>
+                    <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Dropdown Options (comma separated)</span>
+                    <input 
+                      type="text" 
+                      className="ppt-input w-full mt-0.5" 
+                      value={(cell.validationOptions || []).join(', ')} 
+                      onChange={(e) => store.updateTableCell(store.currentSlideIndex, obj.id, store.activeTableCell!.r, store.activeTableCell!.c, { validationOptions: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
+                      placeholder="Option 1, Option 2"
+                    />
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+        </Section>
+      )}
     </>
   );
 };
