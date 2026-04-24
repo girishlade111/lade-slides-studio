@@ -179,6 +179,62 @@ export const TableRenderer: React.FC<TableRendererProps> = ({ obj, isEditing, sl
     }
   }, [isEditing, selectedCell, editingCell, tp, cells, commitEdit, pushHistory, updateTableCell, slideIndex, obj.id]);
 
+  const handleCopy = useCallback((e: React.ClipboardEvent) => {
+    if (!isEditing || editingCell) return;
+    const range = getSelectionRange();
+    if (range.length === 0) return;
+    
+    range.sort((a, b) => a.row !== b.row ? a.row - b.row : a.col - b.col);
+    
+    const minRow = range[0].row;
+    const maxRow = range[range.length - 1].row;
+    const minCol = Math.min(...range.map(c => c.col));
+    const maxCol = Math.max(...range.map(c => c.col));
+    
+    const matrix: string[][] = Array.from({ length: maxRow - minRow + 1 }, () => 
+      Array(maxCol - minCol + 1).fill('')
+    );
+    
+    for (const { row, col } of range) {
+      const cell = cells[row]?.[col];
+      if (cell && !cell.merged) {
+        matrix[row - minRow][col - minCol] = cell.formula || cell.content;
+      }
+    }
+    
+    const tsv = matrix.map(r => r.join('\t')).join('\n');
+    e.clipboardData.setData('text/plain', tsv);
+    e.preventDefault();
+  }, [isEditing, editingCell, getSelectionRange, cells]);
+
+  const handlePaste = useCallback((e: React.ClipboardEvent) => {
+    if (!isEditing || editingCell || !selectedCell) return;
+    const tsv = e.clipboardData.getData('text/plain');
+    if (!tsv) return;
+    e.preventDefault();
+    
+    pushHistory();
+    const rows = tsv.split(/\r?\n/);
+    const startRow = selectedCell.row;
+    const startCol = selectedCell.col;
+    
+    for (let r = 0; r < rows.length; r++) {
+      const cols = rows[r].split('\t');
+      for (let c = 0; c < cols.length; c++) {
+        const targetRow = startRow + r;
+        const targetCol = startCol + c;
+        if (targetRow < tp.rows && targetCol < tp.columns) {
+          const val = cols[c];
+          const isFormula = val.startsWith('=');
+          updateTableCell(slideIndex, obj.id, targetRow, targetCol, {
+            content: isFormula ? '' : val,
+            formula: isFormula ? val : undefined
+          });
+        }
+      }
+    }
+  }, [isEditing, editingCell, selectedCell, pushHistory, tp, updateTableCell, slideIndex, obj.id]);
+
   const getSelectionRange = useCallback((): CellSelection[] => {
     if (!selectedCell) return [];
     if (!selectionEnd) return [selectedCell];
@@ -471,6 +527,8 @@ export const TableRenderer: React.FC<TableRendererProps> = ({ obj, isEditing, sl
         <div
           className="w-full h-full overflow-hidden"
           onKeyDown={handleKeyDown}
+          onCopy={handleCopy}
+          onPaste={handlePaste}
           tabIndex={isEditing ? 0 : -1}
           style={{ outline: 'none' }}
         >
@@ -487,39 +545,40 @@ export const TableRenderer: React.FC<TableRendererProps> = ({ obj, isEditing, sl
               {cells.map((row, rowIdx) => (
                 <tr key={rowIdx} style={{ height: tp.rowHeights[rowIdx] }}>
                   {row.map((cell, colIdx) => renderCell(cell, rowIdx, colIdx))}
-                  {/* Row resize handle */}
-                  {isEditing && (
-                    <td
-                      className="absolute right-0 h-1 cursor-row-resize hover:bg-blue-400"
-                      style={{
-                        width: '100%',
-                        bottom: 0,
-                        left: 0,
-                        height: 3,
-                        position: 'relative',
-                      }}
-                      onMouseDown={(e) => handleRowResizeStart(e, rowIdx)}
-                    />
-                  )}
                 </tr>
               ))}
             </tbody>
           </table>
-          {/* Column resize handles */}
+          {/* Resize handles */}
           {isEditing && (
             <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+              {/* Column resize handles */}
               {tp.columnWidths.reduce((acc: { left: number; handles: React.ReactNode[] }, w, i) => {
                 const left = acc.left + w;
                 acc.handles.push(
                   <div
-                    key={i}
-                    className="absolute top-0 h-full w-1 cursor-col-resize hover:bg-blue-400 pointer-events-auto"
-                    style={{ left: left - 2 }}
+                    key={`col-${i}`}
+                    className="absolute top-0 h-full w-1.5 cursor-col-resize hover:bg-blue-400 pointer-events-auto z-10"
+                    style={{ left: left - 3 }}
                     onMouseDown={(e) => handleColResizeStart(e, i)}
                   />
                 );
                 return { left, handles: acc.handles };
               }, { left: 0, handles: [] }).handles}
+              
+              {/* Row resize handles */}
+              {tp.rowHeights.reduce((acc: { top: number; handles: React.ReactNode[] }, h, i) => {
+                const top = acc.top + h;
+                acc.handles.push(
+                  <div
+                    key={`row-${i}`}
+                    className="absolute left-0 w-full h-1.5 cursor-row-resize hover:bg-blue-400 pointer-events-auto z-10"
+                    style={{ top: top - 3 }}
+                    onMouseDown={(e) => handleRowResizeStart(e, i)}
+                  />
+                );
+                return { top, handles: acc.handles };
+              }, { top: 0, handles: [] }).handles}
             </div>
           )}
           {/* Column letters header (shown when editing) */}
