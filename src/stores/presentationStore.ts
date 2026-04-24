@@ -202,6 +202,10 @@ export const usePresentationStore = create<PresentationStore>((set, get) => ({
   setActiveShapeType: (s) => set({ activeShapeType: s }),
   setPresentationMode: (v) => set({ isPresentationMode: v, selectedObjectIds: [] }),
   setPresenterView: (v) => set({ isPresenterView: v }),
+  setActiveTableCell: (objectId, row, col) => set({ 
+    activeTableId: objectId, 
+    activeTableCell: row !== null && col !== null ? { r: row, c: col } : null 
+  }),
 
   getCurrentSlide: () => {
     const { presentation, currentSlideIndex } = get();
