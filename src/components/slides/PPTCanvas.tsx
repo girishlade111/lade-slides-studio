@@ -7,7 +7,7 @@ import { AlignmentToolbar } from './AlignmentToolbar';
 export const PPTCanvas: React.FC = () => {
   const {
     presentation, currentSlideIndex, zoom, showGrid, tool, activeShapeType,
-    setSelectedObjects, addTextBox, addShape, selectedObjectIds,
+    setSelectedObjects, addTextBox, addShape, addTable, selectedObjectIds,
   } = usePresentationStore();
 
   const slide = presentation.slides[currentSlideIndex];
@@ -32,11 +32,14 @@ export const PPTCanvas: React.FC = () => {
       } else if (tool === 'shape') {
         const { x, y } = getSlideCoords(e);
         addShape(activeShapeType, x, y);
+      } else if (tool === 'table') {
+        const { x, y } = getSlideCoords(e);
+        addTable(x, y);
       } else {
         setSelectedObjects([]);
       }
     }
-  }, [tool, activeShapeType, getSlideCoords, addTextBox, addShape, setSelectedObjects]);
+  }, [tool, activeShapeType, getSlideCoords, addTextBox, addShape, addTable, setSelectedObjects]);
 
   const handleImageUpload = useCallback((e: React.DragEvent) => {
     e.preventDefault();

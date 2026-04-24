@@ -2,6 +2,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import type { SlideObject } from '@/types/presentation';
 import { usePresentationStore } from '@/stores/presentationStore';
 import { ShapeRenderer } from './ShapeRenderer';
+import { TableRenderer } from './TableRenderer';
 import { RotateCw } from 'lucide-react';
 
 interface SlideObjectComponentProps {
@@ -24,6 +25,10 @@ export const SlideObjectComponent: React.FC<SlideObjectComponentProps> = ({
   const rotateStart = useRef({ startAngle: 0, objRotation: 0 });
   const textRef = useRef<HTMLDivElement>(null);
   const objRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isSelected) setIsEditing(false);
+  }, [isSelected]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (isEditing) return;
@@ -121,6 +126,9 @@ export const SlideObjectComponent: React.FC<SlideObjectComponentProps> = ({
       setIsEditing(true);
       setTimeout(() => textRef.current?.focus(), 0);
     }
+    if (obj.type === 'table') {
+      setIsEditing(true);
+    }
   }, [obj.type]);
 
   const handleTextBlur = useCallback(() => {
@@ -162,6 +170,9 @@ export const SlideObjectComponent: React.FC<SlideObjectComponentProps> = ({
     }
     if (obj.type === 'shape') {
       return <ShapeRenderer obj={obj} />;
+    }
+    if (obj.type === 'table' && obj.tableProps) {
+      return <TableRenderer obj={obj} isEditing={isEditing} slideIndex={slideIndex} />;
     }
     if (obj.type === 'image' && obj.imageProps) {
       const ip = obj.imageProps;

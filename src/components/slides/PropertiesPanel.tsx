@@ -2,7 +2,8 @@ import React from 'react';
 import { usePresentationStore } from '@/stores/presentationStore';
 import { PRESET_COLORS, THEMES } from '@/types/presentation';
 import type { AnimationType } from '@/types/presentation';
-import { Trash2, RotateCw, Lock, Unlock } from 'lucide-react';
+import { Trash2, RotateCw, Lock, Unlock, Plus, Minus } from 'lucide-react';
+import { FONTS } from '@/types/presentation';
 
 const ANIMATION_TYPES: { value: AnimationType; label: string }[] = [
   { value: 'none', label: 'None' },
@@ -88,6 +89,7 @@ export const PropertiesPanel: React.FC = () => {
         {selectedObj.type === 'text' && selectedObj.textProps && <TextPropsEditor obj={selectedObj} update={update} />}
         {selectedObj.type === 'shape' && selectedObj.shapeProps && <ShapePropsEditor obj={selectedObj} update={update} />}
         {selectedObj.type === 'image' && selectedObj.imageProps && <ImagePropsEditor obj={selectedObj} update={update} />}
+        {selectedObj.type === 'table' && selectedObj.tableProps && <TablePropsEditor obj={selectedObj} update={update} />}
       </div>
     </div>
   );
@@ -366,6 +368,128 @@ const ImagePropsEditor: React.FC<{ obj: any; update: (u: any) => void }> = ({ ob
               {fit}
             </button>
           ))}
+        </div>
+      </Section>
+    </>
+  );
+};
+
+const TablePropsEditor: React.FC<{ obj: any; update: (u: any) => void }> = ({ obj, update }) => {
+  const tp = obj.tableProps;
+  const up = (changes: any) => update({ tableProps: { ...tp, ...changes } });
+  const store = usePresentationStore();
+
+  const TABLE_STYLE_PRESETS = [
+    { label: 'Blue Header', header: '#3b82f6', headerText: '#ffffff', banded: false, bandedColor: '#f3f4f6' },
+    { label: 'Green Header', header: '#16a34a', headerText: '#ffffff', banded: false, bandedColor: '#f0fdf4' },
+    { label: 'Dark', header: '#1f2937', headerText: '#ffffff', banded: true, bandedColor: '#f9fafb' },
+    { label: 'Purple', header: '#7c3aed', headerText: '#ffffff', banded: false, bandedColor: '#faf5ff' },
+    { label: 'Orange', header: '#ea580c', headerText: '#ffffff', banded: true, bandedColor: '#fff7ed' },
+    { label: 'Minimal', header: '#f3f4f6', headerText: '#1f2937', banded: true, bandedColor: '#f9fafb' },
+  ];
+
+  return (
+    <>
+      <Section title="Table Style">
+        <div className="grid grid-cols-3 gap-1">
+          {TABLE_STYLE_PRESETS.map((preset) => (
+            <button
+              key={preset.label}
+              className="text-[9px] px-1.5 py-1 rounded border border-[hsl(var(--border))] hover:bg-[hsl(var(--ppt-hover))] transition-colors"
+              onClick={() => {
+                store.pushHistory();
+                const cells = tp.cells.map((row: any[], ri: number) =>
+                  row.map((c: any) => ({
+                    ...c,
+                    backgroundColor: tp.headerRow && ri === 0 ? preset.header : '#ffffff',
+                    textColor: tp.headerRow && ri === 0 ? preset.headerText : '#1f2937',
+                    fontWeight: tp.headerRow && ri === 0 ? 600 : 400,
+                  }))
+                );
+                up({
+                  headerBackgroundColor: preset.header,
+                  headerTextColor: preset.headerText,
+                  bandedRows: preset.banded,
+                  bandedRowColor: preset.bandedColor,
+                  cells,
+                });
+              }}
+            >
+              <div className="w-full h-3 rounded-sm mb-0.5" style={{ backgroundColor: preset.header }} />
+              {preset.label}
+            </button>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Structure">
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Rows: {tp.rows}</span>
+            <div className="flex gap-0.5">
+              <button className="p-0.5 rounded hover:bg-black/5" onClick={() => store.addTableRow(obj.id, tp.rows - 1)} title="Add Row">
+                <Plus className="w-3 h-3" />
+              </button>
+              <button className="p-0.5 rounded hover:bg-red-50" onClick={() => tp.rows > 1 && store.deleteTableRow(obj.id, tp.rows - 1)} title="Remove Row" disabled={tp.rows <= 1}>
+                <Minus className="w-3 h-3 text-red-500" />
+              </button>
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Columns: {tp.columns}</span>
+            <div className="flex gap-0.5">
+              <button className="p-0.5 rounded hover:bg-black/5" onClick={() => store.addTableColumn(obj.id, tp.columns - 1)} title="Add Column">
+                <Plus className="w-3 h-3" />
+              </button>
+              <button className="p-0.5 rounded hover:bg-red-50" onClick={() => tp.columns > 1 && store.deleteTableColumn(obj.id, tp.columns - 1)} title="Remove Column" disabled={tp.columns <= 1}>
+                <Minus className="w-3 h-3 text-red-500" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      <Section title="Options">
+        <div className="space-y-1.5">
+          <label className="flex items-center gap-1.5 cursor-pointer">
+            <input type="checkbox" checked={tp.headerRow} onChange={(e) => up({ headerRow: e.target.checked })} className="accent-[hsl(var(--accent))]" />
+            <span className="text-[10px]">Header Row</span>
+          </label>
+          <label className="flex items-center gap-1.5 cursor-pointer">
+            <input type="checkbox" checked={tp.bandedRows} onChange={(e) => up({ bandedRows: e.target.checked })} className="accent-[hsl(var(--accent))]" />
+            <span className="text-[10px]">Banded Rows</span>
+          </label>
+        </div>
+      </Section>
+
+      <Section title="Header Colors">
+        <ColorPicker value={tp.headerBackgroundColor} onChange={(v) => {
+          const cells = tp.cells.map((row: any[], ri: number) =>
+            row.map((c: any) => ri === 0 && tp.headerRow ? { ...c, backgroundColor: v } : c)
+          );
+          up({ headerBackgroundColor: v, cells });
+        }} label="Background" />
+        <ColorPicker value={tp.headerTextColor} onChange={(v) => {
+          const cells = tp.cells.map((row: any[], ri: number) =>
+            row.map((c: any) => ri === 0 && tp.headerRow ? { ...c, textColor: v } : c)
+          );
+          up({ headerTextColor: v, cells });
+        }} label="Text" />
+      </Section>
+
+      {tp.bandedRows && (
+        <Section title="Banded Row Color">
+          <ColorPicker value={tp.bandedRowColor} onChange={(v) => up({ bandedRowColor: v })} label="" />
+        </Section>
+      )}
+
+      <Section title="Font">
+        <select className="ppt-select w-full" value={tp.defaultFontFamily} onChange={(e) => up({ defaultFontFamily: e.target.value })}>
+          {FONTS.map(f => <option key={f} value={f}>{f}</option>)}
+        </select>
+        <div className="mt-1.5">
+          <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Size: {tp.defaultFontSize}px</span>
+          <input type="range" min="8" max="24" value={tp.defaultFontSize} onChange={(e) => up({ defaultFontSize: Number(e.target.value) })} className="w-full" style={{ accentColor: 'hsl(var(--accent))' }} />
         </div>
       </Section>
     </>

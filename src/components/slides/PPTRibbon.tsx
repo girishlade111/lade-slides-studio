@@ -9,7 +9,7 @@ import {
   ArrowUpToLine, ArrowDownToLine,
   Plus, Play, ChevronDown, MousePointer,
   Save, FileDown, FilePlus, FileText, FileType, Camera, Settings, Download,
-  Upload, Link, Clock, Palette,
+  Upload, Link, Clock, Palette, Grid3x3,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -28,6 +28,12 @@ import { OpenPresentationDialog } from './OpenPresentationDialog';
 import { PresentationSettingsDialog } from './PresentationSettingsDialog';
 import { SaveAsDialog } from './SaveAsDialog';
 import { ExportDialog } from './ExportDialog';
+import { TableDimensionPicker } from './TableDimensionPicker';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { LayoutSelector as LayoutSelectorComponent } from './LayoutSelector';
 import { LayoutGrid } from 'lucide-react';
 
@@ -579,6 +585,27 @@ export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTr
                   ))}
                 </div>
                 <span className="ppt-ribbon-group-label">Shapes</span>
+              </div>
+
+              <div className="ppt-ribbon-group" style={{ minWidth: 80 }}>
+                <div className="ppt-ribbon-group-content">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className="ppt-ribbon-btn ppt-ribbon-btn-large">
+                        <Grid3x3 className="w-6 h-6 text-emerald-600" />
+                        <span>Table <ChevronDown className="w-3 h-3 inline" /></span>
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent align="start" className="w-auto p-0">
+                      <TableDimensionPicker
+                        onSelect={(rows, cols) => {
+                          store.addTable(200, 120, rows, cols);
+                        }}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <span className="ppt-ribbon-group-label">Tables</span>
               </div>
             </>
           )}

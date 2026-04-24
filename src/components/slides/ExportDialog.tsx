@@ -209,6 +209,44 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({ open, onOpenChange, 
               // Skip images that can't be embedded
             }
           }
+
+          if (obj.type === 'table' && obj.tableProps) {
+            const tp = obj.tableProps;
+            const tableRows: any[][] = tp.cells.map((row: any[]) =>
+              row.map((cell: any) => ({
+                text: cell.formula ? (cell.computedValue || cell.content) : cell.content,
+                options: {
+                  fontSize: Math.round(cell.fontSize * 0.75),
+                  fontFace: cell.fontFamily,
+                  color: cell.textColor.replace('#', ''),
+                  bold: cell.fontWeight >= 600,
+                  italic: cell.fontStyle === 'italic',
+                  align: cell.textAlign as any,
+                  valign: cell.verticalAlign as any,
+                  fill: { color: cell.backgroundColor.replace('#', '') },
+                  border: [
+                    { type: 'solid' as any, pt: cell.borderTop?.width || 1, color: (cell.borderTop?.color || '#d1d5db').replace('#', '') },
+                    { type: 'solid' as any, pt: cell.borderRight?.width || 1, color: (cell.borderRight?.color || '#d1d5db').replace('#', '') },
+                    { type: 'solid' as any, pt: cell.borderBottom?.width || 1, color: (cell.borderBottom?.color || '#d1d5db').replace('#', '') },
+                    { type: 'solid' as any, pt: cell.borderLeft?.width || 1, color: (cell.borderLeft?.color || '#d1d5db').replace('#', '') },
+                  ],
+                  rowspan: cell.rowSpan > 1 ? cell.rowSpan : undefined,
+                  colspan: cell.colSpan > 1 ? cell.colSpan : undefined,
+                },
+              }))
+            );
+            try {
+              const colW = tp.columnWidths.map((w: number) => w / 960 * 10);
+              pSlide.addTable(tableRows, {
+                x: xInch, y: yInch, w: wInch,
+                colW,
+                rowH: tp.rowHeights.map((h: number) => h / 540 * 7.5),
+                autoPage: false,
+              });
+            } catch {
+              // Skip tables that fail to render
+            }
+          }
         }
       }
 
