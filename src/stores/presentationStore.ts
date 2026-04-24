@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
-import type { Presentation, Slide, SlideObject, SlideBackground, TextProperties, ShapeProperties, ShapeType, ImageProperties, TableProperties, TableCell, CellBorder } from '@/types/presentation';
+import type { Presentation, Slide, SlideObject, SlideBackground, TextProperties, ShapeProperties, ShapeType, ImageProperties, TableProperties, TableCell, CellBorder, ChartProperties, ConditionalFormatRule } from '@/types/presentation';
 
 interface HistoryState {
   past: Presentation[];
