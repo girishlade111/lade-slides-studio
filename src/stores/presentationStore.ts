@@ -194,6 +194,7 @@ export const usePresentationStore = create<PresentationStore>((set, get) => ({
   slideClipboard: null,
   activeTableId: null,
   activeTableCell: null,
+  cellClipboard: null,
 
   setPresentation: (p) => set({ presentation: p }),
   setCurrentSlide: (index) => set({ currentSlideIndex: index, selectedObjectIds: [] }),
@@ -840,6 +841,26 @@ export const usePresentationStore = create<PresentationStore>((set, get) => ({
       const allData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
       delete allData[id];
       localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
+      get().loadSavedList();
+    } catch {
+      console.warn('Failed to delete presentation');
+    }
+  },
+
+  saveAs: (newName) => {
+    const { presentation, savePresentation } = get();
+    const newPres: Presentation = {
+      ...JSON.parse(JSON.stringify(presentation)),
+      id: uuidv4(),
+      name: newName,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+    set({ presentation: newPres });
+    savePresentation();
+  },
+}));
+Storage.setItem(STORAGE_KEY, JSON.stringify(allData));
       get().loadSavedList();
     } catch {
       console.warn('Failed to delete presentation');
