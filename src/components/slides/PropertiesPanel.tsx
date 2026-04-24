@@ -90,8 +90,43 @@ export const PropertiesPanel: React.FC = () => {
         {selectedObj.type === 'shape' && selectedObj.shapeProps && <ShapePropsEditor obj={selectedObj} update={update} />}
         {selectedObj.type === 'image' && selectedObj.imageProps && <ImagePropsEditor obj={selectedObj} update={update} />}
         {selectedObj.type === 'table' && selectedObj.tableProps && <TablePropsEditor obj={selectedObj} update={update} />}
+        {selectedObj.type === 'chart' && selectedObj.chartProps && <ChartPropsEditor obj={selectedObj} update={update} />}
       </div>
     </div>
+  );
+};
+
+const ChartPropsEditor: React.FC<{ obj: any; update: (u: any) => void }> = ({ obj, update }) => {
+  const cp = obj.chartProps;
+  const up = (changes: any) => update({ chartProps: { ...cp, ...changes } });
+
+  return (
+    <>
+      <Section title="Chart Settings">
+        <div className="space-y-1.5">
+          <div>
+            <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Type</span>
+            <select className="ppt-select w-full mt-0.5" value={cp.type} onChange={(e) => up({ type: e.target.value })}>
+              <option value="bar">Bar Chart</option>
+              <option value="line">Line Chart</option>
+              <option value="pie">Pie Chart</option>
+            </select>
+          </div>
+          <div>
+            <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Title</span>
+            <input type="text" className="ppt-input w-full mt-0.5" value={cp.title} onChange={(e) => up({ title: e.target.value })} />
+          </div>
+          <div>
+            <span className="text-[10px] text-[hsl(var(--muted-foreground))]">Data Range (e.g. A1:C5)</span>
+            <input type="text" className="ppt-input w-full mt-0.5" value={cp.dataRange} onChange={(e) => up({ dataRange: e.target.value })} />
+          </div>
+          <label className="flex items-center gap-1.5 cursor-pointer pt-1">
+            <input type="checkbox" checked={cp.showLegend} onChange={(e) => up({ showLegend: e.target.checked })} className="accent-[hsl(var(--accent))]" />
+            <span className="text-[10px]">Show Legend</span>
+          </label>
+        </div>
+      </Section>
+    </>
   );
 };
 
