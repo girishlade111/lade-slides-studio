@@ -1,61 +1,59 @@
 import React, { useState } from 'react';
+import { usePresentationStore } from '@/stores/presentationStore';
+import { Button } from '@/components/ui/button';
 
 interface TableDimensionPickerProps {
   onSelect: (rows: number, columns: number) => void;
 }
 
-const MAX_ROWS = 10;
-const MAX_COLS = 10;
-
 export const TableDimensionPicker: React.FC<TableDimensionPickerProps> = ({ onSelect }) => {
-  const [hoverRow, setHoverRow] = useState(0);
-  const [hoverCol, setHoverCol] = useState(0);
+  const [hoveredRow, setHoveredRow] = useState(0);
+  const [hoveredCol, setHoveredCol] = useState(0);
+
+  const MAX_ROWS = 10;
+  const MAX_COLS = 10;
+
+  const handleMouseMove = (r: number, c: number) => {
+    setHoveredRow(r);
+    setHoveredCol(c);
+  };
+
+  const handleClick = () => {
+    if (hoveredRow > 0 && hoveredCol > 0) {
+      onSelect(hoveredRow, hoveredCol);
+    }
+  };
 
   return (
-    <div className="p-2">
-      <div className="text-xs font-medium text-center mb-2 text-[hsl(var(--foreground))]">
-        {hoverRow > 0 && hoverCol > 0 ? `${hoverRow} x ${hoverCol} Table` : 'Insert Table'}
+    <div className="p-4 bg-white border rounded shadow-lg flex flex-col items-center">
+      <div className="mb-2 text-sm font-semibold text-gray-700">
+        {hoveredRow > 0 && hoveredCol > 0 ? `${hoveredRow} x ${hoveredCol} Table` : 'Insert Table'}
       </div>
-      <div
-        className="grid gap-[2px]"
-        style={{ gridTemplateColumns: `repeat(${MAX_COLS}, 1fr)` }}
-        onMouseLeave={() => { setHoverRow(0); setHoverCol(0); }}
+      
+      <div 
+        className="grid gap-1 mb-4" 
+        style={{ gridTemplateColumns: `repeat(${MAX_COLS}, minmax(0, 1fr))` }}
+        onMouseLeave={() => { setHoveredRow(0); setHoveredCol(0); }}
       >
-        {Array.from({ length: MAX_ROWS * MAX_COLS }, (_, i) => {
-          const r = Math.floor(i / MAX_COLS) + 1;
-          const c = (i % MAX_COLS) + 1;
-          const isActive = r <= hoverRow && c <= hoverCol;
-          return (
-            <div
-              key={i}
-              className={`w-4 h-4 border rounded-[2px] cursor-pointer transition-colors ${
-                isActive
-                  ? 'bg-blue-500 border-blue-600'
-                  : 'bg-white border-gray-300 hover:border-gray-400'
-              }`}
-              onMouseEnter={() => { setHoverRow(r); setHoverCol(c); }}
-              onClick={() => onSelect(r, c)}
-            />
-          );
-        })}
+        {Array.from({ length: MAX_ROWS }).map((_, r) => (
+          Array.from({ length: MAX_COLS }).map((_, c) => {
+            const isHovered = r < hoveredRow && c < hoveredCol;
+            return (
+              <div
+                key={`${r}-${c}`}
+                className={`w-5 h-5 border cursor-pointer transition-colors ${isHovered ? 'bg-blue-500 border-blue-600' : 'bg-gray-100 border-gray-300'}`}
+                onMouseMove={() => handleMouseMove(r + 1, c + 1)}
+                onClick={handleClick}
+              />
+            );
+          })
+        ))}
       </div>
-      <div className="mt-2 pt-2 border-t border-[hsl(var(--border))]">
-        <div className="flex gap-1">
-          {[
-            { label: '3x3', rows: 3, cols: 3 },
-            { label: '4x4', rows: 4, cols: 4 },
-            { label: '5x3', rows: 5, cols: 3 },
-            { label: '3x5', rows: 3, cols: 5 },
-          ].map((preset) => (
-            <button
-              key={preset.label}
-              className="flex-1 text-[10px] px-1.5 py-1 rounded border border-[hsl(var(--border))] hover:bg-[hsl(var(--accent))] hover:text-white transition-colors"
-              onClick={() => onSelect(preset.rows, preset.cols)}
-            >
-              {preset.label}
-            </button>
-          ))}
-        </div>
+
+      <div className="flex gap-2 w-full justify-between">
+        <Button variant="outline" size="sm" onClick={() => onSelect(3, 3)}>3x3</Button>
+        <Button variant="outline" size="sm" onClick={() => onSelect(4, 4)}>4x4</Button>
+        <Button variant="outline" size="sm" onClick={() => onSelect(5, 3)}>5x3</Button>
       </div>
     </div>
   );
