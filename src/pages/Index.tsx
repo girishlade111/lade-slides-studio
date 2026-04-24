@@ -71,6 +71,7 @@ const Index: React.FC = () => {
         onToggleAnimations={() => { setShowAnimationsPanel(!showAnimationsPanel); setShowThemesPanel(false); setShowTransitionsPanel(false); }}
         onToggleMasterEditor={() => setMasterEditMode(true)}
       />
+      <TableFormulaBar />
 
       <div className="flex-1 flex overflow-hidden">
         <PPTSlidePanel />
@@ -106,6 +107,11 @@ const Index: React.FC = () => {
 
       <PPTStatusBar />
     </div>
+  );
+};
+
+export default Index;
+  </div>
   );
 };
 

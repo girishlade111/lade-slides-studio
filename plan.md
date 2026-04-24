@@ -59,3 +59,14 @@
    59 3. **Formula Bar:** Create `TableFormulaBar.tsx` and integrate it into the layout.
    60 4. **Table Renderer Core:** Update `TableRenderer.tsx` to handle syncing active state to the store, and rendering cell formatting, number formatting,  
       checkboxes, and dropdowns.
+   61 5. **Drag-to-Fill:** Add the fill handle, drag state (local to `TableRenderer`), and logic to copy/shift values.
+   62 6. **Formatting Toolbar/Properties:** Add the UI controls to apply cell-specific formatting and data validation settings.
+   63
+   64 ## Verification & Testing
+   65 - **Formula Bar:** Select a cell -> Reference and formula show up in the Formula Bar. Edit from Formula Bar updates the cell.
+   66 - **Cell Formatting:** Select cell -> Apply Bold/Italic/Alignment -> Cell updates visually.
+   67 - **Data Validation:** Set cell to Currency -> Type `100` -> Shows `$100.00`.
+   68 - **Drag-to-Fill:** Drag the fill handle down 3 rows -> Copies the value/formula correctly.
+   69 - **New Functions:** Test `VLOOKUP` and `CONCATENATE`.
+
+   70 - **Store Sync:** Select a cell -> `activeTableCell` in the store updates.
