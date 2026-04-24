@@ -113,6 +113,9 @@ export interface TableCell {
   content: string;
   formula?: string;
   computedValue?: string;
+  dataFormat?: 'general' | 'currency' | 'percentage' | 'date';
+  validationType?: 'none' | 'dropdown' | 'checkbox';
+  validationOptions?: string[];
   rowSpan: number;
   colSpan: number;
   merged?: boolean;

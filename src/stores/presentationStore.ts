@@ -30,6 +30,8 @@ interface PresentationStore {
   savedPresentations: SavedPresentationMeta[];
   autoSaveIndicator: boolean;
   slideClipboard: Slide | null;
+  activeTableId: string | null;
+  activeTableCell: { r: number, c: number } | null;
 
   // Actions
   setPresentation: (p: Presentation) => void;
@@ -41,6 +43,7 @@ interface PresentationStore {
   setActiveShapeType: (s: ShapeType) => void;
   setPresentationMode: (v: boolean) => void;
   setPresenterView: (v: boolean) => void;
+  setActiveTableCell: (objectId: string | null, row: number | null, col: number | null) => void;
 
   // Slide actions
   addSlide: (afterIndex?: number) => void;
