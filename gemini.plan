@@ -36,17 +36,4 @@
    36 - Add a "Cell Formatting" section that appears when a table cell is active:
    37   - Bold, Italic, Underline, Text Color, Background Color, Horizontal/Vertical Alignment.
    38   - Data Validation / Format dropdown (Currency, Percentage, Checkbox, Dropdown).
-   39
-   40 ### 6. `src/components/slides/TableRenderer.tsx`
-   41 - **Cell Formatting & Data Validation:**
-   42   - Render specific UI if `validationType === 'checkbox'` (clickable checkbox).
-   43   - Render a `select` dropdown if `validationType === 'dropdown'`.
-   44   - Format the computed value if `dataFormat` is set (e.g., using `Intl.NumberFormat`).
-   45   - Apply `fontWeight`, `fontStyle`, `textDecoration`, etc., inline styles based on the `TableCell` properties.
-   46 - **Drag-to-Fill:**
-   47   - Add a small square (fill handle) to the bottom-right corner of the selected cell's border.
-   48   - Handle mouse events (`onMouseDown`, `onMouseMove`, `onMouseUp`) on this handle to create a "fill selection" range.
-   49   - On mouse up, apply the source cell's content/formatting to the filled range. If it's a formula, use `shiftFormula` to adjust references.
-   50 - **Store Sync:**
-   51   - When `handleCellClick` happens, call the store's `setActiveTableCell` so external components know what is selected.
    
