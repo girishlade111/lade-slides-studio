@@ -160,7 +160,7 @@ VITE_API_URL=your_api_url
 
 Private - All rights reserved
 
----
+-----
 
 ## Author
 
