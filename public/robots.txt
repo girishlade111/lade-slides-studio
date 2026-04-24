@@ -1,14 +1,64 @@
+# Robots.txt - Lade Slides Studio
+# https://ladestudios.com
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://ladestudios.com/sitemap.xml
+
+# Crawl-delay (optional, for polite crawling)
+Crawl-delay: 1
+
+# Googlebot
 User-agent: Googlebot
 Allow: /
+Disallow: /api/*
 
-User-agent: Bingbot
+# Googlebot-Image
+User-agent: Googlebot-Image
 Allow: /
 
+# Googlebot-Video
+User-agent: Googlebot-Video
+Allow: /
+
+# Bingbot
+User-agent: Bingbot
+Allow: /
+Disallow: /api/*
+
+# Yahoo! Slurp
+User-agent: Yahoo! Slurp
+Allow: /
+Disallow: /api/*
+
+# DuckDuckBot
+User-agent: DuckDuckBot
+Allow: /
+Disallow: /api/*
+
+# Yandex
+User-agent: Yandex
+Allow: /
+Disallow: /api/*
+
+# Twitterbot
 User-agent: Twitterbot
 Allow: /
 
+# Facebook Crawler
 User-agent: facebookexternalhit
 Allow: /
 
-User-agent: *
+# Applebot
+User-agent: Applebot
+Allow: /
+
+# Slackbot
+User-agent: Slackbot
+Allow: /
+
+# Discordbot
+User-agent: Discordbot
 Allow: /
