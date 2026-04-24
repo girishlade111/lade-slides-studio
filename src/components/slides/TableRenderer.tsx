@@ -24,11 +24,17 @@ export const TableRenderer: React.FC<TableRendererProps> = ({ obj, isEditing, sl
 
   const [editingCell, setEditingCell] = useState<{ r: number; c: number } | null>(null);
   const [selectedCell, setSelectedCell] = useState<{ r: number; c: number } | null>(null);
+  const [selectionEnd, setSelectionEnd] = useState<{ r: number; c: number } | null>(null);
   const [editValue, setEditValue] = useState<string>('');
   const editInputRef = useRef<HTMLTextAreaElement>(null);
 
   const [dragFillTarget, setDragFillTarget] = useState<{ r: number; c: number } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [isSelecting, setIsSelecting] = useState(false);
+
+  const copyCells = usePresentationStore((state) => state.copyCells);
+  const pasteCells = usePresentationStore((state) => state.pasteCells);
+  const addChart = usePresentationStore((state) => state.addChart);
 
   useEffect(() => {
     if (editingCell && editInputRef.current) {
