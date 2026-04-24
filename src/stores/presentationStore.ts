@@ -469,6 +469,253 @@ export const usePresentationStore = create<PresentationStore>((set, get) => ({
     get().addObject(obj);
   },
 
+  addTable: (x, y, rows = 3, columns = 3) => {
+    const defaultBorder: CellBorder = { color: '#d1d5db', width: 1, style: 'solid' };
+    const createCell = (r: number, _c: number): TableCell => ({
+      id: uuidv4(),
+      content: '',
+      rowSpan: 1,
+      colSpan: 1,
+      fontFamily: 'Inter',
+      fontSize: 12,
+      fontWeight: r === 0 ? 600 : 400,
+      fontStyle: 'normal',
+      textDecoration: 'none',
+      textColor: r === 0 ? '#ffffff' : '#1f2937',
+      backgroundColor: r === 0 ? '#3b82f6' : '#ffffff',
+      textAlign: 'left',
+      verticalAlign: 'middle',
+      borderTop: { ...defaultBorder },
+      borderRight: { ...defaultBorder },
+      borderBottom: { ...defaultBorder },
+      borderLeft: { ...defaultBorder },
+    });
+    const cells: TableCell[][] = [];
+    for (let r = 0; r < rows; r++) {
+      const row: TableCell[] = [];
+      for (let c = 0; c < columns; c++) {
+        row.push(createCell(r, c));
+      }
+      cells.push(row);
+    }
+    const colWidth = Math.floor(Math.min(600, 960 - x) / columns);
+    const obj: SlideObject = {
+      id: uuidv4(),
+      type: 'table',
+      position: { x, y },
+      size: { width: colWidth * columns, height: rows * 36 },
+      rotation: 0,
+      zIndex: (get().getCurrentSlide()?.objects.length || 0) + 1,
+      locked: false,
+      animation: 'none',
+      tableProps: {
+        rows,
+        columns,
+        cells,
+        columnWidths: Array(columns).fill(colWidth),
+        rowHeights: Array(rows).fill(36),
+        headerRow: true,
+        bandedRows: false,
+        bandedRowColor: '#f3f4f6',
+        headerBackgroundColor: '#3b82f6',
+        headerTextColor: '#ffffff',
+        defaultFontFamily: 'Inter',
+        defaultFontSize: 12,
+      },
+    };
+    get().addObject(obj);
+  },
+
+  updateTableCell: (slideIndex, objectId, row, col, updates) => {
+    const { presentation } = get();
+    const slides = [...presentation.slides];
+    const slide = { ...slides[slideIndex] };
+    slide.objects = slide.objects.map((o) => {
+      if (o.id !== objectId || !o.tableProps) return o;
+      const cells = o.tableProps.cells.map((r, ri) =>
+        r.map((c, ci) => (ri === row && ci === col ? { ...c, ...updates } : c))
+      );
+      return { ...o, tableProps: { ...o.tableProps, cells } };
+    });
+    slides[slideIndex] = slide;
+    set({ presentation: { ...presentation, slides, updatedAt: Date.now() } });
+  },
+
+  addTableRow: (objectId, afterRow) => {
+    const { presentation, currentSlideIndex, pushHistory } = get();
+    pushHistory();
+    const slides = [...presentation.slides];
+    const slide = { ...slides[currentSlideIndex] };
+    slide.objects = slide.objects.map((o) => {
+      if (o.id !== objectId || !o.tableProps) return o;
+      const tp = o.tableProps;
+      const defaultBorder: CellBorder = { color: '#d1d5db', width: 1, style: 'solid' };
+      const newRow: TableCell[] = Array.from({ length: tp.columns }, () => ({
+        id: uuidv4(), content: '', rowSpan: 1, colSpan: 1,
+        fontFamily: tp.defaultFontFamily, fontSize: tp.defaultFontSize,
+        fontWeight: 400, fontStyle: 'normal' as const, textDecoration: 'none' as const,
+        textColor: '#1f2937', backgroundColor: '#ffffff',
+        textAlign: 'left' as const, verticalAlign: 'middle' as const,
+        borderTop: { ...defaultBorder }, borderRight: { ...defaultBorder },
+        borderBottom: { ...defaultBorder }, borderLeft: { ...defaultBorder },
+      }));
+      const cells = [...tp.cells];
+      cells.splice(afterRow + 1, 0, newRow);
+      const rowHeights = [...tp.rowHeights];
+      rowHeights.splice(afterRow + 1, 0, 36);
+      return { ...o, tableProps: { ...tp, rows: tp.rows + 1, cells, rowHeights },
+        size: { ...o.size, height: o.size.height + 36 } };
+    });
+    slides[currentSlideIndex] = slide;
+    set({ presentation: { ...presentation, slides, updatedAt: Date.now() } });
+  },
+
+  deleteTableRow: (objectId, row) => {
+    const { presentation, currentSlideIndex, pushHistory } = get();
+    pushHistory();
+    const slides = [...presentation.slides];
+    const slide = { ...slides[currentSlideIndex] };
+    slide.objects = slide.objects.map((o) => {
+      if (o.id !== objectId || !o.tableProps || o.tableProps.rows <= 1) return o;
+      const tp = o.tableProps;
+      const cells = tp.cells.filter((_, i) => i !== row);
+      const deletedHeight = tp.rowHeights[row] || 36;
+      const rowHeights = tp.rowHeights.filter((_, i) => i !== row);
+      return { ...o, tableProps: { ...tp, rows: tp.rows - 1, cells, rowHeights },
+        size: { ...o.size, height: o.size.height - deletedHeight } };
+    });
+    slides[currentSlideIndex] = slide;
+    set({ presentation: { ...presentation, slides, updatedAt: Date.now() } });
+  },
+
+  addTableColumn: (objectId, afterCol) => {
+    const { presentation, currentSlideIndex, pushHistory } = get();
+    pushHistory();
+    const slides = [...presentation.slides];
+    const slide = { ...slides[currentSlideIndex] };
+    slide.objects = slide.objects.map((o) => {
+      if (o.id !== objectId || !o.tableProps) return o;
+      const tp = o.tableProps;
+      const defaultBorder: CellBorder = { color: '#d1d5db', width: 1, style: 'solid' };
+      const colW = tp.columnWidths[afterCol] || 100;
+      const cells = tp.cells.map((row, ri) => {
+        const newRow = [...row];
+        const isHeader = tp.headerRow && ri === 0;
+        newRow.splice(afterCol + 1, 0, {
+          id: uuidv4(), content: '', rowSpan: 1, colSpan: 1,
+          fontFamily: tp.defaultFontFamily, fontSize: tp.defaultFontSize,
+          fontWeight: isHeader ? 600 : 400, fontStyle: 'normal' as const, textDecoration: 'none' as const,
+          textColor: isHeader ? tp.headerTextColor : '#1f2937',
+          backgroundColor: isHeader ? tp.headerBackgroundColor : '#ffffff',
+          textAlign: 'left' as const, verticalAlign: 'middle' as const,
+          borderTop: { ...defaultBorder }, borderRight: { ...defaultBorder },
+          borderBottom: { ...defaultBorder }, borderLeft: { ...defaultBorder },
+        });
+        return newRow;
+      });
+      const columnWidths = [...tp.columnWidths];
+      columnWidths.splice(afterCol + 1, 0, colW);
+      return { ...o, tableProps: { ...tp, columns: tp.columns + 1, cells, columnWidths },
+        size: { ...o.size, width: o.size.width + colW } };
+    });
+    slides[currentSlideIndex] = slide;
+    set({ presentation: { ...presentation, slides, updatedAt: Date.now() } });
+  },
+
+  deleteTableColumn: (objectId, col) => {
+    const { presentation, currentSlideIndex, pushHistory } = get();
+    pushHistory();
+    const slides = [...presentation.slides];
+    const slide = { ...slides[currentSlideIndex] };
+    slide.objects = slide.objects.map((o) => {
+      if (o.id !== objectId || !o.tableProps || o.tableProps.columns <= 1) return o;
+      const tp = o.tableProps;
+      const deletedWidth = tp.columnWidths[col] || 100;
+      const cells = tp.cells.map((row) => row.filter((_, i) => i !== col));
+      const columnWidths = tp.columnWidths.filter((_, i) => i !== col);
+      return { ...o, tableProps: { ...tp, columns: tp.columns - 1, cells, columnWidths },
+        size: { ...o.size, width: o.size.width - deletedWidth } };
+    });
+    slides[currentSlideIndex] = slide;
+    set({ presentation: { ...presentation, slides, updatedAt: Date.now() } });
+  },
+
+  mergeCells: (objectId, startRow, startCol, endRow, endCol) => {
+    const { presentation, currentSlideIndex, pushHistory } = get();
+    pushHistory();
+    const slides = [...presentation.slides];
+    const slide = { ...slides[currentSlideIndex] };
+    slide.objects = slide.objects.map((o) => {
+      if (o.id !== objectId || !o.tableProps) return o;
+      const cells = o.tableProps.cells.map((row) => row.map((c) => ({ ...c })));
+      const primary = cells[startRow][startCol];
+      primary.rowSpan = endRow - startRow + 1;
+      primary.colSpan = endCol - startCol + 1;
+      for (let r = startRow; r <= endRow; r++) {
+        for (let c = startCol; c <= endCol; c++) {
+          if (r === startRow && c === startCol) continue;
+          cells[r][c] = { ...cells[r][c], merged: true, content: '' };
+        }
+      }
+      return { ...o, tableProps: { ...o.tableProps, cells } };
+    });
+    slides[currentSlideIndex] = slide;
+    set({ presentation: { ...presentation, slides, updatedAt: Date.now() } });
+  },
+
+  unmergeCells: (objectId, row, col) => {
+    const { presentation, currentSlideIndex, pushHistory } = get();
+    pushHistory();
+    const slides = [...presentation.slides];
+    const slide = { ...slides[currentSlideIndex] };
+    slide.objects = slide.objects.map((o) => {
+      if (o.id !== objectId || !o.tableProps) return o;
+      const cells = o.tableProps.cells.map((r) => r.map((c) => ({ ...c })));
+      const primary = cells[row][col];
+      const rs = primary.rowSpan;
+      const cs = primary.colSpan;
+      primary.rowSpan = 1;
+      primary.colSpan = 1;
+      for (let r = row; r < row + rs; r++) {
+        for (let c = col; c < col + cs; c++) {
+          if (r === row && c === col) continue;
+          cells[r][c] = { ...cells[r][c], merged: false };
+        }
+      }
+      return { ...o, tableProps: { ...o.tableProps, cells } };
+    });
+    slides[currentSlideIndex] = slide;
+    set({ presentation: { ...presentation, slides, updatedAt: Date.now() } });
+  },
+
+  sortTableColumn: (objectId, col, ascending) => {
+    const { presentation, currentSlideIndex, pushHistory } = get();
+    pushHistory();
+    const slides = [...presentation.slides];
+    const slide = { ...slides[currentSlideIndex] };
+    slide.objects = slide.objects.map((o) => {
+      if (o.id !== objectId || !o.tableProps) return o;
+      const tp = o.tableProps;
+      const startRow = tp.headerRow ? 1 : 0;
+      const dataRows = tp.cells.slice(startRow);
+      dataRows.sort((a, b) => {
+        const va = a[col]?.content || '';
+        const vb = b[col]?.content || '';
+        const na = parseFloat(va);
+        const nb = parseFloat(vb);
+        if (!isNaN(na) && !isNaN(nb)) return ascending ? na - nb : nb - na;
+        return ascending ? va.localeCompare(vb) : vb.localeCompare(va);
+      });
+      const cells = tp.headerRow ? [tp.cells[0], ...dataRows] : dataRows;
+      const rowHeights = tp.headerRow
+        ? [tp.rowHeights[0], ...dataRows.map((_, i) => tp.rowHeights[startRow + i] || 36)]
+        : dataRows.map((_, i) => tp.rowHeights[i] || 36);
+      return { ...o, tableProps: { ...tp, cells, rowHeights } };
+    });
+    slides[currentSlideIndex] = slide;
+    set({ presentation: { ...presentation, slides, updatedAt: Date.now() } });
+  },
+
   copyObjects: () => {
     const { selectedObjectIds, getCurrentSlide } = get();
     const slide = getCurrentSlide();
