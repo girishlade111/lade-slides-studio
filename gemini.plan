@@ -6,10 +6,3 @@
     6 2. Formula Bar & Advanced Functions
     7 3. Data Validation & Formatting
     8 4. Drag-to-Fill (Fill Handle)
-    9
-   10 ## Key Files & Context
-   11
-   12 ### 1. `src/types/presentation.ts`
-   13 - Add `dataFormat?: 'general' | 'currency' | 'percentage' | 'date';` to `TableCell`.
-   14 - Add `validationType?: 'none' | 'dropdown' | 'checkbox';` to `TableCell`.
-   15 - Add `validationOptions?: string[];` to `TableCell`.
