@@ -462,6 +462,69 @@ export const TableRenderer: React.FC<TableRendererProps> = ({ obj, isEditing, sl
                           <Trash className="mr-2 h-4 w-4" /> Delete Column
                         </ContextMenuItem>
                         <ContextMenuSeparator />
+                        <ContextMenuItem onClick={() => {
+                          if (selectedCell && selectionEnd) {
+                            const minR = Math.min(selectedCell.r, selectionEnd.r);
+                            const maxR = Math.max(selectedCell.r, selectionEnd.r);
+                            const minC = Math.min(selectedCell.c, selectionEnd.c);
+                            const maxC = Math.max(selectedCell.c, selectionEnd.c);
+                            
+                            const getColStr = (c: number) => {
+                              let colStr = '';
+                              let tempC = c + 1;
+                              while (tempC > 0) {
+                                const rem = (tempC - 1) % 26;
+                                colStr = String.fromCharCode(65 + rem) + colStr;
+                                tempC = Math.floor((tempC - 1) / 26);
+                              }
+                              return colStr;
+                            };
+                            
+                            const range = `${getColStr(minC)}${minR + 1}:${getColStr(maxC)}${maxR + 1}`;
+                            addChart(obj.id, range, 'bar');
+                          }
+                        }}>
+                          Insert Chart from Selection
+                        </ContextMenuItem>
+                        <ContextMenuSeparator />
+                        <ContextMenuItem onClick={() => sortTableColumn(obj.id, ci, true)}>
+                          Sort Ascending
+                        </ContextMenuItem>
+                        <ContextMenuItem onClick={() => sortTableColumn(obj.id, ci, false)}>
+                          Sort Descending
+                        </ContextMenuItem>
+                      </ContextMenuContent>
+                    </ContextMenu>
+                  );
+                })}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+={() => addTableRow(obj.id, ri - 1)}>
+                          <ArrowUp className="mr-2 h-4 w-4" /> Insert Row Above
+                        </ContextMenuItem>
+                        <ContextMenuItem onClick={() => addTableRow(obj.id, ri)}>
+                          <ArrowDown className="mr-2 h-4 w-4" /> Insert Row Below
+                        </ContextMenuItem>
+                        <ContextMenuItem onClick={() => addTableColumn(obj.id, ci - 1)}>
+                          <ArrowLeft className="mr-2 h-4 w-4" /> Insert Column Left
+                        </ContextMenuItem>
+                        <ContextMenuItem onClick={() => addTableColumn(obj.id, ci)}>
+                          <ArrowRight className="mr-2 h-4 w-4" /> Insert Column Right
+                        </ContextMenuItem>
+                        <ContextMenuSeparator />
+                        <ContextMenuItem onClick={() => deleteTableRow(obj.id, ri)} disabled={cells.length <= 1}>
+                          <Trash className="mr-2 h-4 w-4" /> Delete Row
+                        </ContextMenuItem>
+                        <ContextMenuItem onClick={() => deleteTableColumn(obj.id, ci)} disabled={cells[0].length <= 1}>
+                          <Trash className="mr-2 h-4 w-4" /> Delete Column
+                        </ContextMenuItem>
+                        <ContextMenuSeparator />
                         <ContextMenuItem onClick={() => sortTableColumn(obj.id, ci, true)}>
                           Sort Ascending
                         </ContextMenuItem>
