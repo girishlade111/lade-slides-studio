@@ -20,7 +20,4 @@
    20   - `activeTableCell: { r: number, c: number } | null`
    21 - Add an action: `setActiveTableCell: (objectId: string | null, row: number | null, col: number | null) => void`.
    22 - Update `addTable` default properties to initialize new fields as needed.
-   23
-   24 ### 3. `src/lib/formulaEngine.ts`
-   25 - Add functions: `VLOOKUP`, `CONCATENATE`, `DATE`.
-   26 - Add a helper `shiftFormula(formula, rowOffset, colOffset)` to support the Drag-to-Fill feature when dragging formulas.
+   
