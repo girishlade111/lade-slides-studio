@@ -210,6 +210,118 @@ export const usePresentationStore = create<PresentationStore>((set, get) => ({
     activeTableCell: row !== null && col !== null ? { r: row, c: col } : null 
   }),
 
+  addChart: (tableId, range, type) => {
+    const { presentation, currentSlideIndex, pushHistory, addObject } = get();
+    const obj: SlideObject = {
+      id: uuidv4(),
+      type: 'chart',
+      position: { x: 100, y: 100 },
+      size: { width: 400, height: 300 },
+      rotation: 0,
+      zIndex: (presentation.slides[currentSlideIndex].objects.length || 0) + 1,
+      locked: false,
+      animation: 'none',
+      chartProps: {
+        type,
+        sourceTableId: tableId,
+        dataRange: range,
+        title: 'Chart',
+        showLegend: true,
+      },
+    };
+    addObject(obj);
+  },
+
+  updateChart: (id, updates) => {
+    const { presentation, currentSlideIndex, pushHistory } = get();
+    pushHistory();
+    const slides = [...presentation.slides];
+    const slide = { ...slides[currentSlideIndex] };
+    slide.objects = slide.objects.map((o) => {
+      if (o.id === id && o.chartProps) {
+        return { ...o, chartProps: { ...o.chartProps, ...updates } };
+      }
+      return o;
+    });
+    slides[currentSlideIndex] = slide;
+    set({ presentation: { ...presentation, slides, updatedAt: Date.now() } });
+  },
+
+  setConditionalFormatRules: (tableId, rules) => {
+    const { presentation, currentSlideIndex, pushHistory } = get();
+    pushHistory();
+    const slides = [...presentation.slides];
+    const slide = { ...slides[currentSlideIndex] };
+    slide.objects = slide.objects.map((o) => {
+      if (o.id === tableId && o.tableProps) {
+        return { ...o, tableProps: { ...o.tableProps, conditionalFormatting: rules } };
+      }
+      return o;
+    });
+    slides[currentSlideIndex] = slide;
+    set({ presentation: { ...presentation, slides, updatedAt: Date.now() } });
+  },
+
+  copyCells: (tableId, startRow, startCol, endRow, endCol) => {
+    const { presentation, currentSlideIndex } = get();
+    const slide = presentation.slides[currentSlideIndex];
+    const table = slide.objects.find(o => o.id === tableId);
+    if (table && table.tableProps) {
+      const cellsToCopy: TableCell[][] = [];
+      for (let r = startRow; r <= endRow; r++) {
+        const row: TableCell[] = [];
+        for (let c = startCol; c <= endCol; c++) {
+          row.push(table.tableProps.cells[r][c]);
+        }
+        cellsToCopy.push(row);
+      }
+      set({ cellClipboard: { tableId, cells: JSON.parse(JSON.stringify(cellsToCopy)) } });
+    }
+  },
+
+  pasteCells: (tableId, targetRow, targetCol) => {
+    const { presentation, currentSlideIndex, pushHistory, cellClipboard } = get();
+    if (!cellClipboard) return;
+    pushHistory();
+    const slides = [...presentation.slides];
+    const slide = { ...slides[currentSlideIndex] };
+    slide.objects = slide.objects.map((o) => {
+      if (o.id === tableId && o.tableProps) {
+        const tp = o.tableProps;
+        const newCells = tp.cells.map(r => r.map(c => ({...c})));
+        for (let r = 0; r < cellClipboard.cells.length; r++) {
+          for (let c = 0; c < cellClipboard.cells[r].length; c++) {
+            const tr = targetRow + r;
+            const tc = targetCol + c;
+            if (tr < tp.rows && tc < tp.columns && !newCells[tr][tc].merged) {
+              const srcCell = cellClipboard.cells[r][c];
+              newCells[tr][tc] = {
+                ...newCells[tr][tc],
+                content: srcCell.content,
+                formula: srcCell.formula,
+                // don't copy computedValue so it gets recomputed
+                dataFormat: srcCell.dataFormat,
+                backgroundColor: srcCell.backgroundColor,
+                textColor: srcCell.textColor,
+                fontFamily: srcCell.fontFamily,
+                fontSize: srcCell.fontSize,
+                fontWeight: srcCell.fontWeight,
+                fontStyle: srcCell.fontStyle,
+                textDecoration: srcCell.textDecoration,
+                textAlign: srcCell.textAlign,
+                verticalAlign: srcCell.verticalAlign
+              };
+            }
+          }
+        }
+        return { ...o, tableProps: { ...tp, cells: newCells } };
+      }
+      return o;
+    });
+    slides[currentSlideIndex] = slide;
+    set({ presentation: { ...presentation, slides, updatedAt: Date.now() } });
+  },
+
   getCurrentSlide: () => {
     const { presentation, currentSlideIndex } = get();
     return presentation.slides[currentSlideIndex];
