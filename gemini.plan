@@ -52,12 +52,3 @@
    52
    53 ### 7. `src/components/slides/PropertiesPanel.tsx`
    54 - Add controls to configure `validationOptions` for a dropdown if a cell is selected and `validationType` is set to `dropdown`.
-   55
-   56 ## Implementation Steps
-   57 1. **Types and Store:** Update `presentation.ts` and `presentationStore.ts` with the new properties and active cell state.
-   58 2. **Formula Engine:** Enhance `formulaEngine.ts` with new functions and `shiftFormula`.
-   59 3. **Formula Bar:** Create `TableFormulaBar.tsx` and integrate it into the layout.
-   60 4. **Table Renderer Core:** Update `TableRenderer.tsx` to handle syncing active state to the store, and rendering cell formatting, number formatting,  
-      checkboxes, and dropdowns.
-   61 5. **Drag-to-Fill:** Add the fill handle, drag state (local to `TableRenderer`), and logic to copy/shift values.
-   62 6. **Formatting Toolbar/Properties:** Add the UI controls to apply cell-specific formatting and data validation settings.
