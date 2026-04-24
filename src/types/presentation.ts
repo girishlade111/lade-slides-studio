@@ -102,6 +102,50 @@ export interface ImageProperties {
   flipV: boolean;
 }
 
+export interface CellBorder {
+  color: string;
+  width: number;
+  style: 'solid' | 'dashed' | 'dotted' | 'none';
+}
+
+export interface TableCell {
+  id: string;
+  content: string;
+  formula?: string;
+  computedValue?: string;
+  rowSpan: number;
+  colSpan: number;
+  merged?: boolean;
+  fontFamily: string;
+  fontSize: number;
+  fontWeight: number;
+  fontStyle: 'normal' | 'italic';
+  textDecoration: 'none' | 'underline' | 'line-through';
+  textColor: string;
+  backgroundColor: string;
+  textAlign: 'left' | 'center' | 'right';
+  verticalAlign: 'top' | 'middle' | 'bottom';
+  borderTop: CellBorder;
+  borderRight: CellBorder;
+  borderBottom: CellBorder;
+  borderLeft: CellBorder;
+}
+
+export interface TableProperties {
+  rows: number;
+  columns: number;
+  cells: TableCell[][];
+  columnWidths: number[];
+  rowHeights: number[];
+  headerRow: boolean;
+  bandedRows: boolean;
+  bandedRowColor: string;
+  headerBackgroundColor: string;
+  headerTextColor: string;
+  defaultFontFamily: string;
+  defaultFontSize: number;
+}
+
 export interface SlideObject {
   id: string;
   type: ObjectType;
@@ -115,6 +159,7 @@ export interface SlideObject {
   textProps?: TextProperties;
   shapeProps?: ShapeProperties;
   imageProps?: ImageProperties;
+  tableProps?: TableProperties;
 }
 
 export interface GradientStop {
