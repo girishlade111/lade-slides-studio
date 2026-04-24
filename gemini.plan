@@ -30,10 +30,3 @@
    30 - Reads `activeTableId` and `activeTableCell` from the store.
    31 - Displays the cell reference (e.g., "A1") and an input field for the formula/content.
    32 - Two-way binding with the active cell's content/formula using `updateTableCell`.
-   33
-   34 ### 5. `src/components/slides/SlideToolbar.tsx` (or `PPTRibbon.tsx`)
-   35 - Incorporate the new `TableFormulaBar`.
-   36 - Add a "Cell Formatting" section that appears when a table cell is active:
-   37   - Bold, Italic, Underline, Text Color, Background Color, Horizontal/Vertical Alignment.
-   38   - Data Validation / Format dropdown (Currency, Percentage, Checkbox, Dropdown).
-   
