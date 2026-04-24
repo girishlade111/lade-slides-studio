@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { usePresentationStore } from '@/stores/presentationStore';
 import { buildBgStyle } from '@/lib/backgroundUtils';
 import { ShapeRenderer } from './ShapeRenderer';
+import { PresentationTableRenderer } from './PresentationTableRenderer';
 import { DrawingCanvas, clearDrawingCanvas } from './DrawingCanvas';
 import { PresentationControls } from './PresentationControls';
 import { PresenterView } from './PresenterView';
@@ -294,6 +295,9 @@ export const PresentationMode: React.FC = () => {
                             {obj.textProps.content}
                           </div>
                         )}
+                        {obj.type === 'table' && obj.tableProps && (
+                          <PresentationTableRenderer tableProps={obj.tableProps} scale={sc} />
+                        )}
                       </div>
                     );
                   })}
@@ -380,6 +384,9 @@ export const PresentationMode: React.FC = () => {
                 </div>
               )}
               {obj.type === 'shape' && <ShapeRenderer obj={obj} />}
+              {obj.type === 'table' && obj.tableProps && (
+                <PresentationTableRenderer tableProps={obj.tableProps} />
+              )}
               {obj.type === 'image' && obj.imageProps && (() => {
                 const ip = obj.imageProps!;
                 const f = ip.filters || { grayscale: 0, sepia: 0, blur: 0, brightness: 100, contrast: 100, saturation: 100 };

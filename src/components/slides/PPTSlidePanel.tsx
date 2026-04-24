@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import { usePresentationStore } from '@/stores/presentationStore';
 import { buildBgStyle } from '@/lib/backgroundUtils';
 import { ShapeRenderer } from './ShapeRenderer';
+import { PresentationTableRenderer } from './PresentationTableRenderer';
 import {
   DndContext,
   closestCenter,
@@ -195,6 +196,9 @@ const SlideThumb: React.FC<{ slide: any; width: number; height: number }> = ({ s
               </div>
             )}
             {obj.type === 'shape' && obj.shapeProps && <ShapeRenderer obj={obj} />}
+            {obj.type === 'table' && obj.tableProps && (
+              <PresentationTableRenderer tableProps={obj.tableProps} />
+            )}
             {obj.type === 'image' && obj.imageProps && (
               <img src={obj.imageProps.src} alt="" className="w-full h-full" style={{ objectFit: obj.imageProps.objectFit, opacity: obj.imageProps.opacity / 100 }} draggable={false} />
             )}
