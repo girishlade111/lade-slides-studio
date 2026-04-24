@@ -149,6 +149,7 @@ export const TableRenderer: React.FC<TableRendererProps> = ({ obj, isEditing, sl
         commitEdit();
         if (editingCell.r + 1 < cells.length) {
           setSelectedCell({ r: editingCell.r + 1, c: editingCell.c });
+          setSelectionEnd({ r: editingCell.r + 1, c: editingCell.c });
           setActiveTableCell(obj.id, editingCell.r + 1, editingCell.c);
         }
       } else if (e.key === 'Escape') {
@@ -158,6 +159,7 @@ export const TableRenderer: React.FC<TableRendererProps> = ({ obj, isEditing, sl
         commitEdit();
         if (editingCell.c + 1 < cells[0].length) {
           setSelectedCell({ r: editingCell.r, c: editingCell.c + 1 });
+          setSelectionEnd({ r: editingCell.r, c: editingCell.c + 1 });
           setActiveTableCell(obj.id, editingCell.r, editingCell.c + 1);
         }
       }
@@ -166,6 +168,20 @@ export const TableRenderer: React.FC<TableRendererProps> = ({ obj, isEditing, sl
 
     if (selectedCell) {
       const { r, c } = selectedCell;
+
+      if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+        e.preventDefault();
+        const endR = selectionEnd?.r ?? r;
+        const endC = selectionEnd?.c ?? c;
+        copyCells(obj.id, Math.min(r, endR), Math.min(c, endC), Math.max(r, endR), Math.max(c, endC));
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+        e.preventDefault();
+        pasteCells(obj.id, r, c);
+        return;
+      }
+
       let newR = r;
       let newC = c;
       if (e.key === 'ArrowUp' && r > 0) newR = r - 1;
@@ -174,8 +190,13 @@ export const TableRenderer: React.FC<TableRendererProps> = ({ obj, isEditing, sl
       else if (e.key === 'ArrowRight' && c < cells[0].length - 1) newC = c + 1;
       
       if (newR !== r || newC !== c) {
-        setSelectedCell({ r: newR, c: newC });
-        setActiveTableCell(obj.id, newR, newC);
+        if (e.shiftKey) {
+          setSelectionEnd({ r: newR, c: newC });
+        } else {
+          setSelectedCell({ r: newR, c: newC });
+          setSelectionEnd({ r: newR, c: newC });
+          setActiveTableCell(obj.id, newR, newC);
+        }
       } else if (e.key === 'Enter') {
         handleCellDoubleClick(r, c);
       } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
@@ -195,9 +216,28 @@ export const TableRenderer: React.FC<TableRendererProps> = ({ obj, isEditing, sl
     setDragFillTarget({ r, c });
   };
 
-  const handleDragMove = (e: React.MouseEvent, r: number, c: number) => {
+  const handleCellMouseDown = (e: React.MouseEvent, r: number, c: number) => {
+    if (!isEditing) return;
+    if (e.button !== 0) return; // Only left click
+    if (e.shiftKey && selectedCell) {
+      setSelectionEnd({ r, c });
+      setIsSelecting(true);
+    } else {
+      if (editingCell && (editingCell.r !== r || editingCell.c !== c)) {
+        commitEdit();
+      }
+      setSelectedCell({ r, c });
+      setSelectionEnd({ r, c });
+      setActiveTableCell(obj.id, r, c);
+      setIsSelecting(true);
+    }
+  };
+
+  const handleCellMouseEnter = (e: React.MouseEvent, r: number, c: number) => {
     if (isDragging) {
       setDragFillTarget({ r, c });
+    } else if (isSelecting) {
+      setSelectionEnd({ r, c });
     }
   };
 
