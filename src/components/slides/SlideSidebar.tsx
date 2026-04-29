@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { usePresentationStore } from '@/stores/presentationStore';
+import type { Slide, SlideObject } from '@/types/presentation';
 import { Plus, Trash2, Copy, GripVertical } from 'lucide-react';
 
 export const SlideSidebar: React.FC = () => {
@@ -82,7 +83,7 @@ export const SlideSidebar: React.FC = () => {
   );
 };
 
-const SlideThumb: React.FC<{ slide: any; width: number; height: number }> = ({ slide, width, height }) => {
+const SlideThumb: React.FC<{ slide: Slide; width: number; height: number }> = ({ slide, width, height }) => {
   const bgStyle: React.CSSProperties = {};
   if (slide.background.type === 'color') bgStyle.backgroundColor = slide.background.value;
   else if (slide.background.type === 'gradient') {
@@ -97,7 +98,7 @@ const SlideThumb: React.FC<{ slide: any; width: number; height: number }> = ({ s
   return (
     <div className="relative w-full h-full overflow-hidden bg-card" style={bgStyle}>
       <div style={{ transform: `scale(${scale})`, transformOrigin: 'top left', width, height }}>
-        {slide.objects.map((obj: any) => (
+        {slide.objects.map((obj) => (
           <div
             key={obj.id}
             className="absolute overflow-hidden"
