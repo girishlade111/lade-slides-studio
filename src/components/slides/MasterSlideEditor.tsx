@@ -335,7 +335,7 @@ export const MasterSlideEditor: React.FC<MasterSlideEditorProps> = ({ onClose })
               <div>
                 <label className="text-[10px] text-[hsl(var(--muted-foreground))]">Align</label>
                 <select className="ppt-select w-full" value={selPh.align}
-                  onChange={(e) => store.updatePlaceholder(master.id, layout.id, selPh.id, { align: e.target.value as any })}>
+                  onChange={(e) => store.updatePlaceholder(master.id, layout.id, selPh.id, { align: e.target.value as PlaceholderAlign })}>
                   <option value="left">Left</option>
                   <option value="center">Center</option>
                   <option value="right">Right</option>
