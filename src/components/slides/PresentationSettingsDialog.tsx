@@ -10,6 +10,11 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { usePresentationStore } from '@/stores/presentationStore';
+import type { Presentation } from '@/types/presentation';
+
+interface PresentationWithAuthor extends Presentation {
+  author?: string;
+}
 
 interface Props {
   open: boolean;
@@ -27,28 +32,31 @@ export const PresentationSettingsDialog: React.FC<Props> = ({ open, onOpenChange
   const [name, setName] = useState(presentation.name);
   const [width, setWidth] = useState(presentation.slideWidth);
   const [height, setHeight] = useState(presentation.slideHeight);
-  const [author, setAuthor] = useState((presentation as any).author || '');
+  const [author, setAuthor] = useState((presentation as PresentationWithAuthor).author || '');
 
   useEffect(() => {
     if (open) {
       setName(presentation.name);
       setWidth(presentation.slideWidth);
       setHeight(presentation.slideHeight);
-      setAuthor((presentation as any).author || '');
+      setAuthor((presentation as PresentationWithAuthor).author || '');
     }
   }, [open, presentation]);
 
   const fmt = (ts: number) => new Date(ts).toLocaleString();
 
   const handleSave = () => {
-    setPresentation({
+    const updates: Partial<PresentationWithAuthor> = {
       ...presentation,
       name,
       slideWidth: width,
       slideHeight: height,
       updatedAt: Date.now(),
-      ...(author ? { author } as any : {}),
-    });
+    };
+    if (author) {
+      updates.author = author;
+    }
+    setPresentation(updates as Presentation);
     onOpenChange(false);
   };
 
