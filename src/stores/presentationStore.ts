@@ -22,7 +22,6 @@ interface SavedPresentationData {
   updatedAt: number;
   slides?: Slide[];
 }
-}
 
 interface PresentationStore {
   presentation: Presentation;
