@@ -165,7 +165,11 @@ export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTr
   };
 
   const handleInsertFromUrl = async () => {
-    if (!imageUrl.trim()) return;
+    const safeUrl = getSafeImageUrl(imageUrl);
+    if (!safeUrl) {
+      setUrlError('Please enter a valid http(s) image URL.');
+      return;
+    }
     setUrlLoading(true);
     setUrlError('');
     try {
@@ -182,8 +186,8 @@ export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTr
       };
       reader.readAsDataURL(blob);
     } catch {
-      // Fallback: just use URL directly
-      insertImageToCanvas(imageUrl.trim());
+      // Fallback: use already validated URL directly
+      insertImageToCanvas(safeUrl);
       setShowUrlDialog(false);
       setImageUrl('');
     } finally {
