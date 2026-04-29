@@ -239,8 +239,8 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({ open, onOpenChange, 
 
           if (obj.type === 'table' && obj.tableProps) {
             const tp = obj.tableProps;
-            const tableRows: any[][] = tp.cells.map((row: any[]) =>
-              row.map((cell: any) => ({
+            const tableRows: TableCellData[][] = tp.cells.map((row) =>
+              row.map((cell) => ({
                 text: cell.formula ? (cell.computedValue || cell.content) : cell.content,
                 options: {
                   fontSize: Math.round(cell.fontSize * 0.75),
@@ -248,14 +248,14 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({ open, onOpenChange, 
                   color: cell.textColor.replace('#', ''),
                   bold: cell.fontWeight >= 600,
                   italic: cell.fontStyle === 'italic',
-                  align: cell.textAlign as any,
-                  valign: cell.verticalAlign as any,
+                  align: cell.textAlign as PptxTextAlign,
+                  valign: cell.verticalAlign as PptxValign,
                   fill: { color: cell.backgroundColor.replace('#', '') },
                   border: [
-                    { type: 'solid' as any, pt: cell.borderTop?.width || 1, color: (cell.borderTop?.color || '#d1d5db').replace('#', '') },
-                    { type: 'solid' as any, pt: cell.borderRight?.width || 1, color: (cell.borderRight?.color || '#d1d5db').replace('#', '') },
-                    { type: 'solid' as any, pt: cell.borderBottom?.width || 1, color: (cell.borderBottom?.color || '#d1d5db').replace('#', '') },
-                    { type: 'solid' as any, pt: cell.borderLeft?.width || 1, color: (cell.borderLeft?.color || '#d1d5db').replace('#', '') },
+                    { type: 'solid' as PptxBorderType, pt: cell.borderTop?.width || 1, color: (cell.borderTop?.color || '#d1d5db').replace('#', '') },
+                    { type: 'solid' as PptxBorderType, pt: cell.borderRight?.width || 1, color: (cell.borderRight?.color || '#d1d5db').replace('#', '') },
+                    { type: 'solid' as PptxBorderType, pt: cell.borderBottom?.width || 1, color: (cell.borderBottom?.color || '#d1d5db').replace('#', '') },
+                    { type: 'solid' as PptxBorderType, pt: cell.borderLeft?.width || 1, color: (cell.borderLeft?.color || '#d1d5db').replace('#', '') },
                   ],
                   rowspan: cell.rowSpan > 1 ? cell.rowSpan : undefined,
                   colspan: cell.colSpan > 1 ? cell.colSpan : undefined,
