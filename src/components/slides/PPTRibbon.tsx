@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { usePresentationStore } from '@/stores/presentationStore';
 import { FONTS, THEMES, SHAPE_CATEGORIES } from '@/types/presentation';
-import type { ShapeType, TextProperties } from '@/types/presentation';
+import type { ShapeType, TextProperties, TransitionType } from '@/types/presentation';
 import {
   Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify,
   Type, Square, Circle, Triangle, Star,
