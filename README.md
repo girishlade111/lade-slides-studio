@@ -1,6 +1,6 @@
 # Lade Slides Studio
 
-A powerful **web-based presentation and spreadsheet application** for creating, editing, and presenting professional slideshows with integrated spreadsheet functionality. Built with modern web technologies to deliver a seamless, feature-rich experience.
+> A powerful **web-based presentation and spreadsheet application** for creating, editing, and presenting professional slideshows with integrated spreadsheet functionality. Built with modern web technologies to deliver a seamless, feature-rich experience.
 
 ---
 
@@ -61,12 +61,14 @@ A powerful **web-based presentation and spreadsheet application** for creating, 
 - **Slide Duplication** — Clone existing slides with one click
 - **Image Handling** — Upload, crop, and manipulate images within slides
 - **Chart Integration** — Create and embed charts using Recharts
-- **Table Support** - Built-in tables with cell merging and styling
+- **Table Support** — Built-in tables with cell merging and styling
 - **Auto-save** — Automatic saving of work to prevent data loss
 
 ---
 
 ## 🏗️ System Architecture
+
+### High-Level Architecture Flow
 
 ```mermaid
 flowchart TB
@@ -111,7 +113,7 @@ flowchart TB
     style External fill:#fff3e0,stroke:#e65100
 ```
 
-### Architecture Flow
+### User Interaction Flow
 
 ```mermaid
 flowchart LR
@@ -119,20 +121,54 @@ flowchart LR
     B --> C[Zustand Store]
     C --> D[Business Logic]
     D --> E[UI Update]
-    
-    subgraph DataFlow["Data Flow"]
-    direction TB
-    Input[User Input] --> Validate[Zod Validation]
-    Validate --> Update[State Update]
-    Update --> Render[React Render]
+```
+
+### Data Flow Architecture
+
+```mermaid
+flowchart TB
+    subgraph InputLayer["Input Layer"]
+        UserInput[User Input] --> Validate[Zod Validation]
     end
-    
-    subgraph ExportFlow["Export Flow"]
-    direction TB
-    Data[Slide Data] --> Transform[Transform to Format]
-    Transform --> Generate[Generate File]
-    Generate --> Download[Download]
+
+    subgraph StateLayer["State Layer"]
+        Validate --> Update[State Update]
     end
+
+    subgraph RenderLayer["Render Layer"]
+        Update --> Render[React Render]
+    end
+
+    subgraph ExportLayer["Export Layer"]
+        Render --> ExportFlow[Export Flow]
+    end
+
+    style InputLayer fill:#e3f2fd,stroke:#1565c0
+    style StateLayer fill:#e8f5e9,stroke:#2e7d32
+    style RenderLayer fill:#fff3e0,stroke:#ef6c00
+    style ExportLayer fill:#fce4ec,stroke:#c2185b
+```
+
+### Component Hierarchy
+
+```mermaid
+graph TB
+    App[App.tsx] --> Home[Home Page]
+    App --> Editor[Editor Page]
+    App --> Presentation[Presentation Page]
+    
+    Editor --> Ribbon[Ribbon Toolbar]
+    Editor --> Canvas[Slide Canvas]
+    Editor --> Panel[Slide Panel]
+    Editor --> Properties[Properties Panel]
+    
+    Canvas --> Elements[Slide Elements]
+    Panel --> Thumbnails[Slide Thumbnails]
+    
+    style App fill:#673ab7,stroke:#fff,color:#fff
+    style Home fill:#2196f3,stroke:#fff,color:#fff
+    style Editor fill:#4caf50,stroke:#fff,color:#fff
+    style Presentation fill:#ff9800,stroke:#fff,color:#fff
 ```
 
 ---
@@ -177,6 +213,27 @@ flowchart LR
 | **Sharp** | 0.34.5 | Image Processing |
 | **Tailwind Animate** | 1.0.7 | CSS Animations |
 
+### Development Dependencies
+
+| Package | Version |
+|---------|---------|
+| **@eslint/js** | 9.32.0 |
+| **@tailwindcss/typography** | 0.5.16 |
+| **@testing-library/jest-dom** | 6.6.0 |
+| **@testing-library/react** | 16.0.0 |
+| **@types/node** | 22.16.5 |
+| **@types/react** | 18.3.23 |
+| **@types/react-dom** | 18.3.7 |
+| **@vitejs/plugin-react-swc** | 3.11.0 |
+| **autoprefixer** | 10.4.21 |
+| **eslint** | 9.32.0 |
+| **eslint-plugin-react-hooks** | 5.2.0 |
+| **eslint-plugin-react-refresh** | 0.4.20 |
+| **globals** | 15.15.0 |
+| **jsdom** | 20.0.3 |
+| **typescript** | 5.8.3 |
+| **typescript-eslint** | 8.38.0 |
+
 ---
 
 ## 🛠️ Getting Started
@@ -185,9 +242,9 @@ flowchart LR
 
 > **⚠️ Important**: Ensure you have the following installed before proceeding:
 
-- **Node.js** — Version 18.0.0 or higher ([Download](https://nodejs.org/))
+- **Node.js** — Version 18.0.0 or higher — [Download here](https://nodejs.org/)
 - **npm** — Comes bundled with Node.js (or use yarn/pnpm)
-- **Git** — For version control ([Download](https://git-scm.com/))
+- **Git** — For version control — [Download here](https://git-scm.com/)
 
 ### Installation Steps
 
@@ -205,7 +262,7 @@ npm install
 npm run dev
 ```
 
-### Build & Deploy
+### Build & Deploy Commands
 
 ```bash
 # Build for production (optimized)
@@ -222,6 +279,9 @@ npm run test
 
 # Run tests in watch mode (auto-reload)
 npm run test:watch
+
+# Run linting
+npm run lint
 ```
 
 ### Development Workflow
@@ -248,46 +308,47 @@ lade-slides-studio/
 │   ├── components/              # React components
 │   │   ├── slides/              # Slide-related components
 │   │   │   ├── SlideCanvas.tsx  # Main slide rendering
-│   │   │   ├── SlideEditor.tsx  # Slide editing interface
-│   │   │   ├── SlidePanel.tsx   # Slide thumbnails
+│   │   │   ├── SlideEditor.tsx    # Slide editing interface
+│   │   │   ├── SlidePanel.tsx    # Slide thumbnails
 │   │   │   ├── Ribbon.tsx       # Toolbar ribbon
-│   │   │   └── properties/      # Property panels
-│   │   └── ui/                  # UI components (shadcn)
+│   │   │   └── properties/     # Property panels
+│   │   └── ui/                 # UI components (shadcn)
 │   │       ├── button.tsx
 │   │       ├── dialog.tsx
 │   │       ├── dropdown-menu.tsx
 │   │       └── ... (30+ components)
 │   ├── hooks/                   # Custom React hooks
-│   │   ├── useSlides.ts         # Slide management
-│   │   └── useHistory.ts        # Undo/redo logic
-│   ├── lib/                     # Utility functions
-│   │   ├── formulaEngine.ts    # Spreadsheet formulas (50+ functions)
-│   │   ├── exportUtils.ts       # Export utilities
-│   │   └── utils.ts             # General utilities
-│   ├── pages/                   # Page components
-│   │   ├── Home.tsx             # Landing page
-│   │   ├── Editor.tsx           # Main editor
-│   │   └── Presentation.tsx      # Presentation view
-│   ├── stores/                  # Zustand state stores
-│   │   ├── useSlideStore.ts     # Slide state management
-│   │   ├── useThemeStore.ts     # Theme state
-│   │   └── useUIStore.ts        # UI state
-│   ├── types/                   # TypeScript definitions
-│   │   ├── slide.ts             # Slide types
-│   │   ├── element.ts           # Element types
-│   │   └── index.ts             # Main type exports
-│   ├── App.tsx                  # Root application component
-│   ├── main.tsx                 # Application entry point
-│   └── index.css                # Global styles
+│   │   ├── useSlides.ts        # Slide management
+│   │   └── useHistory.ts       # Undo/redo logic
+│   ├── lib/                    # Utility functions
+│   │   ├── formulaEngine.ts   # Spreadsheet formulas (50+ functions)
+│   │   ├── exportUtils.ts    # Export utilities
+│   │   └── utils.ts           # General utilities
+│   ├── pages/                  # Page components
+│   │   ├── Home.tsx            # Landing page
+│   │   ├── Editor.tsx          # Main editor
+│   │   └── Presentation.tsx    # Presentation view
+│   ├── stores/                 # Zustand state stores
+│   │   ├── useSlideStore.ts   # Slide state management
+│   │   ├── useThemeStore.ts  # Theme state
+│   │   └── useUIStore.ts     # UI state
+│   ├── types/                  # TypeScript definitions
+│   │   ├── slide.ts           # Slide types
+│   │   ├── element.ts        # Element types
+│   │   └── index.ts          # Main type exports
+│   ├── App.tsx                 # Root application component
+│   ├── main.tsx               # Application entry point
+│   └── index.css              # Global styles
 ├── scripts/                     # Build scripts
-│   └── generate-favicon.mjs    # Favicon generation script
+│   └── generate-favicon.mjs   # Favicon generation script
 ├── index.html                   # Entry HTML file
-├── package.json                 # Dependencies & scripts
-├── tsconfig.json                # TypeScript configuration
-├── vite.config.ts               # Vite configuration
-├── tailwind.config.js           # Tailwind CSS configuration
-├── postcss.config.js            # PostCSS configuration
-└── .eslintrc.cjs                # ESLint configuration
+├── package.json               # Dependencies & scripts
+├── tsconfig.json              # TypeScript configuration
+├── vite.config.ts             # Vite configuration
+├── tailwind.config.js        # Tailwind CSS configuration
+├── postcss.config.js          # PostCSS configuration
+├── .eslintrc.cjs             # ESLint configuration
+└── .env                     # Environment variables
 ```
 
 ### Environment Variables
@@ -348,6 +409,12 @@ VITE_DEBUG_MODE=false
 - **Plugins**: @tailwindcss/typography
 - **Features**: CSS animations via tailwindcss-animate
 
+### Vite Configuration
+
+- **Version**: 5.4.19
+- **Plugin**: @vitejs/plugin-react-swc
+- **Features**: Hot Module Replacement (HMR), Code Splitting, Optimized Builds
+
 ---
 
 ## 📊 Development Stats
@@ -372,6 +439,9 @@ VITE_DEBUG_MODE=false
 - **Date Handling**: date-fns
 - **Icons**: Lucide React (500+ icons)
 - **Testing**: Vitest + Testing Library
+- **Drag & Drop**: @dnd-kit/core, @dnd-kit/sortable
+- **Charts**: Recharts
+- **File Handling**: file-saver, jszip
 
 ### Browser Support
 
@@ -381,6 +451,11 @@ VITE_DEBUG_MODE=false
 | Firefox | 88+ |
 | Safari | 14+ |
 | Edge | 90+ |
+
+### Node.js Requirements
+
+- **Minimum Version**: 18.0.0
+- **Recommended Version**: 20.0.0 or higher
 
 ---
 
@@ -413,6 +488,7 @@ git push origin feature/your-feature-name
 - Ensure all tests pass with `npm run test`
 - Update documentation for any new features
 - Use descriptive commit messages
+- Create tests for new features
 
 ---
 
