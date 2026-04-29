@@ -72,6 +72,8 @@
 
 ```mermaid
 flowchart TB
+    classDef default fill:#ffffff,stroke:#333,stroke-width:1px,color:#000000
+
     subgraph Client["Frontend Layer (React 18)"]
         UI["UI Components<br/>shadcn/ui"]
         Router["React Router DOM"]
@@ -107,10 +109,10 @@ flowchart TB
     Export --> PDF
     Export --> Images
 
-    style Client fill:#e1f5fe,stroke:#01579b,color:#01579b
-    style Core fill:#f3e5f5,stroke:#4a148c,color:#4a148c
-    style Data fill:#e8f5e9,stroke:#1b5e20,color:#1b5e20
-    style External fill:#fff3e0,stroke:#e65100,color:#e65100
+    style Client fill:#e1f5fe,stroke:#01579b,color:#000000
+    style Core fill:#f3e5f5,stroke:#4a148c,color:#000000
+    style Data fill:#e8f5e9,stroke:#1b5e20,color:#000000
+    style External fill:#fff3e0,stroke:#e65100,color:#000000
 ```
 
 ### User Interaction Flow
@@ -127,6 +129,8 @@ flowchart LR
 
 ```mermaid
 flowchart TB
+    classDef default fill:#ffffff,stroke:#333,stroke-width:1px,color:#000000
+
     subgraph InputLayer["Input Layer"]
         UserInput[User Input] --> Validate[Zod Validation]
     end
@@ -143,10 +147,10 @@ flowchart TB
         Render --> ExportFlow[Export Flow]
     end
 
-    style InputLayer fill:#e3f2fd,stroke:#1565c0,color:#1565c0
-    style StateLayer fill:#e8f5e9,stroke:#2e7d32,color:#2e7d32
-    style RenderLayer fill:#fff3e0,stroke:#ef6c00,color:#ef6c00
-    style ExportLayer fill:#fce4ec,stroke:#c2185b,color:#c2185b
+    style InputLayer fill:#e3f2fd,stroke:#1565c0,color:#000000
+    style StateLayer fill:#e8f5e9,stroke:#2e7d32,color:#000000
+    style RenderLayer fill:#fff3e0,stroke:#ef6c00,color:#000000
+    style ExportLayer fill:#fce4ec,stroke:#c2185b,color:#000000
 ```
 
 ### Component Hierarchy
