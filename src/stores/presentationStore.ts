@@ -15,6 +15,15 @@ interface SavedPresentationMeta {
   slideCount: number;
 }
 
+interface SavedPresentationData {
+  id: string;
+  name: string;
+  createdAt: number;
+  updatedAt: number;
+  slides?: Slide[];
+}
+}
+
 interface PresentationStore {
   presentation: Presentation;
   currentSlideIndex: number;
@@ -905,13 +914,13 @@ export const usePresentationStore = create<PresentationStore>((set, get) => ({
   loadSavedList: () => {
     try {
       const allData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-      const list: SavedPresentationMeta[] = Object.values(allData).map((p: any) => ({
+      const list: SavedPresentationMeta[] = Object.values(allData).map((p: SavedPresentationData) => ({
         id: p.id,
         name: p.name,
         createdAt: p.createdAt || Date.now(),
         updatedAt: p.updatedAt,
         slideCount: p.slides?.length || 0,
-      })).sort((a: any, b: any) => b.updatedAt - a.updatedAt);
+      })).sort((a: SavedPresentationMeta, b: SavedPresentationMeta) => b.updatedAt - a.updatedAt);
       set({ savedPresentations: list });
     } catch {
       set({ savedPresentations: [] });
@@ -921,13 +930,13 @@ export const usePresentationStore = create<PresentationStore>((set, get) => ({
   listPresentations: () => {
     try {
       const allData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-      return Object.values(allData).map((p: any) => ({
+      return Object.values(allData).map((p: SavedPresentationData) => ({
         id: p.id,
         name: p.name,
         createdAt: p.createdAt || Date.now(),
         updatedAt: p.updatedAt,
         slideCount: p.slides?.length || 0,
-      })).sort((a, b) => b.updatedAt - a.updatedAt);
+      })).sort((a: SavedPresentationMeta, b: SavedPresentationMeta) => b.updatedAt - a.updatedAt);
     } catch {
       return [];
     }
