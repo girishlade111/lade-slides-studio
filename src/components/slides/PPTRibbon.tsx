@@ -90,7 +90,9 @@ function getRecentImages(): string[] {
 function addRecentImage(src: string) {
   const list = getRecentImages().filter(s => s !== src);
   list.unshift(src);
-  try { localStorage.setItem(RECENT_IMAGES_KEY, JSON.stringify(list.slice(0, MAX_RECENT))); } catch {}
+  try { localStorage.setItem(RECENT_IMAGES_KEY, JSON.stringify(list.slice(0, MAX_RECENT))); } catch {
+    // Ignore storage errors
+  }
 }
 
 interface PPTRibbonProps {

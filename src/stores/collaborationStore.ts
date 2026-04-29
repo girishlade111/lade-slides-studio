@@ -117,7 +117,7 @@ export const useCollaborationStore = create<CollaborationStore>((set, get) => ({
 
   saveVersion: (type, presentation, prevPresentation) => {
     const { versions } = get();
-    let summary = { slidesAdded: 0, slidesDeleted: 0, objectsModified: 0 };
+    const summary = { slidesAdded: 0, slidesDeleted: 0, objectsModified: 0 };
     if (prevPresentation) {
       summary.slidesAdded = Math.max(0, presentation.slides.length - prevPresentation.slides.length);
       summary.slidesDeleted = Math.max(0, prevPresentation.slides.length - presentation.slides.length);

@@ -171,7 +171,9 @@ export const useMasterSlideStore = create<MasterSlideStore>((set, get) => {
             return;
           }
         }
-      } catch {}
+      } catch {
+        // Ignore parse errors
+      }
       const dm = createDefaultMaster();
       set({ masters: [dm], activeMasterId: dm.id });
     },
@@ -179,7 +181,9 @@ export const useMasterSlideStore = create<MasterSlideStore>((set, get) => {
     saveMasters: () => {
       try {
         localStorage.setItem(MASTER_STORAGE_KEY, JSON.stringify(get().masters));
-      } catch {}
+      } catch {
+        // Ignore storage errors
+      }
     },
 
     createMasterSlide: (name) => {
