@@ -3,11 +3,19 @@ import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, Cart
 import { usePresentationStore } from '@/stores/presentationStore';
 import type { SlideObject } from '@/types/presentation';
 
+interface ChartDataPoint {
+  name: string;
+  [key: string]: string | number;
+}
+
+interface ChartDataResult {
+  data: ChartDataPoint[];
+  headers: string[];
+}
+
 interface ChartRendererProps {
   object: SlideObject;
 }
-
-export const ChartRenderer: React.FC<ChartRendererProps> = ({ object }) => {
   const { chartProps } = object;
   const { presentation, currentSlideIndex } = usePresentationStore();
 
@@ -49,7 +57,7 @@ export const ChartRenderer: React.FC<ChartRendererProps> = ({ object }) => {
     
     // Assume first column in range is the label/name, subsequent columns are data series
     // If startRow == endRow or startCol == endCol, handle 1D data
-    const data: any[] = [];
+    const data: ChartDataPoint[] = [];
     
     // Check if first row is headers
     const headers: string[] = [];
@@ -59,7 +67,7 @@ export const ChartRenderer: React.FC<ChartRendererProps> = ({ object }) => {
     }
 
     for (let r = startRow + 1; r <= endRow; r++) {
-      const rowData: any = {};
+      const rowData: ChartDataPoint = { name: '' };
       const labelCell = cells[r]?.[startCol];
       rowData.name = labelCell ? (labelCell.computedValue || labelCell.content || `Row ${r + 1}`) : `Row ${r + 1}`;
       
@@ -85,7 +93,7 @@ export const ChartRenderer: React.FC<ChartRendererProps> = ({ object }) => {
       return <div className="flex items-center justify-center h-full text-gray-400">No Data</div>;
     }
 
-    const { data, headers } = chartData as { data: any[], headers: string[] };
+    const { data, headers } = chartData as ChartDataResult;
 
     switch (type) {
       case 'bar':

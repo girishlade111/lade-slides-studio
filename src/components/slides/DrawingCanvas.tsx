@@ -1,5 +1,9 @@
 import React, { useRef, useState, useCallback, useEffect } from 'react';
 
+interface DrawingCanvasElement extends HTMLCanvasElement {
+  __clear?: () => void;
+}
+
 interface DrawingCanvasProps {
   width: number;
   height: number;
@@ -58,9 +62,9 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
 
   // Expose clear via imperative handle
   useEffect(() => {
-    const canvas = canvasRef.current;
+    const canvas = canvasRef.current as DrawingCanvasElement | null;
     if (!canvas) return;
-    (canvas as any).__clear = () => {
+    canvas.__clear = () => {
       const ctx = canvas.getContext('2d');
       if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
     };
@@ -88,5 +92,8 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
 };
 
 export function clearDrawingCanvas(el: HTMLCanvasElement | null) {
-  if (el && (el as any).__clear) (el as any).__clear();
+  if (el) {
+    const canvas = el as DrawingCanvasElement;
+    if (canvas.__clear) canvas.__clear();
+  }
 }
