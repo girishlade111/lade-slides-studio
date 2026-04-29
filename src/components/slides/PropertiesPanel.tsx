@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { usePresentationStore } from '@/stores/presentationStore';
 import { PRESET_COLORS, THEMES } from '@/types/presentation';
