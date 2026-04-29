@@ -274,8 +274,9 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({ open, onOpenChange, 
       setProgress(90, 'Generating PPTX file...');
       await pptx.writeFile({ fileName: `${presentation.name}.pptx` });
       setExportState(s => ({ ...s, exporting: false, done: true, progress: 100, progressLabel: 'Done!' }));
-    } catch (err: any) {
-      setExportState(s => ({ ...s, exporting: false, error: err?.message || 'PPTX export failed' }));
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'PPTX export failed';
+      setExportState(s => ({ ...s, exporting: false, error: message }));
     }
   };
 
