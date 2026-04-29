@@ -17,7 +17,8 @@ function getTransitionCSS(type: TransitionType, dir: TransitionDirection, durati
     case 'fade': return { animation: `pres-fade-in ${duration}s ${easingMap[easing]} forwards` };
     case 'slide': case 'push': {
       const dirs: Record<string, string> = { left: '-100%, 0', right: '100%, 0', up: '0, -100%', down: '0, 100%' };
-      return { animation: `pres-slide-from ${duration}s ${easingMap[easing]} forwards`, '--slide-from': dirs[dir] || '-100%, 0' } as any;
+      const result: React.CSSProperties & Record<string, string> = { animation: `pres-slide-from ${duration}s ${easingMap[easing]} forwards`, '--slide-from': dirs[dir] || '-100%, 0' };
+      return result;
     }
     case 'zoom': return { animation: `pres-zoom-${dir === 'out' ? 'out' : 'in'} ${duration}s ${easingMap[easing]} forwards` };
     case 'rotate': return { animation: `pres-rotate ${duration}s ${easingMap[easing]} forwards` };

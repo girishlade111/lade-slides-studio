@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { usePresentationStore } from '@/stores/presentationStore';
 import { buildBgStyle } from '@/lib/backgroundUtils';
+import type { Slide } from '@/types/presentation';
 import { ShapeRenderer } from './ShapeRenderer';
 import { PresentationTableRenderer } from './PresentationTableRenderer';
 import {
@@ -28,7 +29,7 @@ import { Plus, Copy, Trash2, ArrowUp, ArrowDown, Clipboard } from 'lucide-react'
 
 /* ── Sortable Thumbnail ── */
 const SortableSlideThumb: React.FC<{
-  slide: any;
+  slide: Slide;
   index: number;
   isActive: boolean;
   slideWidth: number;
@@ -161,7 +162,7 @@ export const PPTSlidePanel: React.FC = () => {
 };
 
 /* ── Thumbnail Renderer ── */
-const SlideThumb: React.FC<{ slide: any; width: number; height: number }> = ({ slide, width, height }) => {
+const SlideThumb: React.FC<{ slide: Slide; width: number; height: number }> = ({ slide, width, height }) => {
   const bgStyle: React.CSSProperties = buildBgStyle(slide.background);
 
   const scale = 160 / width;
@@ -169,7 +170,7 @@ const SlideThumb: React.FC<{ slide: any; width: number; height: number }> = ({ s
   return (
     <div className="relative w-full h-full overflow-hidden" style={bgStyle}>
       <div style={{ transform: `scale(${scale})`, transformOrigin: 'top left', width, height, position: 'absolute', top: 0, left: 0 }}>
-        {slide.objects.map((obj: any) => (
+        {slide.objects.map((obj) => (
           <div
             key={obj.id}
             className="absolute overflow-hidden"
