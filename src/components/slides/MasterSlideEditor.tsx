@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useMasterSlideStore } from '@/stores/masterSlideStore';
 import { v4 as uuidv4 } from 'uuid';
 import type { MasterPlaceholder, PlaceholderType } from '@/types/presentation';
+import type { MasterPlaceholderStyle } from '@/types/presentation';
 import {
   X, Plus, Type, Image, Hash, AlignLeft, Trash2,
   Download, Upload, Edit3, LayoutGrid,
