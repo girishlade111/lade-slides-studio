@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { useMasterSlideStore } from '@/stores/masterSlideStore';
 import { v4 as uuidv4 } from 'uuid';
 import type { MasterPlaceholder, PlaceholderType } from '@/types/presentation';
-import type { MasterPlaceholderStyle } from '@/types/presentation';
 import {
   X, Plus, Type, Image, Hash, AlignLeft, Trash2,
   Download, Upload, Edit3, LayoutGrid,
 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+
+type PlaceholderAlign = 'left' | 'center' | 'right';
 
 const PLACEHOLDER_TYPES: { type: PlaceholderType; label: string; icon: React.ReactNode }[] = [
   { type: 'title', label: 'Title', icon: <Type className="w-3.5 h-3.5" /> },
