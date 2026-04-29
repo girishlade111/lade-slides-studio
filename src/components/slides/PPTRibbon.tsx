@@ -672,7 +672,7 @@ export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTr
                           const slides = [...store.presentation.slides];
                           slides[store.currentSlideIndex] = {
                             ...slides[store.currentSlideIndex],
-                            transition: { ...slides[store.currentSlideIndex].transition, type: t.value as any },
+                            transition: { ...slides[store.currentSlideIndex].transition, type: t.value as TransitionType },
                           };
                           store.setPresentation({ ...store.presentation, slides, updatedAt: Date.now() });
                         }}
