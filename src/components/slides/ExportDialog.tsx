@@ -406,8 +406,9 @@ ${htmlAutoAdvance ? `setInterval(next,${htmlAutoTiming * 1000})` : ''}
       URL.revokeObjectURL(url);
 
       setExportState(s => ({ ...s, exporting: false, done: true, progress: 100, progressLabel: 'Done!' }));
-    } catch (err: any) {
-      setExportState(s => ({ ...s, exporting: false, error: err?.message || 'HTML export failed' }));
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'HTML export failed';
+      setExportState(s => ({ ...s, exporting: false, error: message }));
     }
   };
 
