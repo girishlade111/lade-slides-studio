@@ -323,8 +323,9 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({ open, onOpenChange, 
       }
 
       setExportState(s => ({ ...s, exporting: false, done: true, progress: 100, progressLabel: 'Done!' }));
-    } catch (err: any) {
-      setExportState(s => ({ ...s, exporting: false, error: err?.message || 'PNG export failed' }));
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'PNG export failed';
+      setExportState(s => ({ ...s, exporting: false, error: message }));
     }
   };
 
