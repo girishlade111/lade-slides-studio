@@ -36,6 +36,26 @@ interface ExportState {
 
 const initialExportState: ExportState = { exporting: false, progress: 0, progressLabel: '', done: false, error: null };
 
+interface TableCellData {
+  formula?: string;
+  computedValue?: string;
+  content?: string;
+  fontSize?: number;
+  fontFamily?: string;
+  textColor?: string;
+  fontWeight?: number;
+  fontStyle?: string;
+  textAlign?: string;
+  verticalAlign?: string;
+  backgroundColor?: string;
+  borderTop?: { width?: number; color?: string };
+  borderRight?: { width?: number; color?: string };
+  borderBottom?: { width?: number; color?: string };
+  borderLeft?: { width?: number; color?: string };
+  rowSpan?: number;
+  colSpan?: number;
+}
+
 export const ExportDialog: React.FC<ExportDialogProps> = ({ open, onOpenChange, defaultTab = 'pdf' }) => {
   const store = usePresentationStore();
   const { presentation } = store;
@@ -123,8 +143,9 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({ open, onOpenChange, 
       setProgress(95, 'Saving file...');
       pdf.save(`${presentation.name}.pdf`);
       setExportState(s => ({ ...s, exporting: false, done: true, progress: 100, progressLabel: 'Done!' }));
-    } catch (err: any) {
-      setExportState(s => ({ ...s, exporting: false, error: err?.message || 'PDF export failed' }));
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'PDF export failed';
+      setExportState(s => ({ ...s, exporting: false, error: message }));
     }
   };
 
