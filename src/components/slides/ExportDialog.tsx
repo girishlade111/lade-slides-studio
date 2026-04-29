@@ -56,6 +56,12 @@ interface TableCellData {
   colSpan?: number;
 }
 
+type PptxTextUnderline = { style: 'sng' | 'none' };
+type PptxTextAlign = 'left' | 'center' | 'right' | 'justify';
+type PptxValign = 'top' | 'middle' | 'bottom';
+type PptxBorderType = 'solid' | 'dash' | 'dot' | 'largeDash' | 'double' | 'largeGap' | 'sysDash' | 'sysDot' | 'sysDash' | 'lgDash' | 'dotDash' | 'dashDot2' | 'dotDot2' | 'dashStyle2' | 'mixed';
+type PptxShapeType = 'rect' | 'roundRect' | 'ellipse' | 'triangle' | 'diamond' | 'star5' | 'pentagon' | 'hexagon' | 'octagon' | 'rightArrow' | 'leftArrow' | 'upArrow' | 'downArrow' | 'heart' | 'cloud';
+
 export const ExportDialog: React.FC<ExportDialogProps> = ({ open, onOpenChange, defaultTab = 'pdf' }) => {
   const store = usePresentationStore();
   const { presentation } = store;
@@ -192,8 +198,8 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({ open, onOpenChange, 
               color: obj.textProps.color.replace('#', ''),
               bold: obj.textProps.fontWeight >= 600,
               italic: obj.textProps.fontStyle === 'italic',
-              underline: { style: obj.textProps.textDecoration === 'underline' ? 'sng' : 'none' } as any,
-              align: obj.textProps.textAlign === 'justify' ? 'left' : obj.textProps.textAlign as any,
+              underline: { style: obj.textProps.textDecoration === 'underline' ? 'sng' : 'none' } as PptxTextUnderline,
+              align: obj.textProps.textAlign === 'justify' ? 'left' : obj.textProps.textAlign as PptxTextAlign,
               valign: 'middle',
               rotate: obj.rotation || 0,
             });
