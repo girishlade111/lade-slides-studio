@@ -114,7 +114,22 @@ export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTr
   const [imageUrl, setImageUrl] = useState('');
   const [urlLoading, setUrlLoading] = useState(false);
   const [urlError, setUrlError] = useState('');
-  
+
+  const getSafeImageUrl = (rawUrl: string): string | null => {
+    const trimmed = rawUrl.trim();
+    if (!trimmed) return null;
+    try {
+      const parsed = new URL(trimmed);
+      if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+        return null;
+      }
+      return parsed.toString();
+    } catch {
+      return null;
+    }
+  };
+
+  const safePreviewUrl = getSafeImageUrl(imageUrl);
 
   const store = usePresentationStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -895,9 +910,9 @@ export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTr
               className="ppt-input w-full text-left px-3 py-2"
             />
             {urlError && <p className="text-xs text-red-500">{urlError}</p>}
-            {imageUrl && (
+            {safePreviewUrl && (
               <div className="border border-[hsl(var(--border))] rounded p-2 flex items-center justify-center h-32 bg-[hsl(var(--muted))]">
-                <img src={imageUrl} alt="Preview" className="max-w-full max-h-full object-contain" onError={() => setUrlError('Could not load image preview')} />
+                <img src={safePreviewUrl} alt="Preview" className="max-w-full max-h-full object-contain" onError={() => setUrlError('Could not load image preview')} />
               </div>
             )}
             <div className="flex justify-end gap-2">
@@ -905,7 +920,7 @@ export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTr
               <button
                 className="px-3 py-1.5 text-xs rounded bg-[hsl(var(--ppt-brand))] text-white hover:opacity-90 disabled:opacity-50"
                 onClick={handleInsertFromUrl}
-                disabled={urlLoading || !imageUrl.trim()}
+                disabled={urlLoading || !safePreviewUrl}
               >
                 {urlLoading ? 'Loading...' : 'Insert'}
               </button>
