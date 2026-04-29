@@ -213,7 +213,7 @@ export const ExportDialog: React.FC<ExportDialogProps> = ({ open, onOpenChange, 
               arrow: 'rightArrow', 'arrow-left': 'leftArrow', 'arrow-up': 'upArrow', 'arrow-down': 'downArrow',
               heart: 'heart', cloud: 'cloud',
             };
-            pSlide.addShape(shapeMap[obj.shapeProps.shapeType] as any || 'rect', {
+            pSlide.addShape(shapeMap[obj.shapeProps.shapeType] as PptxShapeType || 'rect', {
               x: xInch, y: yInch, w: wInch, h: hInch,
               fill: { color: obj.shapeProps.fill.replace('#', '') },
               line: obj.shapeProps.strokeWidth > 0 ? {
