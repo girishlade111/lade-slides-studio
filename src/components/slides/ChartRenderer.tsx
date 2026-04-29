@@ -16,6 +16,8 @@ interface ChartDataResult {
 interface ChartRendererProps {
   object: SlideObject;
 }
+
+export const ChartRenderer: React.FC<ChartRendererProps> = ({ object }) => {
   const { chartProps } = object;
   const { presentation, currentSlideIndex } = usePresentationStore();
 
