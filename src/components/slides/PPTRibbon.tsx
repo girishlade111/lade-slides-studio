@@ -177,7 +177,7 @@ export const PPTRibbon: React.FC<PPTRibbonProps> = ({ onToggleThemes, onToggleTr
 
   const selectedObj = store.getCurrentSlide()?.objects.find(o => store.selectedObjectIds.includes(o.id));
   const tp = selectedObj?.textProps;
-  const updateTp = (changes: any) => {
+  const updateTp = (changes: Partial<TextProperties>) => {
     if (!selectedObj || !tp) return;
     store.updateObject(store.currentSlideIndex, selectedObj.id, { textProps: { ...tp, ...changes } });
   };
